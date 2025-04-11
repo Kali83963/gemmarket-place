@@ -1,102 +1,195 @@
-import Image, { type ImageProps } from "next/image";
-import { Button } from "@repo/ui/button";
-import styles from "./page.module.css";
+import Link from "next/link";
+import { Search, Star } from "lucide-react";
 
-type Props = Omit<ImageProps, "src"> & {
-  srcLight: string;
-  srcDark: string;
-};
-
-const ThemeImage = (props: Props) => {
-  const { srcLight, srcDark, ...rest } = props;
-
-  return (
-    <>
-      <Image {...rest} src={srcLight} className="imgLight" />
-      <Image {...rest} src={srcDark} className="imgDark" />
-    </>
-  );
-};
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import FeaturedGemstones from "@/components/featured-gemstones";
+import GemstoneCategories from "@/components/gemstone-categories";
+import HowItWorks from "@/components/how-it-works";
+import { GemstoneCard } from "@/components/gemstone-card";
 
 export default function Home() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <ThemeImage
-          className={styles.logo}
-          srcLight="turborepo-dark.svg"
-          srcDark="turborepo-light.svg"
-          alt="Turborepo logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>apps/web/app/page.tsx</code>
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new/clone?demo-description=Learn+to+implement+a+monorepo+with+a+two+Next.js+sites+that+has+installed+three+local+packages.&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F4K8ZISWAzJ8X1504ca0zmC%2F0b21a1c6246add355e55816278ef54bc%2FBasic.png&demo-title=Monorepo+with+Turborepo&demo-url=https%3A%2F%2Fexamples-basic-web.vercel.sh%2F&from=templates&project-name=Monorepo+with+Turborepo&repository-name=monorepo-turborepo&repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fturborepo%2Ftree%2Fmain%2Fexamples%2Fbasic&root-directory=apps%2Fdocs&skippable-integrations=1&teamSlug=vercel&utm_source=create-turbo"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://turbo.build/docs?utm_source"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
+    <div className="flex min-h-screen flex-col">
+      {/* Hero Section */}
+      <section className="bg-gradient-to-r from-blue-600 to-blue-800 py-20 text-white">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 gap-12 md:grid-cols-2">
+            <div className="flex flex-col justify-center space-y-6">
+              <h1 className="text-4xl font-bold leading-tight md:text-5xl lg:text-6xl">
+                Discover Exquisite Gemstones from Trusted Sellers
+              </h1>
+              <p className="text-lg text-blue-100 md:text-xl">
+                Browse certified gemstones, connect with sellers, and make
+                secure purchases on our trusted marketplace.
+              </p>
+              <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
+                <Button
+                  size="lg"
+                  className="bg-white text-blue-700 hover:bg-blue-50"
+                >
+                  Start Browsing
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-white text-white hover:bg-blue-700"
+                >
+                  Sell Gemstones
+                </Button>
+              </div>
+            </div>
+            <div className="hidden md:flex md:items-center md:justify-center">
+              <div className="relative h-80 w-80">
+                <div className="absolute left-0 top-0 h-full w-full rounded-full bg-blue-400 opacity-20 blur-3xl"></div>
+                <img
+                  src="/placeholder.svg?height=400&width=400"
+                  alt="Featured gemstone"
+                  className="relative z-10 h-full w-full object-contain"
+                />
+              </div>
+            </div>
+          </div>
         </div>
-        <Button appName="web" className={styles.secondary}>
-          Open alert
-        </Button>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com/templates?search=turborepo&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://turbo.build?utm_source=create-turbo"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to turbo.build →
-        </a>
-      </footer>
+      </section>
+
+      {/* Search Section */}
+      <section className="bg-white py-8">
+        <div className="container mx-auto px-4">
+          <div className="mx-auto flex max-w-3xl flex-col items-center space-y-4 rounded-xl bg-blue-50 p-6 shadow-md sm:flex-row sm:space-x-4 sm:space-y-0">
+            <div className="relative w-full">
+              <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+              <Input
+                placeholder="Search gemstones..."
+                className="w-full pl-10"
+              />
+            </div>
+            <div className="flex w-full gap-2 sm:w-auto">
+              <Button className="flex-1 bg-blue-600 hover:bg-blue-700 sm:flex-none">
+                Search
+              </Button>
+              <Button
+                variant="outline"
+                className="flex-1 border-blue-600 text-blue-600 hover:bg-blue-50 sm:flex-none"
+              >
+                Filters
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Categories */}
+      <GemstoneCategories />
+
+      {/* Featured Gemstones */}
+      <FeaturedGemstones />
+
+      {/* How It Works */}
+      <HowItWorks />
+
+      {/* Recent Listings */}
+      <section className="bg-white py-16">
+        <div className="container mx-auto px-4">
+          <div className="mb-10 flex items-center justify-between">
+            <h2 className="text-3xl font-bold text-gray-900">
+              Recent Listings
+            </h2>
+            <Link href="/gemstones" className="text-blue-600 hover:underline">
+              View All
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {[1, 2, 3, 4].map((i) => (
+              <GemstoneCard key={i} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="bg-blue-50 py-16">
+        <div className="container mx-auto px-4">
+          <h2 className="mb-10 text-center text-3xl font-bold text-gray-900">
+            What Our Users Say
+          </h2>
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {[
+              {
+                name: "Sarah Johnson",
+                role: "Jewelry Designer",
+                content:
+                  "This marketplace has transformed how I source gemstones for my designs. The verification process gives me confidence in every purchase.",
+              },
+              {
+                name: "Michael Chen",
+                role: "Gemstone Collector",
+                content:
+                  "The 360° views and detailed certifications help me make informed decisions. I've found rare pieces I couldn't find anywhere else.",
+              },
+              {
+                name: "Priya Patel",
+                role: "Gemstone Seller",
+                content:
+                  "As a seller, the platform makes it easy to showcase my inventory and connect with serious buyers. The analytics dashboard is invaluable.",
+              },
+            ].map((testimonial, i) => (
+              <div key={i} className="rounded-lg bg-white p-6 shadow-md">
+                <div className="mb-4 flex">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      className="h-5 w-5 fill-yellow-400 text-yellow-400"
+                    />
+                  ))}
+                </div>
+                <p className="mb-6 text-gray-700">{testimonial.content}</p>
+                <div className="flex items-center">
+                  <div className="mr-4 h-12 w-12 rounded-full bg-blue-100">
+                    <div className="flex h-full w-full items-center justify-center text-blue-600">
+                      {testimonial.name.charAt(0)}
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">
+                      {testimonial.name}
+                    </h4>
+                    <p className="text-sm text-gray-500">{testimonial.role}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="bg-blue-600 py-16 text-white">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="mb-6 text-3xl font-bold">
+            Ready to Join Our Gemstone Community?
+          </h2>
+          <p className="mx-auto mb-8 max-w-2xl text-lg text-blue-100">
+            Whether you're looking to buy exquisite gemstones or sell your
+            collection, our platform provides the tools and security you need.
+          </p>
+          <div className="flex flex-col justify-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
+            <Button
+              size="lg"
+              className="bg-white text-blue-700 hover:bg-blue-50"
+            >
+              Create an Account
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="border-white text-white hover:bg-blue-700"
+            >
+              Learn More
+            </Button>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

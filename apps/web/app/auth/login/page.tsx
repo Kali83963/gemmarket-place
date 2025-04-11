@@ -6,7 +6,7 @@ import {
   CardTitle,
   CardContent,
   CardFooter,
-} from "@/components/ui/cards";
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/seperator";
