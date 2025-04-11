@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { ElementType, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -43,7 +43,7 @@ import {
 interface RouteType {
   title: string;
   href: string;
-  icon?: LucideIcon;
+  icon?: any; // ✅ Good: ElementType is correct for JSX components
   active: boolean;
   submenu?: RouteType[];
   badge?: number;
