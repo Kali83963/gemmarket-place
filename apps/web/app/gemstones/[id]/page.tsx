@@ -17,10 +17,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/seperator";
 import { Badge } from "@/components/ui/badge";
 import { GemstoneCard } from "@/components/gemstone-card";
-interface PageProps {
-  params: { id: string };
-}
-export default function GemstoneDetailPage({ params }: PageProps) {
+
+export type PageProps = Promise<{ id: string }>;
+export default async function GemstoneDetailPage(props: { params: PageProps }) {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Breadcrumbs */}
