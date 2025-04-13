@@ -1,0 +1,11 @@
+{
+  "extends": "@repo/typescript-config/base.json", // Extend your monorepo's base config
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "declaration": true, // Generate .d.ts files
+    "strict": true
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}
