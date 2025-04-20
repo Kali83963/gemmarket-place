@@ -10,7 +10,7 @@
   --container-screen-2xl: 1400px;
 
   /* Color system */
-  --color-background: hsl(222.2 84% 4.9%);
+  --color-background: hsl(210 40% 98%);
   --color-foreground: hsl(222.2 84% 4.9%);
 
   --color-card: hsl(0 0% 100%);
@@ -128,7 +128,7 @@
 
 /* Class-based dark mode implementation */
 .dark {
-  --color-background: hsl(222.2 84% 4.9%);
+  --color-background: hsl(210 40% 98%);
   --color-foreground: hsl(210 40% 98%);
 
   --color-card: hsl(222.2 84% 4.9%);
