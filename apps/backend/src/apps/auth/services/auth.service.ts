@@ -48,7 +48,7 @@ class AuthService {
       process.env.JWT_SECRET!,
       { expiresIn: "1h" }
     );
-
+    console.log(user.id)
     const userData: User = {
       firstName: user.email,
       lastName: user.lastName,

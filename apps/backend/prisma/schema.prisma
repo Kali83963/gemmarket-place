@@ -1,10 +1,30 @@
-generator client {
+ generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model Gemstone {
+  id                Int     @id @default(autoincrement())
+  name              String
+  type              String
+  price             Float
+  origin            String
+  certificationStatus Boolean
+  sellerId          Int
+}
+
+model Notification {
+  id            Int      @id @default(autoincrement())
+  userId        String   // This should match the type in the User model’s id
+  message       String
+  createdAt     DateTime @default(now())
+  isRead        Boolean  @default(false)
+
+  user          User     @relation("UserNotifications", fields: [userId], references: [id]) // Create relation to User
 }
 
 model User {
@@ -15,6 +35,8 @@ model User {
   password  String
   role      Role
   createdAt DateTime @default(now())
+
+  notifications Notification[] @relation("UserNotifications") // Use the same relation name
 }
 
 model BlacklistedToken {
