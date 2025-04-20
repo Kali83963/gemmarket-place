@@ -22,7 +22,7 @@ const error500 = "/assets/images/maintenance/500-error.svg";
 // ==============================|| ERROR PAGE ||============================== //
 
 const Error = () => {
-  const downSM = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
+  const downSM = true;
   return (
     <Grid
       container

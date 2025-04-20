@@ -3,22 +3,22 @@
 import Link from "next/link";
 
 import { Theme } from "@mui/material/styles";
+import Button from "@mui/material/Button";
 import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Grid";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
-import useAuth from "hooks/useAuth";
-import AuthWrapper from "@/components/wrapper/AuthWrapper";
-import AuthCardWrapper from "@/components/wrapper/AuthCardWrapper";
-import Logo from "@/components/Logo";
 import AuthFooter from "@/components/footer/AuthFooter";
-import { AuthRegister } from "@/components/forms/auth/AuthRegister";
+import Logo from "@/components/Logo";
+import AuthCardWrapper from "@/components/wrapper/AuthCardWrapper";
+import AuthWrapper from "@/components/wrapper/AuthWrapper";
+import AnimateButton from "@/components/extended/AnimatedButton";
+import AuthCodeVerification from "@/components/forms/auth/AuthCodeVerification";
 
-const Register = () => {
+const CodeVerification = () => {
   const downMD = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
-  const { isLoggedIn } = useAuth();
 
   return (
     <AuthWrapper>
@@ -46,7 +46,7 @@ const Register = () => {
                   <Grid sx={{ marginBottom: 3 }}>
                     <Link
                       href="#"
-                      aria-label="theme logo"
+                      aria-label="theme-logo"
                       style={{ textDecoration: "none" }}
                     >
                       <Logo />
@@ -55,7 +55,7 @@ const Register = () => {
                   <Grid size={{ xs: 12 }}>
                     <Grid
                       container
-                      direction={{ xs: "column-reverse", md: "row" }}
+                      direction={downMD ? "column-reverse" : "row"}
                       alignItems="center"
                       justifyContent="center"
                     >
@@ -70,21 +70,24 @@ const Register = () => {
                             gutterBottom
                             variant={downMD ? "h3" : "h2"}
                           >
-                            Sign up
+                            Enter Verification Code
+                          </Typography>
+                          <Typography variant="subtitle1" fontSize="1rem">
+                            We send you on mail.
                           </Typography>
                           <Typography
                             variant="caption"
-                            fontSize="16px"
-                            textAlign={{ xs: "center", md: "inherit" }}
+                            fontSize="0.875rem"
+                            textAlign={downMD ? "center" : "inherit"}
                           >
-                            Enter your credentials to continue
+                            We’ve send you code on jone.****@company.com
                           </Typography>
                         </Stack>
                       </Grid>
                     </Grid>
                   </Grid>
                   <Grid size={{ xs: 12 }}>
-                    <AuthRegister />
+                    <AuthCodeVerification />
                   </Grid>
                   <Grid size={{ xs: 12 }}>
                     <Divider />
@@ -98,17 +101,28 @@ const Register = () => {
                     >
                       <Typography
                         component={Link}
-                        href={
-                          isLoggedIn
-                            ? "/pages/authentication/auth3/login"
-                            : "/login"
-                        }
+                        href="#"
                         variant="subtitle1"
                         sx={{ textDecoration: "none" }}
+                        textAlign={downMD ? "center" : "inherit"}
                       >
-                        Already have an account?
+                        Did not receive the email? Check your spam filter, or
                       </Typography>
                     </Grid>
+                  </Grid>
+                  <Grid size={{ xs: 12 }}>
+                    <AnimateButton>
+                      <Button
+                        disableElevation
+                        fullWidth
+                        size="large"
+                        type="submit"
+                        variant="outlined"
+                        color="secondary"
+                      >
+                        Resend Code
+                      </Button>
+                    </AnimateButton>
                   </Grid>
                 </Grid>
               </AuthCardWrapper>
@@ -123,4 +137,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default CodeVerification;

@@ -3,22 +3,19 @@
 import Link from "next/link";
 
 import { Theme } from "@mui/material/styles";
-import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Grid";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
-import useAuth from "hooks/useAuth";
 import AuthWrapper from "@/components/wrapper/AuthWrapper";
 import AuthCardWrapper from "@/components/wrapper/AuthCardWrapper";
 import Logo from "@/components/Logo";
 import AuthFooter from "@/components/footer/AuthFooter";
-import { AuthRegister } from "@/components/forms/auth/AuthRegister";
+import AuthResetPassword from "@/components/forms/auth/AuthResetPassword";
 
-const Register = () => {
+const ResetPassword = () => {
   const downMD = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
-  const { isLoggedIn } = useAuth();
 
   return (
     <AuthWrapper>
@@ -70,45 +67,21 @@ const Register = () => {
                             gutterBottom
                             variant={downMD ? "h3" : "h2"}
                           >
-                            Sign up
+                            Reset Password
                           </Typography>
                           <Typography
                             variant="caption"
                             fontSize="16px"
                             textAlign={{ xs: "center", md: "inherit" }}
                           >
-                            Enter your credentials to continue
+                            Please choose your new password
                           </Typography>
                         </Stack>
                       </Grid>
                     </Grid>
                   </Grid>
                   <Grid size={{ xs: 12 }}>
-                    <AuthRegister />
-                  </Grid>
-                  <Grid size={{ xs: 12 }}>
-                    <Divider />
-                  </Grid>
-                  <Grid size={{ xs: 12 }}>
-                    <Grid
-                      container
-                      direction="column"
-                      alignItems="center"
-                      size={{ xs: 12 }}
-                    >
-                      <Typography
-                        component={Link}
-                        href={
-                          isLoggedIn
-                            ? "/pages/authentication/auth3/login"
-                            : "/login"
-                        }
-                        variant="subtitle1"
-                        sx={{ textDecoration: "none" }}
-                      >
-                        Already have an account?
-                      </Typography>
-                    </Grid>
+                    <AuthResetPassword />
                   </Grid>
                 </Grid>
               </AuthCardWrapper>
@@ -123,4 +96,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default ResetPassword;

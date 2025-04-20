@@ -1,16 +1,6 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
 import "./globals.css";
-import ProviderWrapper from "@/store/ProviderWrapper";
-
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-});
+import ProviderWrapper from "@/app/ProviderWrapper";
 
 export const metadata: Metadata = {
   title: "Create Next App",
