@@ -1,5 +1,6 @@
  generator client {
   provider = "prisma-client-js"
+   output   = "./node_modules/.prisma/client"
 }
 
 datasource db {
@@ -28,6 +29,7 @@ model Gemstone {
   color_saturation  String
   additional_specification String
   price             Float
+  compareAtPrice          Float?      // <-- Add this line
   origin            String
   certification_document String
   certificationStatus Boolean

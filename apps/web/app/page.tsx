@@ -30,24 +30,26 @@ export default function Home() {
                 >
                   Start Browsing
                 </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                   className="bg-white text-blue-700 hover:bg-blue-50"
-                >
-                  Sell Gemstones
-                </Button>
+                <Link href={"/add-gemstone"}>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="bg-white text-blue-700 hover:bg-blue-50"
+                  >
+                    Sell Gemstones
+                  </Button>
+                </Link>
               </div>
             </div>
             <div className="hidden md:flex md:items-center md:justify-center">
               <div className="relative h-80 w-80">
                 <div className="absolute left-0 top-0 h-full w-full rounded-full bg-blue-400 opacity-20 blur-3xl"></div>
                 {/* Replaced static image with video */}
-                <video 
+                <video
                   className="relative z-10 h-full w-full object-cover rounded-lg"
-                  autoPlay 
-                  loop 
-                  muted 
+                  autoPlay
+                  loop
+                  muted
                   playsInline
                 >
                   <source src="/videos/gemstone.mp4" type="video/mp4" />
@@ -114,7 +116,7 @@ export default function Home() {
                 price: 1299,
                 image: "/images/blue-sapphire.jpeg",
                 carat: 2.4,
-                cut: "Oval"
+                cut: "Oval",
               },
               {
                 id: 2,
@@ -122,7 +124,7 @@ export default function Home() {
                 price: 1499,
                 image: "/images/ruby.jpeg",
                 carat: 1.8,
-                cut: "Round"
+                cut: "Round",
               },
               {
                 id: 3,
@@ -130,7 +132,7 @@ export default function Home() {
                 price: 1699,
                 image: "/images/emerald.jpeg",
                 carat: 2.1,
-                cut: "Princess"
+                cut: "Princess",
               },
               {
                 id: 4,
@@ -138,11 +140,11 @@ export default function Home() {
                 price: 2499,
                 image: "/images/diamond.jpeg",
                 carat: 1.5,
-                cut: "Brilliant"
-              }
+                cut: "Brilliant",
+              },
             ].map((gemstone) => (
-              <GemstoneCard 
-                key={gemstone.id} 
+              <GemstoneCard
+                key={gemstone.id}
                 name={gemstone.name}
                 price={gemstone.price}
                 image={gemstone.image}
@@ -167,21 +169,21 @@ export default function Home() {
                 role: "Jewelry Designer",
                 content:
                   "This marketplace has transformed how I source gemstones for my designs. The verification process gives me confidence in every purchase.",
-                avatar: "/images/sarah.jpeg"
+                avatar: "/images/sarah.jpeg",
               },
               {
                 name: "Michael Chen",
                 role: "Gemstone Collector",
                 content:
                   "The 360° views and detailed certifications help me make informed decisions. I've found rare pieces I couldn't find anywhere else.",
-                avatar: "/images/michael.jpeg"
+                avatar: "/images/michael.jpeg",
               },
               {
                 name: "Priya Patel",
                 role: "Gemstone Seller",
                 content:
                   "As a seller, the platform makes it easy to showcase my inventory and connect with serious buyers. The analytics dashboard is invaluable.",
-                avatar: "/images/priya.jpeg"
+                avatar: "/images/priya.jpeg",
               },
             ].map((testimonial, i) => (
               <div key={i} className="rounded-lg bg-white p-6 shadow-md">
@@ -197,8 +199,8 @@ export default function Home() {
                 <div className="flex items-center">
                   <div className="mr-4 h-12 w-12 rounded-full bg-blue-100 overflow-hidden">
                     {testimonial.avatar ? (
-                      <img 
-                        src={testimonial.avatar} 
+                      <img
+                        src={testimonial.avatar}
                         alt={testimonial.name}
                         className="h-full w-full object-cover"
                       />
