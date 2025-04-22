@@ -19,7 +19,8 @@
     "allowSyntheticDefaultImports": true,
     "useUnknownInCatchVariables": false,
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@gemmarket/contracts": ["../../packages/contracts"]
     },
     "skipLibCheck": true
   },
