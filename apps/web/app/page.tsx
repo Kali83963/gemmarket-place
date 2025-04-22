@@ -33,7 +33,7 @@ export default function Home() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-white text-white hover:bg-blue-700"
+                   className="bg-white text-blue-700 hover:bg-blue-50"
                 >
                   Sell Gemstones
                 </Button>
@@ -42,11 +42,17 @@ export default function Home() {
             <div className="hidden md:flex md:items-center md:justify-center">
               <div className="relative h-80 w-80">
                 <div className="absolute left-0 top-0 h-full w-full rounded-full bg-blue-400 opacity-20 blur-3xl"></div>
-                <img
-                  src="/placeholder.svg?height=400&width=400"
-                  alt="Featured gemstone"
-                  className="relative z-10 h-full w-full object-contain"
-                />
+                {/* Replaced static image with video */}
+                <video 
+                  className="relative z-10 h-full w-full object-cover rounded-lg"
+                  autoPlay 
+                  loop 
+                  muted 
+                  playsInline
+                >
+                  <source src="/videos/gemstone.mp4" type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
               </div>
             </div>
           </div>
@@ -100,8 +106,49 @@ export default function Home() {
             </Link>
           </div>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {[1, 2, 3, 4].map((i) => (
-              <GemstoneCard key={i} />
+            {/* Updated GemstoneCard with proper key and props */}
+            {[
+              {
+                id: 1,
+                name: "Blue Sapphire",
+                price: 1299,
+                image: "/images/blue-sapphire.jpeg",
+                carat: 2.4,
+                cut: "Oval"
+              },
+              {
+                id: 2,
+                name: "Ruby",
+                price: 1499,
+                image: "/images/ruby.jpeg",
+                carat: 1.8,
+                cut: "Round"
+              },
+              {
+                id: 3,
+                name: "Emerald",
+                price: 1699,
+                image: "/images/emerald.jpeg",
+                carat: 2.1,
+                cut: "Princess"
+              },
+              {
+                id: 4,
+                name: "Diamond",
+                price: 2499,
+                image: "/images/diamond.jpeg",
+                carat: 1.5,
+                cut: "Brilliant"
+              }
+            ].map((gemstone) => (
+              <GemstoneCard 
+                key={gemstone.id} 
+                name={gemstone.name}
+                price={gemstone.price}
+                image={gemstone.image}
+                carat={gemstone.carat}
+                cut={gemstone.cut}
+              />
             ))}
           </div>
         </div>
@@ -120,18 +167,21 @@ export default function Home() {
                 role: "Jewelry Designer",
                 content:
                   "This marketplace has transformed how I source gemstones for my designs. The verification process gives me confidence in every purchase.",
+                avatar: "/images/sarah.jpeg"
               },
               {
                 name: "Michael Chen",
                 role: "Gemstone Collector",
                 content:
                   "The 360° views and detailed certifications help me make informed decisions. I've found rare pieces I couldn't find anywhere else.",
+                avatar: "/images/michael.jpeg"
               },
               {
                 name: "Priya Patel",
                 role: "Gemstone Seller",
                 content:
                   "As a seller, the platform makes it easy to showcase my inventory and connect with serious buyers. The analytics dashboard is invaluable.",
+                avatar: "/images/priya.jpeg"
               },
             ].map((testimonial, i) => (
               <div key={i} className="rounded-lg bg-white p-6 shadow-md">
@@ -145,10 +195,18 @@ export default function Home() {
                 </div>
                 <p className="mb-6 text-gray-700">{testimonial.content}</p>
                 <div className="flex items-center">
-                  <div className="mr-4 h-12 w-12 rounded-full bg-blue-100">
-                    <div className="flex h-full w-full items-center justify-center text-blue-600">
-                      {testimonial.name.charAt(0)}
-                    </div>
+                  <div className="mr-4 h-12 w-12 rounded-full bg-blue-100 overflow-hidden">
+                    {testimonial.avatar ? (
+                      <img 
+                        src={testimonial.avatar} 
+                        alt={testimonial.name}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-blue-600">
+                        {testimonial.name.charAt(0)}
+                      </div>
+                    )}
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900">
@@ -183,7 +241,7 @@ export default function Home() {
             <Button
               size="lg"
               variant="outline"
-              className="border-white text-white hover:bg-blue-700"
+              className="bg-white text-blue-700 hover:bg-blue-50"
             >
               Learn More
             </Button>
