@@ -14,14 +14,35 @@ import {
 } from "@/components/ui/card";
 
 interface GemstoneCardProps {
+  id?: number;
+  name?: string;
+  price?: number;
+  image?: string;
+  carat?: number;
+  cut?: string;
+  color?: string;
+  clarity?: string;
+  rating?: number;
   featured?: boolean;
   className?: string;
 }
 
 export function GemstoneCard({
+  id = 1,
+  name = "Round Brilliant Diamond",
+  price = 5299,
+  image = "/placeholder.svg?height=300&width=400",
+  carat = 1.25,
+  cut = "Excellent",
+  color = "D",
+  clarity = "VS1",
+  rating = 4.9,
   featured = false,
   className,
 }: GemstoneCardProps) {
+  // Extract gemstone type from name (e.g., "Blue Sapphire" -> "Sapphire")
+  const gemstoneType = name.split(" ").pop() || "Diamond";
+
   return (
     <Card
       className={cn(
@@ -45,8 +66,8 @@ export function GemstoneCard({
         </Button>
         <div className="relative h-48 w-full overflow-hidden bg-gray-100">
           <img
-            src="/placeholder.svg?height=300&width=400"
-            alt="Gemstone"
+            src={image}
+            alt={name}
             className="h-full w-full object-cover transition-transform hover:scale-105"
           />
           <Button
@@ -65,16 +86,16 @@ export function GemstoneCard({
             variant="outline"
             className="border-blue-200 bg-blue-50 text-blue-700"
           >
-            Diamond
+            {gemstoneType}
           </Badge>
           <div className="flex items-center text-sm text-yellow-500">
             <Star className="mr-1 h-4 w-4 fill-yellow-400 text-yellow-400" />
-            <span>4.9</span>
+            <span>{rating}</span>
           </div>
         </div>
         <CardTitle className="mt-2 text-lg">
-          <Link href="/gemstones/1" className="hover:text-blue-600">
-            Round Brilliant Diamond
+          <Link href={`/gemstones/${id}`} className="hover:text-blue-600">
+            {name}
           </Link>
         </CardTitle>
         <CardDescription className="flex items-center text-sm text-gray-500">
@@ -86,26 +107,26 @@ export function GemstoneCard({
         <div className="grid grid-cols-2 gap-2 text-sm">
           <div>
             <p className="text-gray-500">Carat</p>
-            <p className="font-medium">1.25</p>
+            <p className="font-medium">{carat}</p>
           </div>
           <div>
             <p className="text-gray-500">Color</p>
-            <p className="font-medium">D</p>
+            <p className="font-medium">{color}</p>
           </div>
           <div>
             <p className="text-gray-500">Clarity</p>
-            <p className="font-medium">VS1</p>
+            <p className="font-medium">{clarity}</p>
           </div>
           <div>
             <p className="text-gray-500">Cut</p>
-            <p className="font-medium">Excellent</p>
+            <p className="font-medium">{cut}</p>
           </div>
         </div>
       </CardContent>
       <CardFooter className="flex items-center justify-between border-t p-4">
         <div>
           <p className="text-sm text-gray-500">Price</p>
-          <p className="text-xl font-bold text-blue-700">$5,299</p>
+          <p className="text-xl font-bold text-blue-700">${price.toLocaleString()}</p>
         </div>
         <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
           View Details

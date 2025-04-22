@@ -224,8 +224,48 @@ export default function GemstonesPage() {
 
           {/* Gemstone Grid */}
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 9 }).map((_, i) => (
-              <GemstoneCard key={i} />
+          {[
+              {
+                id: 1,
+                name: "Blue Sapphire",
+                price: 1299,
+                image: "/images/blue-sapphire.jpeg",
+                carat: 2.4,
+                cut: "Oval"
+              },
+              {
+                id: 2,
+                name: "Ruby",
+                price: 1499,
+                image: "/images/ruby.jpeg",
+                carat: 1.8,
+                cut: "Round"
+              },
+              {
+                id: 3,
+                name: "Emerald",
+                price: 1699,
+                image: "/images/emerald.jpeg",
+                carat: 2.1,
+                cut: "Princess"
+              },
+              {
+                id: 4,
+                name: "Diamond",
+                price: 2499,
+                image: "/images/diamond.jpeg",
+                carat: 1.5,
+                cut: "Brilliant"
+              }
+            ].map((gemstone) => (
+              <GemstoneCard 
+                key={gemstone.id} 
+                name={gemstone.name}
+                price={gemstone.price}
+                image={gemstone.image}
+                carat={gemstone.carat}
+                cut={gemstone.cut}
+              />
             ))}
           </div>
 
