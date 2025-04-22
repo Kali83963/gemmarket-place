@@ -1,4 +1,4 @@
-"use client"; 
+"use client";
 import { useState } from "react";
 import Link from "next/link";
 import { Diamond } from "lucide-react";
@@ -21,38 +21,37 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const router = useRouter();
-  
-  const { 
-    register, 
-    handleSubmit, 
+
+  const {
+    register,
+    handleSubmit,
     formState: { errors },
   } = useForm({
     defaultValues: {
       email: "",
       password: "",
-    }
+    },
   });
 
   const onSubmit = async (data: any) => {
     setIsSubmitting(true);
     setSubmitError("");
-    
+
     try {
-      const response = await fetch("htttps://localhost:5000/login", {
+      const response = await fetch("http://localhost:5000/api/v1/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Login failed");
       }
       router.push("/");
       console.log("Login successful!");
-      
     } catch (error) {
       // @ts-ignore
       setSubmitError(error.message || "Invalid email or password");
@@ -73,7 +72,7 @@ export default function LoginPage() {
           Sign in to your account to continue
         </p>
       </div>
-      
+
       <Card className="border-gray-200 shadow-sm">
         <form onSubmit={handleSubmit(onSubmit)}>
           <CardHeader className="pb-4">
@@ -82,37 +81,43 @@ export default function LoginPage() {
               Enter your email and password to access your account
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent className="space-y-4">
             {submitError && (
               <div className="p-3 text-sm bg-red-50 border border-red-200 text-red-600 rounded-md">
                 {submitError}
               </div>
             )}
-            
+
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-gray-700">Email</Label>
-              <Input 
-                id="email" 
-                type="email" 
-                placeholder="name@example.com" 
-                className="bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500" 
-                {...register("email", { 
-                  required: "Email is required", 
+              <Label htmlFor="email" className="text-gray-700">
+                Email
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="name@example.com"
+                className="bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                {...register("email", {
+                  required: "Email is required",
                   pattern: {
                     value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: "Invalid email address"
-                  }
+                    message: "Invalid email address",
+                  },
                 })}
               />
               {errors.email && (
-                <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.email.message}
+                </p>
               )}
             </div>
-            
+
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password" className="text-gray-700">Password</Label>
+                <Label htmlFor="password" className="text-gray-700">
+                  Password
+                </Label>
                 <Link
                   href="/auth/forgot-password"
                   className="text-xs text-blue-600 hover:underline"
@@ -120,21 +125,23 @@ export default function LoginPage() {
                   Forgot password?
                 </Link>
               </div>
-              <Input 
-                id="password" 
-                type="password" 
-                className="bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500" 
-                {...register("password", { 
-                  required: "Password is required"
+              <Input
+                id="password"
+                type="password"
+                className="bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                {...register("password", {
+                  required: "Password is required",
                 })}
               />
               {errors.password && (
-                <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.password.message}
+                </p>
               )}
             </div>
-            
-            <Button 
-              type="submit" 
+
+            <Button
+              type="submit"
               className="w-full bg-blue-600 hover:bg-blue-700"
               disabled={isSubmitting}
             >
@@ -153,9 +160,9 @@ export default function LoginPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <Button 
+              <Button
                 type="button"
-                variant="outline" 
+                variant="outline"
                 className="bg-white border-gray-300 hover:bg-gray-50 text-gray-700"
               >
                 <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -179,9 +186,9 @@ export default function LoginPage() {
                 </svg>
                 Google
               </Button>
-              <Button 
+              <Button
                 type="button"
-                variant="outline" 
+                variant="outline"
                 className="bg-white border-gray-300 hover:bg-gray-50 text-gray-700"
               >
                 <svg
@@ -195,7 +202,7 @@ export default function LoginPage() {
               </Button>
             </div>
           </CardContent>
-          
+
           <CardFooter className="flex justify-center pt-2 pb-6">
             <p className="text-sm text-gray-600">
               Don&apos;t have an account?{" "}
