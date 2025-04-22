@@ -40,6 +40,7 @@ const schema = z.object({
 });
 
 const JWTLogin = ({ loginProp, ...others }: { loginProp?: number }) => {
+  const theme = useTheme();
   const router = useRouter();
   const { login } = useAuth();
   const scriptedRef = useScriptRef();
@@ -91,7 +92,12 @@ const JWTLogin = ({ loginProp, ...others }: { loginProp?: number }) => {
         values,
       }) => (
         <form noValidate onSubmit={handleSubmit} {...others}>
-          <FormControl fullWidth error={Boolean(touched.email && errors.email)}>
+          <FormControl
+            fullWidth
+            error={Boolean(touched.email && errors.email)}
+            // @ts-expect-error Property 'customInput'
+            sx={{ ...theme.typography?.customInput }}
+          >
             <InputLabel htmlFor="outlined-adornment-email-login">
               Email Address / Username
             </InputLabel>
@@ -117,6 +123,8 @@ const JWTLogin = ({ loginProp, ...others }: { loginProp?: number }) => {
           <FormControl
             fullWidth
             error={Boolean(touched.password && errors.password)}
+            // @ts-expect-error Property 'customInput'
+            sx={{ ...theme.typography?.customInput }}
           >
             <InputLabel htmlFor="outlined-adornment-password-login">
               Password
@@ -172,11 +180,7 @@ const JWTLogin = ({ loginProp, ...others }: { loginProp?: number }) => {
               <Typography
                 variant="subtitle1"
                 component={Link}
-                href={
-                  loginProp
-                    ? `/pages/authentication/auth${loginProp}/forgot-password`
-                    : "/pages/authentication/auth3/forgot-password"
-                }
+                href={"/forgot-password"}
                 color="secondary"
                 sx={{ textDecoration: "none" }}
               >

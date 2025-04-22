@@ -45,7 +45,11 @@ const Login = () => {
                   justifyContent="center"
                 >
                   <Grid size={{ xs: 12 }}>
-                    <Link href="#" aria-label="logo">
+                    <Link
+                      href="#"
+                      aria-label="logo"
+                      style={{ textDecoration: "none" }}
+                    >
                       <Logo />
                     </Link>
                   </Grid>
@@ -62,11 +66,7 @@ const Login = () => {
                           justifyContent="center"
                           spacing={1}
                         >
-                          <Typography
-                            color="secondary.main"
-                            gutterBottom
-                            variant={downMD ? "h3" : "h2"}
-                          >
+                          <Typography variant={downMD ? "h3" : "h2"}>
                             Hi, Welcome Back
                           </Typography>
                           <Typography
@@ -95,11 +95,7 @@ const Login = () => {
                     >
                       <Typography
                         component={Link}
-                        href={
-                          isLoggedIn
-                            ? "/pages/authentication/auth3/register"
-                            : "/register"
-                        }
+                        href={"/register"}
                         variant="subtitle1"
                         sx={{ textDecoration: "none" }}
                       >
