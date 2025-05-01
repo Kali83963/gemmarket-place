@@ -70,3 +70,30 @@ export type NavItemType = {
   elements?: NavItemType[];
   search?: string;
 };
+
+export type ArrangementOrder = "asc" | "desc" | undefined;
+
+export type DateRange = { start: number | Date; end: number | Date };
+
+export type GetComparator = (
+  o: ArrangementOrder,
+  o1: string
+) => (a: KeyedObject, b: KeyedObject) => number;
+
+export interface EnhancedTableToolbarProps {
+  numSelected: number;
+}
+
+export type HeadCell = {
+  id: string;
+  numeric: boolean;
+  label: string;
+  disablePadding?: string | boolean | undefined;
+  align?: "left" | "right" | "inherit" | "center" | "justify" | undefined;
+};
+
+export interface TabsProps {
+  children?: React.ReactElement | React.ReactNode | string;
+  value: string | number;
+  index: number;
+}

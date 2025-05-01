@@ -49,6 +49,7 @@ export const color: ColorProps = theme1;
 export const outlinedFilled = true;
 export const menuOrientation = MenuOrientation.VERTICAL;
 export const miniDrawer = false;
+export const container = false;
 // switch (presetColor) {
 //   case "theme":
 //     color = theme1;

@@ -20,6 +20,9 @@ import { MenuOrientation } from "types/config";
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Loader from "@/components/Loader";
+import MainContentStyled from "@/components/MainContentStyled";
+import { borderRadius, menuOrientation, container } from "@/theme";
+import Breadcrumbs from "@/components/extended/BreadCrumbs";
 
 interface Props {
   children: ReactNode;
@@ -32,6 +35,7 @@ const MainLayout: FC<Props> = ({ children }) => {
   const downMD = useMediaQuery(theme.breakpoints.down("md"));
   const { menuMaster, menuMasterLoading } = useGetMenuMaster();
   const drawerOpen = menuMaster?.isDashboardDrawerOpened;
+  console.log("Theme", theme);
 
   useEffect(() => {
     downMD && handlerDrawerOpen(false);
@@ -60,12 +64,21 @@ const MainLayout: FC<Props> = ({ children }) => {
       <Sidebar />
 
       {/* main content */}
-      {/* <MainContentStyled {...{ borderRadius, menuOrientation, open: drawerOpen!, theme }}>
-        <Container maxWidth={container ? 'lg' : false} {...(!container && { sx: { px: { xs: 0 } } })}>
+      <MainContentStyled
+        {...{
+          borderRadius: borderRadius,
+          menuOrientation: menuOrientation,
+          open: drawerOpen!,
+        }}
+      >
+        <Container
+          maxWidth={container ? "lg" : false}
+          {...(!container && { sx: { px: { xs: 0 } } })}
+        >
           <Breadcrumbs />
           {children}
         </Container>
-      </MainContentStyled> */}
+      </MainContentStyled>
     </Box>
   );
 };
