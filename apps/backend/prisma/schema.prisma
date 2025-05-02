@@ -1,6 +1,6 @@
  generator client {
   provider = "prisma-client-js"
-   output   = "./node_modules/.prisma/client"
+  output   = "./generated/client"  // Specify the output path
 }
 
 datasource db {
@@ -29,7 +29,6 @@ model Gemstone {
   color_saturation  String
   additional_specification String
   price             Float
-  compareAtPrice          Float?      // <-- Add this line
   origin            String
   certification_document String
   certificationStatus Boolean
@@ -46,6 +45,7 @@ model Gemstone {
 
 
   images                      GemstoneImage[]
+  cartItems                   CartItem[]
 }
 
 model GemstoneImage {
@@ -71,8 +71,10 @@ model User {
   lastName  String?
   email     String   @unique
   password  String
+  picture String?
   role      Role
   createdAt DateTime @default(now())
+  isActive Boolean @default(true)
 
   notifications Notification[] @relation("UserNotifications") // Use the same relation name
 }
@@ -83,7 +85,30 @@ model BlacklistedToken {
   createdAt DateTime @default(now())
 }
 
+model Cart {
+  id        String   @id @default(uuid())
+  userId    String
+  items     CartItem[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CartItem {
+  id        String   @id @default(uuid())
+  cartId    String
+  productId Int
+  quantity  Int
+  price     Float
+  color     String?
+  size      String?
+
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product   Gemstone @relation(fields: [productId], references: [id])
+  @@unique([cartId, productId, color, size])
+}
+
 enum Role {
+  SUPERUSER
   BUYER
   SELLER
   ADMIN

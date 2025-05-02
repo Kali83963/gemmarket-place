@@ -244,7 +244,7 @@ export default function CartPage() {
                   </span>
                 </div>
 
-                <div className="mt-4 rounded-lg border p-4">
+                {/* <div className="mt-4 rounded-lg border p-4">
                   <h4 className="mb-2 font-medium">Apply Coupon Code</h4>
                   <div className="flex space-x-2">
                     <Input
@@ -266,7 +266,7 @@ export default function CartPage() {
                       Coupon applied successfully!
                     </p>
                   )}
-                </div>
+                </div> */}
               </div>
             </CardContent>
             <CardFooter>

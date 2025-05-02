@@ -34,7 +34,7 @@ export interface MainCardProps extends KeyedObject {
   title?: React.ReactNode | string;
 }
 
-const MainCard = React.forwardRef(
+const  MainCard = React.forwardRef(
   (
     {
       border = false,

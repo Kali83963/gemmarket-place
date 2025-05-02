@@ -4,7 +4,7 @@ export const RegisterUserSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
   email: z.string().email(),
-  role: z.enum(["BUYER", "SELLER", "ADMIN", "ENDORSER"]), // Use z.enum for Role
+  role: z.enum(["BUYER", "SELLER"]), // Use z.enum for Role
   password: z.string().min(6),
 });
 

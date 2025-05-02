@@ -10,7 +10,6 @@ import Grid from "@mui/material/Grid";
 // project-imports
 
 import { dispatch, useSelector } from "store";
-import { getDetailCards } from "store/slices/user";
 
 // types
 import { UserProfile } from "types/user-profile";
@@ -2921,10 +2920,6 @@ const GemstonePage = () => {
   //   React.useEffect(() => {
   //     setUsers(detailCards);
   //   }, [detailCards]);
-
-  React.useEffect(() => {
-    dispatch(getDetailCards());
-  }, []);
 
   React.useEffect(() => {
     if (!rowValue) return;

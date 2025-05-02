@@ -58,7 +58,6 @@ const GemstoneTableRows = ({
 }: TableRowsProps) => {
   const { theme, order, orderBy, isSelected, page, rowsPerPage, handleClick } =
     useTableContext();
-  console.log("Open2", open);
   let label;
   let color;
   let chipcolor;
@@ -128,34 +127,32 @@ const GemstoneTableRows = ({
                 sx={open ? { alignItems: "center", cursor: "pointer" } : {}}
               >
                 <Stack direction="row" spacing={1.25}>
-                  <Avatar alt="" src={row.avatar && avatarProfile} />
+                  <Avatar alt="" src={row.images[0]?.url && avatarProfile} />
                   <Stack>
-                    <Typography variant="h5">
-                      {row.firstName} {row.lastName}
-                    </Typography>
-                    <Typography variant="caption">{row.role}</Typography>
+                    <Typography variant="h5">{row.name}</Typography>
                   </Stack>
                 </Stack>
               </TableCell>
               <TableCell sx={open ? { display: "none" } : {}}>
-                {row.email}
+                {row.type}
               </TableCell>
               <TableCell sx={open ? { display: "none" } : {}}>
-                {row.phoneNumber}
+                {row.shape}
               </TableCell>
               <TableCell sx={open ? { display: "none" } : {}}>
-                {row.certificationType}
+                {row.weight}
               </TableCell>
               <TableCell sx={open ? { display: "none" } : {}}>
-                {row.certifyingAuthority}
+                {row.color_grade}
               </TableCell>
               <TableCell sx={open ? { display: "none" } : {}}>
-                {row.yearsOfExperience}
+                {row.clarity_grade}
               </TableCell>
               <TableCell sx={open ? { display: "none" } : {}}>
-                {row.specialization?.map((s: any) => {
-                  return <span key={s}>{s},</span>;
-                })}
+                {row.cut_grade}
+              </TableCell>
+              <TableCell sx={open ? { display: "none" } : {}}>
+                {row.price}
               </TableCell>
               <TableCell sx={open ? { display: "none" } : {}}>
                 {row.status}
@@ -197,15 +194,6 @@ const GemstoneTableRows = ({
                       onClick={() => handleDrawerOpen(row)}
                     >
                       <VisibilityTwoToneIcon sx={{ fontSize: "1.3rem" }} />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Edit">
-                    <IconButton
-                      color="secondary"
-                      size="small"
-                      aria-label="Edit"
-                    >
-                      <EditTwoToneIcon sx={{ fontSize: "1.3rem" }} />
                     </IconButton>
                   </Tooltip>
                   <Tooltip title="Delete">

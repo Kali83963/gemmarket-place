@@ -42,6 +42,7 @@ const PersonalInformation = ({
   };
   console.log(errors);
   console.log(touched);
+  console.log(values);
 
   const handleMouseDownPassword = (event: React.MouseEvent) => {
     event.preventDefault()!;

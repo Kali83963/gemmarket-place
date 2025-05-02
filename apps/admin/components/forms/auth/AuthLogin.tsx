@@ -26,6 +26,7 @@ import { toFormikValidationSchema } from "zod-formik-adapter";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import AnimateButton from "@/components/extended/AnimatedButton";
+import { login } from "@/http/api";
 
 const schema = z.object({
   email: z
@@ -42,8 +43,8 @@ const schema = z.object({
 const JWTLogin = ({ loginProp, ...others }: { loginProp?: number }) => {
   const theme = useTheme();
   const router = useRouter();
-  const { login } = useAuth();
   const scriptedRef = useScriptRef();
+  const { authLogin } = useAuth();
 
   const [checked, setChecked] = React.useState(true);
 
@@ -66,12 +67,21 @@ const JWTLogin = ({ loginProp, ...others }: { loginProp?: number }) => {
       validationSchema={toFormikValidationSchema(schema)}
       onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
         try {
-          await login(values.email, values.password);
-          if (scriptedRef.current) {
-            setStatus({ success: true });
-            router.push(DASHBOARD_PATH);
-            setSubmitting(false);
-          }
+          const payload = {
+            email: values.email,
+            password: values.password,
+          };
+          const response = await login(payload);
+          console.log(response);
+          setStatus({ success: true });
+          authLogin(response?.data);
+          router.push(DASHBOARD_PATH);
+          // await login(values.email, values.password);
+          // if (scriptedRef.current) {
+          //   setStatus({ success: true });
+          //   router.push(DASHBOARD_PATH);
+          //   setSubmitting(false);
+          // }
         } catch (err: any) {
           console.error(err);
           if (scriptedRef.current) {

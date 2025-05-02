@@ -21,7 +21,7 @@ class AuthService {
     });
 
     const userData: User = {
-      firstName: user.email,
+      firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
       role: user.role,
@@ -30,12 +30,18 @@ class AuthService {
     return userData;
   }
 
-  async login(loginBody: LoginDTO): Promise<{ token: string; user: User }> {
+  async weblogin(loginBody: LoginDTO): Promise<{ token: string; user: User }> {
     const { email, password } = loginBody;
     const user = await prisma.user.findUnique({ where: { email } });
 
     if (!user) {
       throw new Error("User not found");
+    }
+
+    if (!["SELLER", "BUYER"].includes(user.role)) {
+      throw new Error(
+        "User does not have a valid role. Allowed roles are 'SELLER', 'BUYER'."
+      );
     }
 
     const validPassword = await bcrypt.compare(password, user.password);
@@ -48,7 +54,42 @@ class AuthService {
       process.env.JWT_SECRET!,
       { expiresIn: "1h" }
     );
-    console.log(user.id)
+    const userData: User = {
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      role: user.role,
+    };
+
+    return { token, user: userData };
+  }
+
+  async dashboardlogin(
+    loginBody: LoginDTO
+  ): Promise<{ token: string; user: User }> {
+    const { email, password } = loginBody;
+    const user = await prisma.user.findUnique({ where: { email } });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    if (!["ADMIN", "ENDORSER"].includes(user.role)) {
+      throw new Error(
+        "User does not have a valid role. Allowed roles are 'ADMIN', 'ENDORSER'."
+      );
+    }
+
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
+      throw new Error("Invalid credentials");
+    }
+
+    const token = jwt.sign(
+      { id: user.id, role: user.role },
+      process.env.JWT_SECRET!,
+      { expiresIn: "1y" }
+    );
     const userData: User = {
       firstName: user.email,
       lastName: user.lastName,

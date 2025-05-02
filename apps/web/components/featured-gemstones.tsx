@@ -3,8 +3,13 @@ import { ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { GemstoneCard } from "@/components/gemstone-card";
+import { Gemstone } from "@/app/page";
 
-export default function FeaturedGemstones() {
+interface Props {
+  gemstones: Gemstone[];
+}
+
+export default function FeaturedGemstones({ gemstones }: Props) {
   return (
     <section className="bg-white py-16">
       <div className="container mx-auto px-4">
@@ -20,49 +25,16 @@ export default function FeaturedGemstones() {
           </Link>
         </div>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {[
-              {
-                id: 1,
-                name: "Blue Sapphire",
-                price: 1299,
-                image: "/images/blue-sapphire.jpeg",
-                carat: 2.4,
-                cut: "Oval"
-              },
-              {
-                id: 2,
-                name: "Ruby",
-                price: 1499,
-                image: "/images/ruby.jpeg",
-                carat: 1.8,
-                cut: "Round"
-              },
-              {
-                id: 3,
-                name: "Emerald",
-                price: 1699,
-                image: "/images/emerald.jpeg",
-                carat: 2.1,
-                cut: "Princess"
-              },
-              {
-                id: 4,
-                name: "Diamond",
-                price: 2499,
-                image: "/images/diamond.jpeg",
-                carat: 1.5,
-                cut: "Brilliant"
-              }
-            ].map((gemstone) => (
-              <GemstoneCard 
-                key={gemstone.id} 
-                name={gemstone.name}
-                price={gemstone.price}
-                image={gemstone.image}
-                carat={gemstone.carat}
-                cut={gemstone.cut}
-              />
-            ))}
+          {gemstones.map((gemstone) => (
+            <GemstoneCard
+              key={gemstone.id}
+              name={gemstone.name}
+              price={gemstone.price}
+              image={gemstone.images[0]?.url}
+              carat={gemstone.weight}
+              cut={gemstone.cut_grade}
+            />
+          ))}
         </div>
         <div className="mt-10 text-center">
           <Button

@@ -36,6 +36,8 @@ import PersonalInformation from "@/components/users/forms/PersonalInfomation";
 import { z } from "zod";
 import { Formik } from "formik";
 import { toFormikValidationSchema } from "zod-formik-adapter";
+import { createUser } from "@/http/api";
+import { toast } from "react-toastify";
 
 const schema = z.object({
   firstName: z
@@ -130,23 +132,26 @@ const AddUser = () => {
         <Formik
           initialValues={initialValues}
           validationSchema={toFormikValidationSchema(schema)}
-          onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
+          onSubmit={async (
+            values,
+            { setErrors, setStatus, setSubmitting, resetForm }
+          ) => {
             console.log(values);
-            // try {
-            //   await login(values.email, values.password);
-            //   if (scriptedRef.current) {
-            //     setStatus({ success: true });
-            //     router.push(DASHBOARD_PATH);
-            //     setSubmitting(false);
-            //   }
-            // } catch (err: any) {
-            //   console.error(err);
-            //   if (scriptedRef.current) {
-            //     setStatus({ success: false });
-            //     setErrors({ submit: err.message });
-            //     setSubmitting(false);
-            //   }
-            // }
+            try {
+              const response = await createUser(values);
+
+              setStatus({ success: true });
+              setSubmitting(false);
+              resetForm();
+              toast.success("User created successfully!");
+            } catch (err: any) {
+              console.error(err);
+
+              setStatus({ success: false });
+              setErrors({ firstName: err.message });
+              setSubmitting(false);
+              toast.error("Error creating User!");
+            }
           }}
         >
           {({

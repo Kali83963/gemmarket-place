@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/client" // Specify the output path
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Gemstone {
+  id                       Int             @id @default(autoincrement())
+  name                     String
+  type                     String
+  shape                    String
+  description              String
+  treatment                String
+  weight                   Float
+  dimension                String
+  certification            String
+  color_grade              String
+  clarity_grade            String
+  cut_grade                String
+  polish                   String
+  symmetry                 String
+  fluorescence             String
+  color                    String
+  transparency             String
+  color_saturation         String
+  additional_specification String
+  price                    Float
+  origin                   String
+  certification_document   String
+  certificationStatus      Boolean
+  sellerId                 Int
+  status                   GEMSTONE_STATUS @default(PENDING)
+  quantity                 Int
+  sku                      String
+
+  allowOffers       Boolean @default(false)
+  showOnSaleLabel   Boolean @default(false)
+  chargeForShipping Boolean @default(false)
+  isFeatured        Boolean @default(false)
+  isActive          Boolean @default(true)
+
+  images    GemstoneImage[]
+  cartItems CartItem[]
+}
+
+model GemstoneImage {
+  id         Int      @id @default(autoincrement())
+  url        String
+  gemstoneId Int
+  gemstone   Gemstone @relation(fields: [gemstoneId], references: [id])
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    String // This should match the type in the User model’s id
+  message   String
+  createdAt DateTime @default(now())
+  isRead    Boolean  @default(false)
+
+  user User @relation("UserNotifications", fields: [userId], references: [id]) // Create relation to User
+}
+
+model User {
+  id        String   @id @default(uuid())
+  firstName String?
+  lastName  String?
+  email     String   @unique
+  password  String
+  picture   String?
+  role      Role
+  createdAt DateTime @default(now())
+  isActive  Boolean  @default(true)
+
+  notifications Notification[] @relation("UserNotifications") // Use the same relation name
+}
+
+model BlacklistedToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  createdAt DateTime @default(now())
+}
+
+model Cart {
+  id        String     @id @default(uuid())
+  userId    String
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id        String  @id @default(uuid())
+  cartId    String
+  productId Int
+  quantity  Int
+  price     Float
+  color     String?
+  size      String?
+
+  cart    Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product Gemstone @relation(fields: [productId], references: [id])
+
+  @@unique([cartId, productId, color, size])
+}
+
+enum Role {
+  SUPERUSER
+  BUYER
+  SELLER
+  ADMIN
+  ENDORSER
+}
+
+enum GEMSTONE_STATUS {
+  ACCEPTED
+  REJECTED
+  PENDING
+  SOLD
+}

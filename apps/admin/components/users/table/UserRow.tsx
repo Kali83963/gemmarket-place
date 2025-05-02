@@ -19,6 +19,7 @@ import {
 } from "@mui/material";
 import Avatar from "@/components/extended/Avatar";
 import Chip from "@/components/extended/Chip";
+import Link from "next/link";
 const avatarImage = "/assets/images/users";
 function descendingComparator(a: KeyedObject, b: KeyedObject, orderBy: string) {
   if (b[orderBy] < a[orderBy]) {
@@ -176,13 +177,15 @@ const UserRows = ({ rows, open = false, handleDrawerOpen }: TableRowsProps) => {
                     </IconButton>
                   </Tooltip>
                   <Tooltip title="Edit">
-                    <IconButton
-                      color="secondary"
-                      size="small"
-                      aria-label="Edit"
-                    >
-                      <EditTwoToneIcon sx={{ fontSize: "1.3rem" }} />
-                    </IconButton>
+                    <Link href={`/dashboard/users/edit/${row.id}`}>
+                      <IconButton
+                        color="secondary"
+                        size="small"
+                        aria-label="Edit"
+                      >
+                        <EditTwoToneIcon sx={{ fontSize: "1.3rem" }} />
+                      </IconButton>
+                    </Link>
                   </Tooltip>
                   <Tooltip title="Delete">
                     <IconButton color="error" size="small" aria-label="Delete">

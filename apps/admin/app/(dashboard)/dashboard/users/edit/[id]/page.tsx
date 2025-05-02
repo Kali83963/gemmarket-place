@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 
 // material-ui
@@ -35,6 +35,8 @@ import { borderRadius } from "@/theme";
 import PersonalInformation from "@/components/users/forms/PersonalInfomation";
 import { Formik } from "formik";
 import { toFormikValidationSchema } from "zod-formik-adapter";
+import { editUser, fetchUser } from "@/http/api";
+import { toast } from "react-toastify";
 
 // tabs
 function TabPanel({ children, value, index, ...other }: TabsProps) {
@@ -100,7 +102,7 @@ const schema = z.object({
   password: z
     .string()
     .max(255, "Password must be at most 255 characters")
-    .nonempty("Password is required"),
+    .optional(),
 });
 
 const initialValues = {
@@ -116,34 +118,48 @@ export type PageProps = Promise<{ id: string }>;
 const EditUser = ({ params }: { params: Promise<{ id: string }> }) => {
   const [value, setValue] = React.useState<number>(0);
   const { id } = React.use(params);
+  const [formValues, setFormValues] = React.useState(initialValues);
 
   const handleChangeStep = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 
+  const getUser = async (id: string) => {
+    try {
+      const response = await fetchUser(id);
+      setFormValues(response?.data?.data);
+    } catch (error) {
+      toast.error("Error Fetching User");
+    }
+  };
+
+  useEffect(() => {
+    getUser(id);
+  }, []);
+
+  console.log(formValues);
+
   return (
     <Grid container spacing={gridSpacing}>
       <Grid size={{ xs: 12 }}>
         <Formik
-          initialValues={initialValues}
+          enableReinitialize={true}
+          initialValues={formValues}
           validationSchema={toFormikValidationSchema(schema)}
           onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
-            console.log(values);
-            // try {
-            //   await login(values.email, values.password);
-            //   if (scriptedRef.current) {
-            //     setStatus({ success: true });
-            //     router.push(DASHBOARD_PATH);
-            //     setSubmitting(false);
-            //   }
-            // } catch (err: any) {
-            //   console.error(err);
-            //   if (scriptedRef.current) {
-            //     setStatus({ success: false });
-            //     setErrors({ submit: err.message });
-            //     setSubmitting(false);
-            //   }
-            // }
+            try {
+              const response = await editUser(id, values);
+              toast.success(response?.data.message);
+              setStatus({ success: true });
+
+              setSubmitting(false);
+            } catch (err: any) {
+              console.error(err);
+              toast.error(err.message);
+              setStatus({ success: false });
+              setErrors({ firstName: err.message });
+              setSubmitting(false);
+            }
           }}
         >
           {({

@@ -7,7 +7,7 @@ import { OverridableComponent } from "@mui/material/OverridableComponent";
 export interface InitialLoginContextProps {
   isLoggedIn: boolean;
   isInitialized?: boolean;
-  user?: UserProfile | null | undefined;
+  user?: any | null | undefined;
 }
 
 export type KeyedObject = {

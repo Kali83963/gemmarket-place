@@ -111,8 +111,8 @@ const EndoserTableFilter = ({ rows, setRows }: Props) => {
         </Tooltip>
 
         {/* client add & dialog */}
-        <Tooltip title="Add Client">
-          <Link href="/apps/invoice/client/add-client">
+        <Tooltip title="Add Endosers">
+          <Link href="/dashboard/endosers/add">
             <Fab
               color="primary"
               size="small"

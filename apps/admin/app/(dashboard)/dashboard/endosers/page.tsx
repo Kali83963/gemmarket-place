@@ -10,7 +10,6 @@ import Grid from "@mui/material/Grid";
 // project-imports
 
 import { dispatch, useSelector } from "store";
-import { getDetailCards } from "store/slices/user";
 
 // types
 import { UserProfile } from "types/user-profile";
@@ -18,7 +17,6 @@ import MainCard from "@/components/cards/MainCard";
 import CustomTable from "@/components/table/Table";
 import CustomDrawer from "@/components/drawer/Drawer";
 import UserDetails from "@/components/users/UserDetails";
-import UserFilter from "@/components/users/UserFilter";
 import { TableProvider } from "@/contexts/TableContext";
 import GenericTable from "@/components/table/GenericTable";
 import EndoserTableHeader from "@/components/endoser/table/EndoserTableHeader";
@@ -1338,10 +1336,6 @@ const EndoserPage = () => {
   //   React.useEffect(() => {
   //     setUsers(detailCards);
   //   }, [detailCards]);
-
-  React.useEffect(() => {
-    dispatch(getDetailCards());
-  }, []);
 
   return (
     <MainCard content={false}>

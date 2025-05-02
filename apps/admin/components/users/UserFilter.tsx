@@ -108,8 +108,8 @@ const UserFilter = ({ users, setUsers }: Props) => {
         </Tooltip>
 
         {/* client add & dialog */}
-        <Tooltip title="Add Client">
-          <Link href="/apps/invoice/client/add-client">
+        <Tooltip title="Add User">
+          <Link href="/dashboard/users/add">
             <Fab
               color="primary"
               size="small"

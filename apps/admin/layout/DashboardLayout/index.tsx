@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, FC, ReactNode } from "react";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
 
 // material-ui
 import { useTheme } from "@mui/material/styles";
@@ -79,6 +81,7 @@ const MainLayout: FC<Props> = ({ children }) => {
           {children}
         </Container>
       </MainContentStyled>
+      <ToastContainer />
     </Box>
   );
 };

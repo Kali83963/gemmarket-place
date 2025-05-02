@@ -427,7 +427,7 @@ export default function CheckoutPage() {
                           </div>
                         </Label>
                       </div>
-                      <div className="flex items-center space-x-2 rounded-lg border p-4">
+                      {/* <div className="flex items-center space-x-2 rounded-lg border p-4">
                         <RadioGroupItem value="paypal" id="paypal" />
                         <Label
                           htmlFor="paypal"
@@ -465,7 +465,7 @@ export default function CheckoutPage() {
                             <span>PayPal</span>
                           </div>
                         </Label>
-                      </div>
+                      </div> */}
                     </RadioGroup>
                   </div>
 

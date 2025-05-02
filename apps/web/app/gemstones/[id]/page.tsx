@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -17,9 +18,36 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/seperator";
 import { Badge } from "@/components/ui/badge";
 import { GemstoneCard } from "@/components/gemstone-card";
+import React, { useEffect, useState } from "react";
+import { apiUrl } from "@/constants";
 
 export type PageProps = Promise<{ id: string }>;
-export default async function GemstoneDetailPage(props: { params: PageProps }) {
+// export default async function GemstoneDetailPage(props: { params: PageProps }) {
+export default function GemstoneDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const [gemstone, setGemstone] = useState<any>({});
+  // const id = (await props.params).id;
+  const { id } = React.use(params);
+  const fetchGemstone = async () => {
+    try {
+      const response = await fetch(`${apiUrl}/gemstones/${id}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch gemstone");
+      }
+      const data = await response.json();
+      setGemstone(data.data);
+    } catch (error) {
+      console.error("Error fetching gemstones:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchGemstone(); // Call the fetchGemstone function when the component mounts
+  }, []); // Empty dependency array ensures this runs only once when the component mounts
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Breadcrumbs */}
@@ -75,14 +103,14 @@ export default async function GemstoneDetailPage(props: { params: PageProps }) {
             </Button>
           </div>
           <div className="grid grid-cols-4 gap-2">
-            {[1, 2, 3, 4].map((i) => (
+            {gemstone?.images?.map((image: any, index: number) => (
               <div
-                key={i}
+                key={index}
                 className="aspect-square cursor-pointer overflow-hidden rounded-md border-2 border-transparent hover:border-blue-600"
               >
                 <img
-                  src={`/placeholder.svg?height=150&width=150&text=View ${i}`}
-                  alt={`Diamond view ${i}`}
+                  src={image.url}
+                  alt={gemstone.name}
                   className="h-full w-full object-cover"
                 />
               </div>
@@ -158,9 +186,9 @@ export default async function GemstoneDetailPage(props: { params: PageProps }) {
                   <span>4.9 · 152 reviews · Since 2015</span>
                 </div>
               </div>
-              <Button variant="outline" size="sm" className="ml-auto">
+              {/* <Button variant="outline" size="sm" className="ml-auto">
                 View Profile
-              </Button>
+              </Button> */}
             </div>
           </div>
 
@@ -191,14 +219,14 @@ export default async function GemstoneDetailPage(props: { params: PageProps }) {
               <ShoppingCart className="h-5 w-5" />
               Add to Cart
             </Button>
-            <Button
+            {/* <Button
               size="lg"
               variant="outline"
               className="flex-1 gap-2 border-blue-600 text-blue-600 hover:bg-blue-50"
             >
               <MessageSquare className="h-5 w-5" />
               Message Seller
-            </Button>
+            </Button> */}
           </div>
         </div>
       </div>

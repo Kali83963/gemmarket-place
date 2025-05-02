@@ -18,30 +18,28 @@ export interface Gemstone {
   weight: number;
   price: number;
   cut_grade: string;
-};
+}
 
 export default function Home() {
-   const [gemstones, setGemstones] = useState<Gemstone[]>([]);
+  const [gemstones, setGemstones] = useState<Gemstone[]>([]);
 
-    const fetchGemstones = async () => {
-
-      const res = await fetch(`${apiUrl}/gemstones/all`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      if (!res.ok) {
-        throw new Error("Failed to fetch gemstones");
-      }
-      const data = await res.json();
-      setGemstones(data.data);
+  const fetchGemstones = async () => {
+    const res = await fetch(`${apiUrl}/gemstones/all`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (!res.ok) {
+      throw new Error("Failed to fetch gemstones");
     }
-
+    const data = await res.json();
+    setGemstones(data.data);
+  };
 
   useEffect(() => {
     fetchGemstones();
-  },[])
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -125,7 +123,7 @@ export default function Home() {
       <GemstoneCategories />
 
       {/* Featured Gemstones */}
-      <FeaturedGemstones />
+      <FeaturedGemstones gemstones={gemstones} />
 
       {/* How It Works */}
       <HowItWorks />

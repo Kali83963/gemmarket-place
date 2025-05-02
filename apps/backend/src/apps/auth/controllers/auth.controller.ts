@@ -11,8 +11,8 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
   successResponse(res, user, "User created successfully", 201);
 });
 
-export const login = asyncHandler(async (req: Request, res: Response) => {
-  const { token, user } = await authService.login(req.body);
+export const weblogin = asyncHandler(async (req: Request, res: Response) => {
+  const { token, user } = await authService.weblogin(req.body);
   res.cookie("token", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production", // only on HTTPS in prod
@@ -22,6 +22,20 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   console.log(user);
   successResponse(res, user, "Login successful");
 });
+
+export const dashboardlogin = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { token, user } = await authService.dashboardlogin(req.body);
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // only on HTTPS in prod
+      sameSite: "strict",
+      maxAge: 60 * 60 * 1000, // 1 hour
+    });
+    console.log(user);
+    successResponse(res, user, "Login successful");
+  }
+);
 
 export const logout = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {

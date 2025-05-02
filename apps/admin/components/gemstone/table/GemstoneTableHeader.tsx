@@ -32,37 +32,42 @@ const headCells: HeadCell[] = [
   {
     id: "name",
     numeric: false,
-    label: "Full Name",
+    label: "Name",
   },
   {
-    id: "email",
+    id: "type",
+    numeric: false,
+    label: "Type",
+  },
+  {
+    id: "shape",
+    numeric: false,
+    label: "Shape",
+  },
+  {
+    id: "weight",
     numeric: true,
-    label: "Email",
+    label: "Weight",
   },
   {
-    id: "phoneNumber",
+    id: "color_grade",
     numeric: false,
-    label: "Phone Number",
+    label: "Color Grade",
   },
   {
-    id: "certificationType",
+    id: "clarity_grade",
     numeric: false,
-    label: "Certification Type",
+    label: "Clarity Grade",
   },
   {
-    id: "certificationAuthority",
+    id: "cut_grade",
     numeric: false,
-    label: "Certifying Authority",
+    label: "Cut Grade",
   },
   {
-    id: "yearofExperience",
+    id: "price",
     numeric: false,
-    label: "Years of Experience",
-  },
-  {
-    id: "specialization",
-    numeric: false,
-    label: "Specialization",
+    label: "Price",
   },
   {
     id: "status",

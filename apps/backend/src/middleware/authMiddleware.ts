@@ -6,6 +6,7 @@ const JWT_SECRET = process.env.JWT_SECRET as string;
 
 interface DecodedUser {
   id: string;
+  email: string;
   role: string;
 }
 
@@ -29,9 +30,14 @@ export const isAuthenticate = async (
   next: NextFunction
 ): Promise<void> => {
   const token = req.cookies.token;
+  console.log(token);
 
   if (!token) {
-    errorResponse(res, "Unauthorized: No token provided", 401);
+    errorResponse(
+      res,
+      "Unauthorized: Authentication token is not provided.",
+      401
+    );
     return;
   }
 
@@ -56,13 +62,20 @@ export const isAuthenticate = async (
     errorResponse(res, "Unauthorized: Invalid or expired token", 401);
   }
 };
+// export const authorizeRoles = (...allowedRoles: string[]) => {
+//   return (req: Request, res: Response, next: NextFunction) => {
+//     if (!req.user || !allowedRoles.includes(req.user.role)) {
+//       return res.status(403).json({ message: 'Access denied' });
+//     }
+//     next();
+//   };
+// }
 
 export const authorize = (roles: string[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user || !roles.includes(req.user.role)) {
-      return res
-        .status(403)
-        .json({ message: "Forbidden: You do not have permission" });
+      errorResponse(res, "Forbidden: You do not have permission", 403);
+      return;
     }
     next();
   };
