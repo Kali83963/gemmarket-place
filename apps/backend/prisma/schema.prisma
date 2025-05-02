@@ -34,7 +34,7 @@ model Gemstone {
   certification_document String
   certificationStatus Boolean
   sellerId          Int
-
+  status            GEMSTONE_STATUS @default(PENDING)
   quantity                    Int
   sku                         String
 
@@ -88,4 +88,10 @@ enum Role {
   SELLER
   ADMIN
   ENDORSER
+}
+enum GEMSTONE_STATUS {
+  ACCEPTED
+  REJECTED
+  PENDING
+  SOLD
 }

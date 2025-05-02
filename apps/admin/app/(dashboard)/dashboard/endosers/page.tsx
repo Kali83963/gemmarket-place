@@ -24,6 +24,7 @@ import GenericTable from "@/components/table/GenericTable";
 import EndoserTableHeader from "@/components/endoser/table/EndoserTableHeader";
 import EndoserTableFilter from "@/components/endoser/table/EndoserTableFilter";
 import EndoserTableRows from "@/components/endoser/table/EndoserTableRows";
+import EndoserDetails from "@/components/endoser/EndoserDetails";
 
 const endoserdata = [
   {
@@ -1327,7 +1328,7 @@ const endoserdata = [
     lastVerifiedDate: "4/22/2025",
   },
 ];
-const UsersPage = () => {
+const EndoserPage = () => {
   const [open, setOpen] = React.useState<boolean>(false);
   const [rows, setRows] = React.useState<any[]>(endoserdata);
 
@@ -1369,7 +1370,7 @@ const UsersPage = () => {
             sx={{ borderLeft: "1px solid", borderLeftColor: "divider" }}
           >
             <CustomDrawer open={open} setOpen={setOpen} rowValue={rowValue!}>
-              <UserDetails rowValue={rowValue!} />
+              <EndoserDetails rowValue={rowValue!} />
             </CustomDrawer>
           </Grid>
         </Grid>
@@ -1378,4 +1379,4 @@ const UsersPage = () => {
   );
 };
 
-export default UsersPage;
+export default EndoserPage;

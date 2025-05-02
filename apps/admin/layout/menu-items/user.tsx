@@ -37,7 +37,7 @@ const users: NavItemType = {
       id: "endoser",
       title: "Endosers",
       type: "item",
-      url: "/dashboard/endoser",
+      url: "/dashboard/endosers",
       icon: icons.IconDashboard,
       breadcrumbs: true,
     },

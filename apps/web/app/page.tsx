@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import { Search, Star } from "lucide-react";
 
@@ -7,8 +8,41 @@ import FeaturedGemstones from "@/components/featured-gemstones";
 import GemstoneCategories from "@/components/gemstone-categories";
 import HowItWorks from "@/components/how-it-works";
 import { GemstoneCard } from "@/components/gemstone-card";
+import { useEffect, useState } from "react";
+import { apiUrl } from "@/constants";
+
+export interface Gemstone {
+  id: number;
+  name: string;
+  images: { url: string }[];
+  weight: number;
+  price: number;
+  cut_grade: string;
+};
 
 export default function Home() {
+   const [gemstones, setGemstones] = useState<Gemstone[]>([]);
+
+    const fetchGemstones = async () => {
+
+      const res = await fetch(`${apiUrl}/gemstones/all`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!res.ok) {
+        throw new Error("Failed to fetch gemstones");
+      }
+      const data = await res.json();
+      setGemstones(data.data);
+    }
+
+
+  useEffect(() => {
+    fetchGemstones();
+  },[])
+
   return (
     <div className="flex min-h-screen flex-col">
       {/* Hero Section */}
@@ -109,47 +143,14 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {/* Updated GemstoneCard with proper key and props */}
-            {[
-              {
-                id: 1,
-                name: "Blue Sapphire",
-                price: 1299,
-                image: "/images/blue-sapphire.jpeg",
-                carat: 2.4,
-                cut: "Oval",
-              },
-              {
-                id: 2,
-                name: "Ruby",
-                price: 1499,
-                image: "/images/ruby.jpeg",
-                carat: 1.8,
-                cut: "Round",
-              },
-              {
-                id: 3,
-                name: "Emerald",
-                price: 1699,
-                image: "/images/emerald.jpeg",
-                carat: 2.1,
-                cut: "Princess",
-              },
-              {
-                id: 4,
-                name: "Diamond",
-                price: 2499,
-                image: "/images/diamond.jpeg",
-                carat: 1.5,
-                cut: "Brilliant",
-              },
-            ].map((gemstone) => (
+            {gemstones.map((gemstone) => (
               <GemstoneCard
                 key={gemstone.id}
                 name={gemstone.name}
                 price={gemstone.price}
-                image={gemstone.image}
-                carat={gemstone.carat}
-                cut={gemstone.cut}
+                image={gemstone.images[0].url}
+                carat={gemstone.weight}
+                cut={gemstone.cut_grade}
               />
             ))}
           </div>
