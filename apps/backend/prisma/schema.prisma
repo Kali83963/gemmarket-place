@@ -1,12 +1,12 @@
  generator client {
   provider = "prisma-client-js"
-  output   = "./generated/client"  // Specify the output path
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 
 model Gemstone {
   id                Int     @id @default(autoincrement())

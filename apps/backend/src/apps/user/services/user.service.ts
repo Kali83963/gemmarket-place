@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import prisma from "@/config/prisma";
 import { CreateUserDTO, EditUserDTO, User } from "@gemmarket/contracts";
-import { Prisma, Role } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 export class UserService {
   async create(createUserBody: CreateUserDTO): Promise<User> {
@@ -56,8 +56,11 @@ export class UserService {
 
   // Delete a user by ID
   async deleteUser(userId: string) {
-    const user = await prisma.user.delete({
-      where: { id: userId },
+    const user = await prisma.user.update({
+      where: { id: userId, isActive: true },
+      data: {
+        isActive: false,
+      },
     });
     return user;
   }

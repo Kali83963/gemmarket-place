@@ -12,7 +12,6 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "@prisma/client": "^6.6.0",
     "@types/bcryptjs": "^3.0.0",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.1",
@@ -28,6 +27,7 @@
   },
   "dependencies": {
     "@gemmarket/contracts": "^1.0.0",
+    "@prisma/client": "^6.7.0",
     "@supabase/supabase-js": "^2.49.1",
     "@types/multer": "^1.4.12",
     "bcryptjs": "^3.0.2",
