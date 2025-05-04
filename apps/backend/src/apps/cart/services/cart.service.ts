@@ -9,9 +9,9 @@ export class CartService {
     });
   }
 
-  async getCart(cartId: string) {
+  async getCart(userId: string) {
     return await prisma.cart.findUnique({
-      where: { id: cartId },
+      where: { userId: userId },
       include: {
         items: {
           include: {
@@ -23,7 +23,7 @@ export class CartService {
   }
 
   async addItemToCart(
-    cartId: string,
+    userId: string,
     itemData: {
       productId: number;
       quantity: number;
@@ -32,21 +32,58 @@ export class CartService {
       size?: string;
     }
   ) {
+    console.log(itemData);
+    const cart = await prisma.cart.findFirst({
+      where: {
+        user: {
+          id: userId,
+        },
+      },
+    });
+    const cartId = cart.id;
+
+    const productExist = await prisma.cartItem.findFirst({
+      where: {
+        cart: {
+          id: cart.id,
+        },
+        productId: itemData.productId,
+      },
+    });
+
+    if (productExist) {
+      const quantity =
+        itemData.quantity < 0
+          ? productExist.quantity - itemData.quantity
+          : productExist.quantity + itemData.quantity;
+      return await prisma.cartItem.update({
+        where: {
+          cartId_productId_color_size: {
+            cartId,
+            productId: itemData.productId,
+            color: itemData.color,
+            size: itemData.size,
+          },
+        },
+        data: {
+          quantity: quantity,
+        },
+      });
+    }
     return await prisma.cartItem.create({
       data: {
         cartId,
-        productId: itemData.productId,
-        quantity: itemData.quantity,
-        price: itemData.price,
-        color: itemData.color,
-        size: itemData.size,
+        ...itemData,
       },
     });
   }
 
-  async removeItemFromCart(cartId: string, itemId: string) {
+  async removeItemFromCart(userId: string, itemId: string) {
     return await prisma.cartItem.delete({
       where: {
+        cart: {
+          userId: userId,
+        },
         id: itemId,
       },
     });

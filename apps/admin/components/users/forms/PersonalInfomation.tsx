@@ -191,12 +191,17 @@ const PersonalInformation = ({
           )}
         </FormControl>
       </Grid>
-      {/* <Grid size={{ xs: 12 }}>
-            <FormControlLabel
-              control={<Checkbox defaultChecked name="checkedA" color="primary" />}
-              label="Same as billing address"
-            />
-          </Grid> */}
+      <Grid size={{ xs: 12 }} sx={{ display: "flex", alignItems: "center" }}>
+        <InputLabel id="active-checkbox-label">Active</InputLabel>
+        <FormControl>
+          <Checkbox
+            name="isActive"
+            color="primary"
+            checked={values.isActive}
+            onChange={handleChange}
+          />
+        </FormControl>
+      </Grid>
     </Grid>
   );
 };

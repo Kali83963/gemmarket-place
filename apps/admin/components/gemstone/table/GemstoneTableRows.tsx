@@ -19,6 +19,7 @@ import {
 } from "@mui/material";
 import Avatar from "@/components/extended/Avatar";
 import Chip from "@/components/extended/Chip";
+import Link from "next/link";
 const avatarImage = "/assets/images/users";
 function descendingComparator(a: KeyedObject, b: KeyedObject, orderBy: string) {
   if (b[orderBy] < a[orderBy]) {
@@ -49,11 +50,13 @@ export interface TableRowsProps {
   rows: any;
   open: boolean;
   handleDrawerOpen: (data: any) => void;
+  handleDelete?: (id: string) => void;
 }
 
 const GemstoneTableRows = ({
   rows,
   open = false,
+  handleDelete,
   handleDrawerOpen,
 }: TableRowsProps) => {
   const { theme, order, orderBy, isSelected, page, rowsPerPage, handleClick } =
@@ -111,55 +114,38 @@ const GemstoneTableRows = ({
             >
               <TableCell
                 padding="checkbox"
-                sx={open ? { pl: 3, display: "none" } : { pl: 3 }}
+                sx={{ pl: 3 }}
                 onClick={() => handleClick(row.id!)}
               >
                 <Checkbox color="primary" checked={isItemSelected} />
               </TableCell>
-              <TableCell sx={open ? { display: "none" } : {}}>
+              <TableCell>
                 <Typography variant="h5">{row.id}</Typography>
               </TableCell>
               <TableCell
                 component="th"
                 id={labelId}
-                onClick={() => (open ? handleDrawerOpen(row) : "")}
                 scope="row"
                 sx={open ? { alignItems: "center", cursor: "pointer" } : {}}
               >
                 <Stack direction="row" spacing={1.25}>
                   <Avatar alt="" src={row.images[0]?.url && avatarProfile} />
                   <Stack>
-                    <Typography variant="h5">{row.name}</Typography>
+                    <Typography variant="h5">
+                      {row.user.firstName} {row.user.lastName}
+                    </Typography>
                   </Stack>
                 </Stack>
               </TableCell>
-              <TableCell sx={open ? { display: "none" } : {}}>
-                {row.type}
-              </TableCell>
-              <TableCell sx={open ? { display: "none" } : {}}>
-                {row.shape}
-              </TableCell>
-              <TableCell sx={open ? { display: "none" } : {}}>
-                {row.weight}
-              </TableCell>
-              <TableCell sx={open ? { display: "none" } : {}}>
-                {row.color_grade}
-              </TableCell>
-              <TableCell sx={open ? { display: "none" } : {}}>
-                {row.clarity_grade}
-              </TableCell>
-              <TableCell sx={open ? { display: "none" } : {}}>
-                {row.cut_grade}
-              </TableCell>
-              <TableCell sx={open ? { display: "none" } : {}}>
-                {row.price}
-              </TableCell>
-              <TableCell sx={open ? { display: "none" } : {}}>
-                {row.status}
-              </TableCell>
-              <TableCell sx={open ? { display: "none" } : {}}>
-                {row.lastVerifiedDate}
-              </TableCell>
+              <TableCell>{row.type}</TableCell>
+              <TableCell>{row.shape}</TableCell>
+              <TableCell>{row.weight}</TableCell>
+              <TableCell>{row.color_grade}</TableCell>
+              <TableCell>{row.clarity_grade}</TableCell>
+              <TableCell>{row.cut_grade}</TableCell>
+              <TableCell>{row.price}</TableCell>
+              <TableCell>{row.status}</TableCell>
+              <TableCell>{row.lastVerifiedDate}</TableCell>
 
               {/* <TableCell
                 sx={open ? { cursor: "pointer" } : {}}
@@ -176,10 +162,7 @@ const GemstoneTableRows = ({
                 />
               </TableCell> */}
 
-              <TableCell
-                align="center"
-                sx={{ pr: 3, ...(open && { display: "none" }) }}
-              >
+              <TableCell align="center" sx={{ pr: 3 }}>
                 <Stack
                   direction="row"
                   alignItems="center"
@@ -187,17 +170,25 @@ const GemstoneTableRows = ({
                   justifyContent="center"
                 >
                   <Tooltip title="View">
-                    <IconButton
-                      color="primary"
-                      size="small"
-                      aria-label="View"
-                      onClick={() => handleDrawerOpen(row)}
+                    <Link
+                      href={`/dashboard/gemstone/details/${encodeURIComponent(row.id)}`}
                     >
-                      <VisibilityTwoToneIcon sx={{ fontSize: "1.3rem" }} />
-                    </IconButton>
+                      <IconButton
+                        color="primary"
+                        size="small"
+                        aria-label="View"
+                      >
+                        <VisibilityTwoToneIcon sx={{ fontSize: "1.3rem" }} />
+                      </IconButton>
+                    </Link>
                   </Tooltip>
                   <Tooltip title="Delete">
-                    <IconButton color="error" size="small" aria-label="Delete">
+                    <IconButton
+                      color="error"
+                      size="small"
+                      aria-label="Delete"
+                      onClick={() => handleDelete && handleDelete(row.id)}
+                    >
                       <DeleteTwoToneIcon sx={{ fontSize: "1.3rem" }} />
                     </IconButton>
                   </Tooltip>

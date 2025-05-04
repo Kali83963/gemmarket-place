@@ -1,6 +1,7 @@
 // App/Gemstone/Services/GemstoneService.ts
 import { z } from "zod";
 import prisma from "@/config/prisma";
+import { CERTIFICATE_STATUS, GEMSTONE_STATUS, User } from "@prisma/client";
 
 // DTOs and Interfaces
 export interface GemstoneDTO {
@@ -8,7 +9,6 @@ export interface GemstoneDTO {
   type: string;
   price: number;
   origin: string;
-  certificationStatus: boolean;
   sellerId: number;
 }
 
@@ -35,7 +35,6 @@ export const gemstoneSchema = z.object({
   compareAtPrice: z.number().positive().optional(), // optional
   origin: z.string().min(1),
   certification_document: z.string().min(1),
-  certificationStatus: z.boolean(),
   sellerId: z.number().int().positive(),
 
   quantity: z.number().int().positive(),
@@ -56,27 +55,61 @@ export const updateGemstoneSchema = gemstoneSchema.partial();
 export type UpdateGemstoneDto = z.infer<typeof updateGemstoneSchema>;
 
 export class GemstoneService {
-  async addGemstone(data: GemstoneDTO) {
+  async addGemstone(data: GemstoneDTO, user: any) {
     // Validate the input data using Zod schema
     const validatedData = gemstoneSchema.parse(data);
 
     const prismaData = {
       ...validatedData,
+      user: {
+        connect: { id: user.id },
+      },
       images: {
         create: validatedData.images.map((url) => ({ url })),
       },
     };
 
-    // Type assertion to ensure the validated data matches Prisma's GemstoneCreateInput
-    return await prisma.gemstone.create({
-      data: prismaData as any, // Ensure that the data matches Prisma's input type
+    const gemstone = await prisma.gemstone.create({
+      data: prismaData as any, // Ensure that the data matches Prisma's input type,
+      include: {
+        user: true,
+      },
     });
+
+    delete gemstone.user.password;
+
+    // Type assertion to ensure the validated data matches Prisma's GemstoneCreateInput
+    return gemstone;
   }
 
   async editGemstone(id: number, data: Partial<GemstoneDTO>) {
+    const validatedData = gemstoneSchema.parse(data);
+    const prismaData = {
+      ...validatedData,
+      images: {
+        deleteMany: {}, // Remove all existing images
+        create: validatedData.images.map((url) => ({ url })),
+      },
+    };
     return await prisma.gemstone.update({
       where: { id },
-      data: data,
+      data: prismaData,
+    });
+  }
+
+  async updateGemstoneStatu(
+    id: number,
+    data: {
+      isActive?: boolean;
+      status?: GEMSTONE_STATUS;
+      certificationStatus?: CERTIFICATE_STATUS;
+    }
+  ) {
+    return await prisma.gemstone.update({
+      where: { id },
+      data: {
+        ...data,
+      },
     });
   }
 
@@ -90,6 +123,21 @@ export class GemstoneService {
     return await prisma.gemstone.findUnique({
       where: { id, isActive: true },
       include: {
+        user: true,
+        verifiedBy: true,
+        images: {
+          select: {
+            url: true,
+          },
+        },
+      },
+    });
+  }
+  async getGemstoneAdmin(id: number) {
+    console.log(id);
+    return await prisma.gemstone.findUnique({
+      where: { id },
+      include: {
         images: {
           select: {
             url: true,
@@ -99,34 +147,67 @@ export class GemstoneService {
     });
   }
 
-  async searchGemstones(
-    type?: string,
-    minPrice?: number,
-    maxPrice?: number,
-    origin?: string,
-    certificationStatus?: boolean
-  ) {
-    const where: any = {};
-    if (type) where.type = type;
-    if (minPrice || maxPrice)
-      where.price = {
-        ...(minPrice ? { gte: minPrice } : {}),
-        ...(maxPrice ? { lte: maxPrice } : {}),
-      };
-    if (origin) where.origin = origin;
-    if (certificationStatus !== undefined)
-      where.certificationStatus = certificationStatus;
+  async searchGemstones() {
+    // certificationStatus?: boolean // origin?: string, // maxPrice?: number, // minPrice?: number, // type?: string,
+    // const where: any = {};
+    // if (type) where.type = type;
+    // if (minPrice || maxPrice)
+    //   where.price = {
+    //     ...(minPrice ? { gte: minPrice } : {}),
+    //     ...(maxPrice ? { lte: maxPrice } : {}),
+    //   };
+    // if (origin) where.origin = origin;
+    // if (certificationStatus !== undefined)
+    //   where.certificationStatus = certificationStatus;
 
     return await prisma.gemstone.findMany({
-      where,
+      // where,
+      include: {
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+        images: {
+          select: {
+            url: true,
+          },
+        },
+      },
     });
   }
 
   // New method to get all gemstones
-  async getAllGemstones() {
+  async getAllGemstones(params) {
+    const { searchQuery, featured } = params;
     return await prisma.gemstone.findMany({
-      where: { isActive: true },
+      where: {
+        isActive: true,
+        certificationStatus: CERTIFICATE_STATUS.ACCEPTED,
+        status: GEMSTONE_STATUS.AVIALABLE,
+        AND: [
+          {
+            name: {
+              contains: searchQuery, // Case-insensitive search for name
+              mode: "insensitive", // Case insensitive search
+            },
+          },
+          {
+            type: {
+              contains: searchQuery, // Case-insensitive search for type
+              mode: "insensitive", // Case insensitive search
+            },
+          },
+          {
+            isFeatured: featured ? true : false,
+          },
+        ],
+      },
       include: {
+        user: true,
+        verifiedBy: true,
         images: {
           select: {
             url: true,

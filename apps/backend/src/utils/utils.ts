@@ -14,6 +14,7 @@ export const asyncHandler =
   ): RequestHandler =>
   (req, res, next) => {
     fn(req, res, next).catch((error) => {
+      console.log(error);
       errorResponse(
         res,
         error.message || "Something went wrong",

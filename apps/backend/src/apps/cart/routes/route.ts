@@ -6,10 +6,9 @@ import {
   getCart,
   removeItem,
 } from "../controller/cart.controller";
+import { CartWebRouter } from "./web/route";
 
 const router = Router();
-router.get("/cart/:userId", getCart);
-router.post("/cart/:userId/add", createCart);
-router.post("/cart/:userId/update", addItem);
-router.delete("/cart/:userId/remove/:productId", removeItem);
-router.delete("/cart/:userId/clear", clearCart);
+router.use("/web", CartWebRouter);
+
+export { router as cartRouter };

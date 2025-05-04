@@ -1,4 +1,4 @@
- generator client {
+generator client {
   provider = "prisma-client-js"
 }
 
@@ -7,62 +7,70 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model Gemstone {
-  id                Int     @id @default(autoincrement())
-  name              String
-  type              String
-  shape             String
-  description       String
-  treatment         String
-  weight            Float
-  dimension         String
-  certification     String
-  color_grade       String
-  clarity_grade     String
-  cut_grade         String
-  polish            String
-  symmetry          String
-  fluorescence      String
-  color             String
-  transparency      String
-  color_saturation  String
+  id                       Int             @id @default(autoincrement())
+  name                     String
+  type                     String
+  shape                    String
+  description              String
+  treatment                String
+  weight                   Float
+  dimension                String
+  certification            String
+  color_grade              String
+  clarity_grade            String
+  cut_grade                String
+  polish                   String
+  symmetry                 String
+  fluorescence             String
+  color                    String
+  transparency             String
+  color_saturation         String
   additional_specification String
-  price             Float
-  origin            String
-  certification_document String
-  certificationStatus Boolean
-  sellerId          Int
-  status            GEMSTONE_STATUS @default(PENDING)
-  quantity                    Int
-  sku                         String
+  price                    Float
+  origin                   String
+  certification_document   String
+  certificationStatus      CERTIFICATE_STATUS @default(PENDING)
+  sellerId                 Int
+  status                   GEMSTONE_STATUS @default(PENDING)
+  quantity                 Int
+  sku                      String
 
-  allowOffers                 Boolean     @default(false)
-  showOnSaleLabel             Boolean     @default(false)
-  chargeForShipping           Boolean     @default(false)
-  isFeatured                  Boolean     @default(false)
-  isActive                    Boolean     @default(true)
+   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
+  allowOffers       Boolean @default(false)
+  showOnSaleLabel   Boolean @default(false)
+  chargeForShipping Boolean @default(false)
+  isFeatured        Boolean @default(false)
+  isActive          Boolean @default(true)
 
-  images                      GemstoneImage[]
-  cartItems                   CartItem[]
+  userId            String
+  user              User   @relation("CreatedGemstones", fields: [userId], references: [id])
+
+  verifiedById      String? // optional to allow unverified gemstones
+  verifiedBy        User?   @relation("VerifiedGemstones", fields: [verifiedById], references: [id])
+
+  images            GemstoneImage[]
+  cartItems         CartItem[]
+  orderItem         OrderItem[]
 }
 
 model GemstoneImage {
-  id          Int       @id @default(autoincrement())
-  url         String
-  gemstoneId  Int
-  gemstone    Gemstone  @relation(fields: [gemstoneId], references: [id])
+  id         Int      @id @default(autoincrement())
+  url        String
+  gemstoneId Int
+  gemstone   Gemstone @relation(fields: [gemstoneId], references: [id])
 }
 
 model Notification {
-  id            Int      @id @default(autoincrement())
-  userId        String   // This should match the type in the User model’s id
-  message       String
-  createdAt     DateTime @default(now())
-  isRead        Boolean  @default(false)
+  id        Int      @id @default(autoincrement())
+  userId    String // This should match the type in the User model’s id
+  message   String
+  createdAt DateTime @default(now())
+  isRead    Boolean  @default(false)
 
-  user          User     @relation("UserNotifications", fields: [userId], references: [id]) // Create relation to User
+  user User @relation("UserNotifications", fields: [userId], references: [id]) // Create relation to User
 }
 
 model User {
@@ -71,12 +79,42 @@ model User {
   lastName  String?
   email     String   @unique
   password  String
-  picture String?
+  picture   String?
   role      Role
   createdAt DateTime @default(now())
-  isActive Boolean @default(true)
+  isActive  Boolean  @default(true)
 
-  notifications Notification[] @relation("UserNotifications") // Use the same relation name
+  createdGemstones  Gemstone[]        @relation("CreatedGemstones")
+  verifiedGemstones Gemstone[]        @relation("VerifiedGemstones")
+  notifications     Notification[]    @relation("UserNotifications") // Use the same relation name
+  gemstoneVerifier  GemstoneVerifier?
+  order             Order[]
+  cart              Cart?
+}
+
+model GemstoneVerifier {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  phoneNumber String
+  status      ENDORSER_STATUS @default(PENDING)
+
+  // Professional Credentials
+  certificationNumber     String
+  certifyingAuthority     String
+  certificationType       String
+  certificationExpiryDate DateTime?
+  yearsOfExperience       Int?
+  specializations         String[]
+  professionalMemberships String[]
+  verificationMethods     String[]
+  verificationEquipment   String[]
+
+  endorserBio String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model BlacklistedToken {
@@ -86,15 +124,16 @@ model BlacklistedToken {
 }
 
 model Cart {
-  id        String   @id @default(uuid())
-  userId    String
+  id        String     @id @default(uuid())
+  userId    String     @unique()
   items     CartItem[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  user      User       @relation(fields: [userId], references: [id])
 }
 
 model CartItem {
-  id        String   @id @default(uuid())
+  id        String  @id @default(uuid())
   cartId    String
   productId Int
   quantity  Int
@@ -102,9 +141,74 @@ model CartItem {
   color     String?
   size      String?
 
-  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  product   Gemstone @relation(fields: [productId], references: [id])
+  cart    Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product Gemstone @relation(fields: [productId], references: [id])
+
   @@unique([cartId, productId, color, size])
+}
+model Order {
+  id            String         @id @default(uuid())
+  userId        String
+  user          User           @relation(fields: [userId], references: [id])
+  totalAmount   Float
+  shippingCost  Float
+  tax           Float
+  status        ORDER_STATUS   @default(PENDING)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  shippingInfoId String           @unique
+  paymentInfoId  String           @unique
+  shippingInfo  ShippingInfo   @relation(fields: [shippingInfoId], references: [id])
+  paymentInfo   PaymentInfo    @relation(fields: [paymentInfoId], references: [id])
+  orderItems    OrderItem[]
+}
+
+model ShippingInfo {
+  id        String   @id @default(uuid())
+  firstName String
+  lastName  String
+  email     String
+  phone     String
+  address   String
+  city      String
+  state     String
+  postalCode String
+  country   String
+  notes     String?
+
+  order      Order?
+
+}
+
+model PaymentInfo {
+  id           String   @id @default(uuid())
+  nameOnCard   String
+  cardLast4    String
+  expiry       String
+  method       String   // E.g., Credit Card, Stripe, PayPal, etc.
+  order        Order?
+
+}
+
+model OrderItem {
+  id          String    @id @default(uuid())
+  orderId     String
+  productId   Int
+  quantity    Int
+  price       Float
+  color       String?
+  size        String?
+
+  order       Order     @relation(fields: [orderId], references: [id])
+  product     Gemstone  @relation(fields: [productId], references: [id])
+}
+
+enum ORDER_STATUS {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
 }
 
 enum Role {
@@ -114,9 +218,22 @@ enum Role {
   ADMIN
   ENDORSER
 }
+
 enum GEMSTONE_STATUS {
   ACCEPTED
   REJECTED
+  AVIALABLE
   PENDING
   SOLD
+}
+enum CERTIFICATE_STATUS {
+  ACCEPTED
+  REJECTED
+  PENDING
+}
+
+enum ENDORSER_STATUS {
+  ACCEPTED
+  REJECTED
+  PENDING
 }

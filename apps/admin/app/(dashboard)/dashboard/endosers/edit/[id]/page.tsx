@@ -37,6 +37,8 @@ import { Formik } from "formik";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import ProfessionalInformation from "@/components/endoser/forms/ProfessionalInformation";
 import VerificationInformation from "@/components/endoser/forms/VerificationInformation";
+import { editEndoser, fetchEndoser } from "@/http/api";
+import { toast } from "react-toastify";
 
 // tabs
 function TabPanel({ children, value, index, ...other }: TabsProps) {
@@ -72,11 +74,6 @@ const tabsOption = [
     icon: <RecentActorsIcon />,
     caption: "Professional Settings",
   },
-  {
-    label: "Verification & Status",
-    icon: <PinDropTwoTone />,
-    caption: "Verification Settings",
-  },
 ];
 
 const schema = z.object({
@@ -88,7 +85,6 @@ const schema = z.object({
     .string()
     .max(255, "Last Name must be at most 255 characters")
     .nonempty("Last Name is required"),
-  role: z.enum(["BUYER", "SELLER"]),
   email: z
     .string()
     .email("Must be a valid email")
@@ -97,50 +93,118 @@ const schema = z.object({
   password: z
     .string()
     .max(255, "Password must be at most 255 characters")
-    .nonempty("Password is required"),
+    .optional(),
+  isActive: z.boolean().default(true),
+
+  phoneNumber: z.string(),
+
+  certificationNumber: z.string(),
+  certifyingAuthority: z.string(),
+  certificationType: z.string(),
+  certificationExpiryDate: z.string().nullable().optional(),
+
+  yearsOfExperience: z.number().int().nonnegative().optional(),
+  specializations: z.array(z.string()),
+  professionalMemberships: z.array(z.string()),
+  verificationMethods: z.array(z.string()),
+  verificationEquipment: z.array(z.string()),
+
+  endorserBio: z.string().optional(),
 });
 
 const initialValues = {
-  firstName: "", // Empty string to meet the "nonempty" rule
-  lastName: "", // Empty string to meet the "nonempty" rule
-  role: "BUYER", // Default to one of the valid enum values ("BUYER" or "SELLER")
-  email: "", // Empty string to meet the "nonempty" rule
-  password: "", // Empty string to meet the "nonempty" rule
+  firstName: "",
+  lastName: "",
+  email: "",
+  password: "",
+  isActive: true,
+
+  phoneNumber: "",
+
+  certificationNumber: "",
+  certifyingAuthority: "",
+  certificationType: "",
+  certificationExpiryDate: null,
+
+  yearsOfExperience: null, // optional number
+  specializations: [],
+  professionalMemberships: [],
+  verificationMethods: [],
+  verificationEquipment: [],
+
+  endorserBio: "",
 };
 
 export type PageProps = Promise<{ id: string }>;
 
 const EditEndoser = ({ params }: { params: Promise<{ id: string }> }) => {
   const [value, setValue] = React.useState<number>(0);
+  const [formValues, setFormValues] = React.useState(initialValues);
+
   const { id } = React.use(params);
 
   const handleChangeStep = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
+  const getEndoser = async (id: string) => {
+    try {
+      const response = await fetchEndoser(id);
+      const { user, ...rest } = response?.data.data;
+      const values = {
+        ...user,
+        ...rest,
+      };
+      setFormValues(values);
+    } catch (error) {
+      toast.error("Error Fetching User");
+    }
+  };
+
+  React.useEffect(() => {
+    getEndoser(id);
+  }, []);
 
   return (
     <Grid container spacing={gridSpacing}>
       <Grid size={{ xs: 12 }}>
         <Formik
-          initialValues={initialValues}
+          enableReinitialize={true}
+          initialValues={formValues}
           validationSchema={toFormikValidationSchema(schema)}
           onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
             console.log(values);
-            // try {
-            //   await login(values.email, values.password);
-            //   if (scriptedRef.current) {
-            //     setStatus({ success: true });
-            //     router.push(DASHBOARD_PATH);
-            //     setSubmitting(false);
-            //   }
-            // } catch (err: any) {
-            //   console.error(err);
-            //   if (scriptedRef.current) {
-            //     setStatus({ success: false });
-            //     setErrors({ submit: err.message });
-            //     setSubmitting(false);
-            //   }
-            // }
+            try {
+              const {
+                firstName,
+                lastName,
+                email,
+                password,
+                isActive,
+                ...rest
+              } = values;
+              const payload = {
+                user: {
+                  firstName,
+                  lastName,
+                  email,
+                  password,
+                  isActive,
+                },
+                ...rest,
+              };
+              console.log(payload);
+              const respones = await editEndoser(id, payload);
+              toast.success(respones?.data.message);
+              // setValue(0);
+              // resetForm();
+              setStatus({ success: true });
+              setSubmitting(false);
+            } catch (err: any) {
+              console.error(err);
+              toast.error(err?.message);
+              setStatus({ success: false });
+              setSubmitting(false);
+            }
           }}
         >
           {({
@@ -148,6 +212,7 @@ const EditEndoser = ({ params }: { params: Promise<{ id: string }> }) => {
             handleBlur,
             handleChange,
             handleSubmit,
+            setFieldValue,
             isSubmitting,
             touched,
             values,
@@ -239,14 +304,7 @@ const EditEndoser = ({ params }: { params: Promise<{ id: string }> }) => {
                       </TabPanel>
                       <TabPanel value={value} index={1}>
                         <ProfessionalInformation
-                          values={values}
-                          touched={touched}
-                          errors={errors}
-                          handleChange={handleChange}
-                        />
-                      </TabPanel>
-                      <TabPanel value={value} index={2}>
-                        <VerificationInformation
+                          setFieldValue={setFieldValue}
                           values={values}
                           touched={touched}
                           errors={errors}

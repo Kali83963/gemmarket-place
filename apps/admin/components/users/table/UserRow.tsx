@@ -53,9 +53,15 @@ export interface TableRowsProps {
   rows: any;
   open: boolean;
   handleDrawerOpen: (data: any) => void;
+  handleDelete?: (id: string) => void;
 }
 
-const UserRows = ({ rows, open = false, handleDrawerOpen }: TableRowsProps) => {
+const UserRows = ({
+  rows,
+  open = false,
+  handleDrawerOpen,
+  handleDelete,
+}: TableRowsProps) => {
   const { theme, order, orderBy, isSelected, page, rowsPerPage, handleClick } =
     useTableContext();
   console.log("Open2", open);
@@ -155,6 +161,9 @@ const UserRows = ({ rows, open = false, handleDrawerOpen }: TableRowsProps) => {
                   }}
                 />
               </TableCell>
+              <TableCell sx={open ? { display: "none" } : {}}>
+                {row.isActive ? "Active" : "Inactive"}
+              </TableCell>
 
               <TableCell
                 align="center"
@@ -188,7 +197,12 @@ const UserRows = ({ rows, open = false, handleDrawerOpen }: TableRowsProps) => {
                     </Link>
                   </Tooltip>
                   <Tooltip title="Delete">
-                    <IconButton color="error" size="small" aria-label="Delete">
+                    <IconButton
+                      color="error"
+                      size="small"
+                      aria-label="Delete"
+                      onClick={() => handleDelete && handleDelete(row?.id)}
+                    >
                       <DeleteTwoToneIcon sx={{ fontSize: "1.3rem" }} />
                     </IconButton>
                   </Tooltip>

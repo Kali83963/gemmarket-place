@@ -72,86 +72,84 @@ const rows = [
 
 // ==============================|| INVOICE DETAILS - DETAILS ||============================== //
 
-const DetailsTab = () => {
-  const theme = useTheme();
-
+const DetailsTab = ({ data }: any) => {
   const sxDivider = {
-    borderColor:
-      theme.palette.mode === ThemeMode.DARK ? "divider" : "primary.light",
+    borderColor: "primary.light",
   };
 
   return (
     <Grid container spacing={gridSpacing}>
       <Grid size={{ xs: 12 }}>
-        <SubCard
-          title="Client"
-          secondary={
-            <Typography variant="subtitle1">
-              Placed on 12.07.2018 10:00
-            </Typography>
-          }
-        >
+        <SubCard>
           <Grid container spacing={gridSpacing}>
-            <Grid size={{ xs: 12 }}>
-              <Grid container spacing={3}>
-                <Grid>
-                  <Typography variant="body2">
-                    <CalendarTodayTwoToneIcon sx={detailsIconSX} /> Sophia Hale
-                  </Typography>
-                </Grid>
-                <Grid>
-                  <Typography variant="body2">
-                    <PhoneAndroidTwoToneIcon sx={detailsIconSX} /> 070 123 4567
-                  </Typography>
-                </Grid>
-                <Grid>
-                  <Typography variant="body2">
-                    <EmailTwoToneIcon sx={detailsIconSX} /> example@mail.com
-                  </Typography>
-                </Grid>
-              </Grid>
-            </Grid>
-            <Grid size={{ xs: 12 }}>
-              <Divider sx={sxDivider} />
-            </Grid>
             <Grid size={{ xs: 12 }}>
               <Grid container spacing={gridSpacing}>
                 <Grid size={{ sm: 6, md: 4, xs: 12 }}>
                   <Stack spacing={2}>
-                    <Typography variant="h4">Payment method</Typography>
+                    <Typography variant="h4">Basic Details</Typography>
                     <Stack spacing={0}>
-                      <Typography variant="h6" sx={{ mb: 1 }}>
-                        Credit Card
-                      </Typography>
                       <Stack direction="row" spacing={1}>
                         <Typography variant="subtitle1">
-                          Transaction ID :
+                          Gemstone Name
                         </Typography>
-                        <Typography variant="body2">000001-TXT</Typography>
+                        <Typography variant="body2">{data?.name}</Typography>
                       </Stack>
                       <Stack direction="row" spacing={1}>
-                        <Typography variant="subtitle1">Amount :</Typography>
-                        <Typography variant="body2">$2500</Typography>
+                        <Typography variant="subtitle1">
+                          Description :
+                        </Typography>
+                        <Typography variant="body2">
+                          {data?.description}
+                        </Typography>
+                      </Stack>
+                      <Stack direction="row" spacing={1}>
+                        <Typography variant="subtitle1">
+                          Gemstone Type :
+                        </Typography>
+                        <Typography variant="body2">{data?.type}</Typography>
+                      </Stack>
+                      <Stack direction="row" spacing={1}>
+                        <Typography variant="subtitle1">Shape :</Typography>
+                        <Typography variant="body2">{data?.shape}</Typography>
+                      </Stack>
+                      <Stack direction="row" spacing={1}>
+                        <Typography variant="subtitle1">Origin :</Typography>
+                        <Typography variant="body2">{data?.origin}</Typography>
+                      </Stack>
+                      <Stack direction="row" spacing={1}>
+                        <Typography variant="subtitle1">Treatment :</Typography>
+                        <Typography variant="body2">
+                          {data?.treatment}
+                        </Typography>
                       </Stack>
                     </Stack>
                   </Stack>
                 </Grid>
                 <Grid size={{ sm: 6, md: 4, xs: 12 }}>
                   <Stack spacing={2}>
-                    <Typography variant="h4">Shipping method</Typography>
+                    <Typography variant="h4">Specification</Typography>
                     <Stack spacing={0}>
-                      <Typography variant="h6" sx={{ mb: 1 }}>
-                        Carrier
-                      </Typography>
                       <Stack direction="row" spacing={1}>
                         <Typography variant="subtitle1">
-                          Tracking Code :
+                          Carat Weight :
                         </Typography>
-                        <Typography variant="body2">FX-012345-6</Typography>
+                        <Typography variant="body2">{data?.weight}</Typography>
                       </Stack>
                       <Stack direction="row" spacing={1}>
-                        <Typography variant="subtitle1">Date :</Typography>
-                        <Typography variant="body2">12.15.2018</Typography>
+                        <Typography variant="subtitle1">
+                          Dimension (mm) :
+                        </Typography>
+                        <Typography variant="body2">
+                          {data?.dimension}
+                        </Typography>
+                      </Stack>
+                      <Stack direction="row" spacing={1}>
+                        <Typography variant="subtitle1">
+                          Certification :
+                        </Typography>
+                        <Typography variant="body2">
+                          {data?.certification}
+                        </Typography>
                       </Stack>
                     </Stack>
                   </Stack>
@@ -160,19 +158,28 @@ const DetailsTab = () => {
                   <Stack spacing={0} sx={{ mt: { xs: 0, md: 3 } }}>
                     <Stack direction="row" spacing={1}>
                       <Typography variant="subtitle1">
-                        Fulfillment status :
-                      </Typography>
-                      <Typography variant="body2">Delivered</Typography>
-                    </Stack>
-                    <Stack direction="row" spacing={1}>
-                      <Typography variant="subtitle1">
-                        Payment status :
+                        Certificate Status :
                       </Typography>
                       <Chip
-                        label="Paid"
+                        label={data?.certificationStatus}
                         variant="outlined"
                         size="small"
-                        chipcolor="success"
+                        chipcolor={
+                          data?.certificationStatus === "ACCEPTED"
+                            ? "success"
+                            : "secondary"
+                        }
+                      />
+                    </Stack>
+                    <Stack direction="row" spacing={1}>
+                      <Typography variant="subtitle1">Status :</Typography>
+                      <Chip
+                        label={data?.status}
+                        variant="outlined"
+                        size="small"
+                        chipcolor={
+                          data?.status === "AVIALABLE" ? "success" : "secondary"
+                        }
                       />
                     </Stack>
                   </Stack>
@@ -186,48 +193,46 @@ const DetailsTab = () => {
               <Grid container spacing={gridSpacing}>
                 <Grid size={{ sm: 6, md: 4 }}>
                   <Stack spacing={2}>
-                    <Typography variant="h4">Billing address</Typography>
+                    <Typography variant="h4">Specific Attributes</Typography>
                     <Stack>
                       <Stack direction="row" spacing={1}>
                         <Typography variant="subtitle1">
-                          First name :
+                          Color Grade :
                         </Typography>
-                        <Typography variant="body2">Joseph</Typography>
-                      </Stack>
-                      <Stack direction="row" spacing={1}>
-                        <Typography variant="subtitle1">Last name :</Typography>
-                        <Typography variant="body2">William</Typography>
-                      </Stack>
-                    </Stack>
-                    <Stack>
-                      <Stack direction="row" spacing={1}>
-                        <Typography variant="subtitle1">Address :</Typography>
                         <Typography variant="body2">
-                          4898 Joanne Lane street
+                          {data?.color_grade}
                         </Typography>
                       </Stack>
                       <Stack direction="row" spacing={1}>
-                        <Typography variant="subtitle1">City :</Typography>
-                        <Typography variant="body2">Boston</Typography>
-                      </Stack>
-                      <Stack direction="row" spacing={1}>
-                        <Typography variant="subtitle1">Country :</Typography>
-                        <Typography variant="body2">United States</Typography>
-                      </Stack>
-                      <Stack direction="row" spacing={1}>
-                        <Typography variant="subtitle1">State :</Typography>
-                        <Typography variant="body2">Massachusetts</Typography>
-                      </Stack>
-                      <Stack direction="row" spacing={1}>
-                        <Typography variant="subtitle1">Zip code :</Typography>
-                        <Typography variant="body2">02110</Typography>
-                      </Stack>
-                    </Stack>
-                    <Stack>
-                      <Stack direction="row" spacing={1}>
-                        <Typography variant="subtitle1">Phone :</Typography>
+                        <Typography variant="subtitle1">
+                          Clarity Grade :
+                        </Typography>
                         <Typography variant="body2">
-                          +1 (070) 123-4567
+                          {data?.clarity_grade}
+                        </Typography>
+                      </Stack>
+                      <Stack direction="row" spacing={1}>
+                        <Typography variant="subtitle1">Cut Grade :</Typography>
+                        <Typography variant="body2">
+                          {data?.cut_grade}
+                        </Typography>
+                      </Stack>
+                      <Stack direction="row" spacing={1}>
+                        <Typography variant="subtitle1">Polish :</Typography>
+                        <Typography variant="body2">{data?.polish}</Typography>
+                      </Stack>
+                      <Stack direction="row" spacing={1}>
+                        <Typography variant="subtitle1">Symmetry :</Typography>
+                        <Typography variant="body2">
+                          {data?.symmetry}
+                        </Typography>
+                      </Stack>
+                      <Stack direction="row" spacing={1}>
+                        <Typography variant="subtitle1">
+                          Fluorescence :
+                        </Typography>
+                        <Typography variant="body2">
+                          {data?.fluorescence}
                         </Typography>
                       </Stack>
                     </Stack>
@@ -235,179 +240,73 @@ const DetailsTab = () => {
                 </Grid>
                 <Grid size={{ sm: 6, md: 4 }}>
                   <Stack spacing={2}>
-                    <Typography variant="h4">Shipping address</Typography>
+                    <Typography variant="h4">
+                      Colored Gemstone Attributes
+                    </Typography>
                     <Stack>
                       <Stack direction="row" spacing={1}>
                         <Typography variant="subtitle1">
-                          First name :
+                          Color / Hue :
                         </Typography>
-                        <Typography variant="body2">Sara</Typography>
+                        <Typography variant="body2">{data?.color}</Typography>
                       </Stack>
                       <Stack direction="row" spacing={1}>
-                        <Typography variant="subtitle1">Last name :</Typography>
-                        <Typography variant="body2">Soudan</Typography>
-                      </Stack>
-                    </Stack>
-                    <Stack>
-                      <Stack direction="row" spacing={1}>
-                        <Typography variant="subtitle1">Address :</Typography>
+                        <Typography variant="subtitle1">
+                          Transparency :
+                        </Typography>
                         <Typography variant="body2">
-                          4898 Joanne Lane street
+                          {data?.transparency}
                         </Typography>
                       </Stack>
                       <Stack direction="row" spacing={1}>
-                        <Typography variant="subtitle1">City :</Typography>
-                        <Typography variant="body2">Boston</Typography>
-                      </Stack>
-                      <Stack direction="row" spacing={1}>
-                        <Typography variant="subtitle1">Country :</Typography>
-                        <Typography variant="body2">United States</Typography>
-                      </Stack>
-                      <Stack direction="row" spacing={1}>
-                        <Typography variant="subtitle1">State :</Typography>
-                        <Typography variant="body2">Massachusetts</Typography>
-                      </Stack>
-                      <Stack direction="row" spacing={1}>
-                        <Typography variant="subtitle1">Zip code :</Typography>
-                        <Typography variant="body2">02110</Typography>
-                      </Stack>
-                    </Stack>
-                    <Stack>
-                      <Stack direction="row" spacing={1}>
-                        <Typography variant="subtitle1">Phone :</Typography>
+                        <Typography variant="subtitle1">
+                          Color Saturation :
+                        </Typography>
                         <Typography variant="body2">
-                          +1 (070) 123-4567
+                          {data?.color_saturation}
+                        </Typography>
+                      </Stack>
+                      <Stack direction="row" spacing={1}>
+                        <Typography variant="subtitle1">
+                          Additional Information :
+                        </Typography>
+                        <Typography variant="body2">
+                          {data?.additional_specification}
                         </Typography>
                       </Stack>
                     </Stack>
                   </Stack>
                 </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
-        </SubCard>
-      </Grid>
-      <Grid size={{ xs: 12 }}>
-        <SubCard title="s" content={false}>
-          <Grid container spacing={3}>
-            <Grid size={{ xs: 12 }}>
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ pl: 3 }}>Description</TableCell>
-                      <TableCell align="right">Quantity</TableCell>
-                      <TableCell align="right">Amount</TableCell>
-                      <TableCell align="right">Total</TableCell>
-                      <TableCell align="right" sx={{ pr: 3 }} />
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {rows.map((row, index) => (
-                      <TableRow key={index}>
-                        <TableCell sx={{ pl: 3 }}>
-                          <Typography variant="subtitle1">
-                            {row.product}
-                          </Typography>
-                          <Typography variant="body2">
-                            {row.description}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align="right">{row.quantity}</TableCell>
-                        <TableCell align="right">{row.amount}</TableCell>
-                        <TableCell align="right">{row.total}</TableCell>
-                        <TableCell sx={{ pr: 3 }} align="right">
-                          <IconButton
-                            color="error"
-                            size="large"
-                            aria-label="-Delete"
-                          >
-                            <DeleteTwoToneIcon />
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Grid>
-            <Grid size={{ xs: 12 }}>
-              <SubCard
-                sx={{
-                  mx: 3,
-                  mb: 3,
-                  bgcolor:
-                    theme.palette.mode === ThemeMode.DARK
-                      ? "dark.main"
-                      : "primary.light",
-                }}
-              >
-                <Grid container justifyContent="flex-end" spacing={gridSpacing}>
-                  <Grid size={{ sm: 6, md: 4 }}>
-                    <Grid container spacing={2}>
-                      <Grid size={{ xs: 12 }}>
-                        <Grid container spacing={1}>
-                          <Grid size={{ xs: 6 }}>
-                            <Typography align="right" variant="subtitle1">
-                              Sub Total :
-                            </Typography>
-                          </Grid>
-                          <Grid size={{ xs: 12 }}>
-                            <Typography align="right" variant="body2">
-                              $4725.00
-                            </Typography>
-                          </Grid>
-                          <Grid size={{ xs: 12 }}>
-                            <Typography align="right" variant="subtitle1">
-                              Tax (10%) :
-                            </Typography>
-                          </Grid>
-                          <Grid size={{ xs: 12 }}>
-                            <Typography align="right" variant="body2">
-                              $57.00
-                            </Typography>
-                          </Grid>
-                          <Grid size={{ xs: 6 }}>
-                            <Typography align="right" variant="subtitle1">
-                              Discount (5%) :
-                            </Typography>
-                          </Grid>
-                          <Grid size={{ xs: 12 }}>
-                            <Typography align="right" variant="body2">
-                              $45.00
-                            </Typography>
-                          </Grid>
-                        </Grid>
-                      </Grid>
-                      <Grid size={{ xs: 12 }}>
-                        <Divider sx={{ bgcolor: "dark.main" }} />
-                      </Grid>
-                      <Grid size={{ xs: 12 }}>
-                        <Grid container spacing={1}>
-                          <Grid size={{ xs: 12 }}>
-                            <Typography
-                              align="right"
-                              color="primary"
-                              variant="subtitle1"
-                            >
-                              Total :
-                            </Typography>
-                          </Grid>
-                          <Grid size={{ xs: 12 }}>
-                            <Typography
-                              align="right"
-                              color="primary"
-                              variant="subtitle1"
-                            >
-                              $4827.00
-                            </Typography>
-                          </Grid>
-                        </Grid>
-                      </Grid>
-                    </Grid>
-                  </Grid>
+                <Grid size={{ sm: 6, md: 4, xs: 12 }}>
+                  <Stack spacing={2}>
+                    <Typography variant="h4">Price & Quantity </Typography>
+                    <Stack spacing={0}>
+                      <Stack direction="row" spacing={1}>
+                        <Typography variant="subtitle1">Price :</Typography>
+                        <Typography variant="body2">{data?.price}</Typography>
+                      </Stack>
+                      <Stack direction="row" spacing={1}>
+                        <Typography variant="subtitle1">Quantity :</Typography>
+                        <Typography variant="body2">
+                          {data?.quantity}
+                        </Typography>
+                      </Stack>
+                      <Stack direction="row" spacing={1}>
+                        <Typography variant="subtitle1">
+                          Available Quantity :
+                        </Typography>
+                        <Typography variant="body2">
+                          {data?.quantity}
+                        </Typography>
+                      </Stack>
+                      <Stack direction="row" spacing={1}>
+                        <Typography variant="subtitle1">SKU :</Typography>
+                        <Typography variant="body2">{data?.sku}</Typography>
+                      </Stack>
+                    </Stack>
+                  </Stack>
                 </Grid>
-              </SubCard>
+              </Grid>
             </Grid>
           </Grid>
         </SubCard>

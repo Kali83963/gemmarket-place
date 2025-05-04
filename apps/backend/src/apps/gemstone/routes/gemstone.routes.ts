@@ -13,14 +13,20 @@ import {
   gemstoneSchema,
   updateGemstoneSchema,
 } from "../services/gemstone.service";
+import { dashBoardGemstoneRoutes } from "./dashboard/route";
+import { authorize, isAuthenticate } from "@/middleware/authMiddleware";
+import { gemstoneWebRoutes } from "./web/route";
 
 const router = Router();
 
-router.get("/all", getAllGemstones);
-router.post("/", validate(gemstoneSchema), addGemstone);
-router.put("/:id", validate(updateGemstoneSchema), editGemstone);
-router.delete("/:id", deleteGemstone);
-router.get("/:id", getGemstone);
-router.get("/", searchGemstones);
+router.use("/dashboard", dashBoardGemstoneRoutes);
+router.use("/web", gemstoneWebRoutes);
+
+// router.get("gemstone/all", getAllGemstones);
+// router.post("/gemstone", isAuthenticate, validate(gemstoneSchema), addGemstone);
+// router.put("gemstone/:id", validate(updateGemstoneSchema), editGemstone);
+// router.delete("gemstone/:id", deleteGemstone);
+// router.get("gemstone/:id", getGemstone);
+// router.get("gemstone/", searchGemstones);
 
 export { router as gemstoneRoutes };

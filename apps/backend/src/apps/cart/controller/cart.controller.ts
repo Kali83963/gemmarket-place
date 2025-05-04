@@ -12,21 +12,22 @@ export const createCart = async (req: Request, res: Response) => {
 };
 
 export const getCart = asyncHandler(async (req: Request, res: Response) => {
-  const { cartId } = req.params;
-  const cart = await cartService.getCart(cartId);
+  const { id } = req.user;
+  const cart = await cartService.getCart(id);
   successResponse(res, cart, "Card successfully fetched", 200);
 });
 
 export const addItem = asyncHandler(async (req: Request, res: Response) => {
-  const { cartId } = req.params;
-  const itemData = req.body;
-  const item = await cartService.addItemToCart(cartId, itemData);
+  const { id } = req.user;
+  const { itemData } = req.body;
+  const item = await cartService.addItemToCart(id, itemData);
   successResponse(res, item, "Item sucessfully adde to cart");
 });
 
 export const removeItem = asyncHandler(async (req: Request, res: Response) => {
-  const { cartId, itemId } = req.params;
-  await cartService.removeItemFromCart(cartId, itemId);
+  const { id } = req.user;
+  const { itemId } = req.params;
+  await cartService.removeItemFromCart(id, itemId);
   successResponse(res, null, "Item removed successfully.", 204);
 });
 

@@ -44,6 +44,11 @@ const headCells: HeadCell[] = [
     numeric: false,
     label: "Role ",
   },
+  {
+    id: "active",
+    numeric: false,
+    label: "Active",
+  },
 ];
 
 interface UserTableHeaderProps {

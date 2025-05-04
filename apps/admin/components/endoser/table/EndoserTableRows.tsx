@@ -19,6 +19,7 @@ import {
 } from "@mui/material";
 import Avatar from "@/components/extended/Avatar";
 import Chip from "@/components/extended/Chip";
+import Link from "next/link";
 const avatarImage = "/assets/images/users";
 function descendingComparator(a: KeyedObject, b: KeyedObject, orderBy: string) {
   if (b[orderBy] < a[orderBy]) {
@@ -49,10 +50,12 @@ export interface TableRowsProps {
   rows: any;
   open: boolean;
   handleDrawerOpen: (data: any) => void;
+  handleDelete?: (id: string) => void;
 }
 
 const EndoserTableRows = ({
   rows,
+  handleDelete,
   open = false,
   handleDrawerOpen,
 }: TableRowsProps) => {
@@ -131,14 +134,14 @@ const EndoserTableRows = ({
                   <Avatar alt="" src={row.avatar && avatarProfile} />
                   <Stack>
                     <Typography variant="h5">
-                      {row.firstName} {row.lastName}
+                      {row?.user?.firstName} {row?.user?.lastName}
                     </Typography>
-                    <Typography variant="caption">{row.role}</Typography>
+                    <Typography variant="caption">{row?.user?.role}</Typography>
                   </Stack>
                 </Stack>
               </TableCell>
               <TableCell sx={open ? { display: "none" } : {}}>
-                {row.email}
+                {row?.user?.email}
               </TableCell>
               <TableCell sx={open ? { display: "none" } : {}}>
                 {row.phoneNumber}
@@ -153,9 +156,12 @@ const EndoserTableRows = ({
                 {row.yearsOfExperience}
               </TableCell>
               <TableCell sx={open ? { display: "none" } : {}}>
-                {row.specialization?.map((s: any) => {
-                  return <span key={s}>{s},</span>;
-                })}
+                {row.specializations?.map((s: any, index: number) => (
+                  <span key={index}>
+                    {s}
+                    {index < row.specializations.length - 1 ? ", " : ""}
+                  </span>
+                ))}
               </TableCell>
               <TableCell sx={open ? { display: "none" } : {}}>
                 {row.status}
@@ -199,17 +205,24 @@ const EndoserTableRows = ({
                       <VisibilityTwoToneIcon sx={{ fontSize: "1.3rem" }} />
                     </IconButton>
                   </Tooltip>
-                  <Tooltip title="Edit">
-                    <IconButton
-                      color="secondary"
-                      size="small"
-                      aria-label="Edit"
-                    >
-                      <EditTwoToneIcon sx={{ fontSize: "1.3rem" }} />
-                    </IconButton>
-                  </Tooltip>
+                  <Link href={`/dashboard/endosers/edit/${row.id}`}>
+                    <Tooltip title="Edit">
+                      <IconButton
+                        color="secondary"
+                        size="small"
+                        aria-label="Edit"
+                      >
+                        <EditTwoToneIcon sx={{ fontSize: "1.3rem" }} />
+                      </IconButton>
+                    </Tooltip>
+                  </Link>
                   <Tooltip title="Delete">
-                    <IconButton color="error" size="small" aria-label="Delete">
+                    <IconButton
+                      color="error"
+                      size="small"
+                      aria-label="Delete"
+                      onClick={() => handleDelete && handleDelete(row?.id)}
+                    >
                       <DeleteTwoToneIcon sx={{ fontSize: "1.3rem" }} />
                     </IconButton>
                   </Tooltip>

@@ -27,6 +27,8 @@ import EndoserDetails from "@/components/endoser/EndoserDetails";
 import GemstoneTableHeader from "@/components/gemstone/table/GemstoneTableHeader";
 import GemstoneTableRows from "@/components/gemstone/table/GemstoneTableRows";
 import { useRouter } from "next/router";
+import { deleteGemstone, fetchGemstones } from "@/http/api";
+import { toast } from "react-toastify";
 
 const endoserdata = [
   {
@@ -2912,20 +2914,33 @@ const endoserdata = [
 ];
 const GemstonePage = () => {
   const [open, setOpen] = React.useState<boolean>(false);
-  const [rows, setRows] = React.useState<any[]>(endoserdata);
+  const [rows, setRows] = React.useState<any[]>([]);
 
   //   const { detailCards } = useSelector((state) => state.user);
   const [rowValue, setRowValue] = React.useState(null);
 
-  //   React.useEffect(() => {
-  //     setUsers(detailCards);
-  //   }, [detailCards]);
+  const getGemstone = async () => {
+    try {
+      const response = await fetchGemstones();
+      setRows(response?.data?.data);
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  };
+
+  const handleDeleteEndoser = async (id: string) => {
+    try {
+      const response = await deleteGemstone(id);
+      toast.error(response?.data.message);
+      await getGemstone();
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  };
 
   React.useEffect(() => {
-    if (!rowValue) return;
-    const { id } = rowValue;
-    window.location.href = `/dashboard/gemstone/details/${encodeURIComponent(id)}`;
-  }, [rowValue]);
+    getGemstone();
+  }, []);
 
   return (
     <MainCard content={false}>
@@ -2943,6 +2958,7 @@ const GemstonePage = () => {
                 open={open}
                 setOpen={setOpen}
                 data={rows}
+                handleDelete={handleDeleteEndoser}
                 setRowValue={setRowValue}
                 HeaderComponent={GemstoneTableHeader}
                 BodyComponent={GemstoneTableRows}

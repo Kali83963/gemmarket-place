@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 
 // material-ui
 import { useTheme } from "@mui/material/styles";
@@ -21,6 +21,9 @@ import MainCard from "@/components/cards/MainCard";
 import DetailsTab from "@/components/gemstone/DetailsTab";
 import SpecificationTab from "@/components/gemstone/SpecificationTab";
 import MediaTab from "@/components/gemstone/MediaTab";
+import { fetchGemstone } from "@/http/api";
+import { toast } from "react-toastify";
+import VerificationTab from "@/components/gemstone/VerificationTab";
 
 // tab content
 function TabPanel({ children, value, index, ...other }: TabsProps) {
@@ -47,13 +50,32 @@ function a11yProps(index: number) {
 // ==============================|| INVOICE DETAILS ||============================== //
 export type PageProps = Promise<{ id: string }>;
 const GemstoneDetails = ({ params }: { params: Promise<{ id: string }> }) => {
+  const { id } = React.use(params);
   const [value, setValue] = useState<number>(0);
+  const [data, setData] = useState();
   const handleChangeTabs = (
     event: React.SyntheticEvent<Element, Event>,
     newValue: number
   ) => {
     setValue(newValue);
   };
+
+  const handleChangeStep = (event: React.SyntheticEvent, newValue: number) => {
+    setValue(newValue);
+  };
+  const getGemstone = async (id: string) => {
+    try {
+      const response = await fetchGemstone(id);
+
+      setData(response?.data.data);
+    } catch (error) {
+      toast.error("Error Fetching User");
+    }
+  };
+
+  React.useEffect(() => {
+    getGemstone(id);
+  }, []);
 
   return (
     <MainCard>
@@ -86,48 +108,37 @@ const GemstoneDetails = ({ params }: { params: Promise<{ id: string }> }) => {
           icon={<DescriptionTwoToneIcon />}
           component={Link}
           href="#"
-          label="Details"
+          label="Basic Details"
           {...a11yProps(0)}
         />
+
         <Tab
-          icon={<ReceiptTwoToneIcon />}
+          icon={<LocalShippingTwoToneIcon />}
           component={Link}
           href="#"
-          label="Invoice"
+          label="Images & Media"
           {...a11yProps(1)}
         />
         <Tab
           icon={<LocalShippingTwoToneIcon />}
           component={Link}
           href="#"
-          label="Status"
+          label="Verification"
           {...a11yProps(2)}
-        />
-        <Tab
-          icon={<LocalShippingTwoToneIcon />}
-          component={Link}
-          href="#"
-          label="Status"
-          {...a11yProps(3)}
         />
       </Tabs>
 
       {/* tab - details */}
       <TabPanel value={value} index={0}>
-        <DetailsTab />
-      </TabPanel>
-
-      {/* tab - invoice */}
-      <TabPanel value={value} index={1}>
-        <SpecificationTab />
+        <DetailsTab data={data} />
       </TabPanel>
 
       {/* tab - status */}
-      <TabPanel value={value} index={2}>
-        <MediaTab />
+      <TabPanel value={value} index={1}>
+        <MediaTab data={data} />
       </TabPanel>
-      <TabPanel value={value} index={3}>
-        <MediaTab />
+      <TabPanel value={value} index={2}>
+        <VerificationTab data={data} />
       </TabPanel>
     </MainCard>
   );

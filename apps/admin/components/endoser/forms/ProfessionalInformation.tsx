@@ -8,8 +8,9 @@ import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 // project imports
 import { gridSpacing } from "store/constant";
@@ -22,45 +23,48 @@ import {
 import { useState } from "react";
 import { Formik } from "formik";
 import { toFormikValidationSchema } from "zod-formik-adapter";
+import dayjs from "dayjs";
 
 interface ProfessionalInformationProps {
   values: any;
   touched: any;
   errors: any;
   handleChange: any;
+  setFieldValue: any;
 }
+
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
 
 const ProfessionalInformation = ({
   values,
   touched,
   errors,
   handleChange,
+  setFieldValue,
 }: ProfessionalInformationProps) => {
-  const [showPassword, setShowPassword] = useState(false);
-  const handleClickShowPassword = () => {
-    setShowPassword(!showPassword);
-  };
-  console.log(errors);
-  console.log(touched);
-
-  const handleMouseDownPassword = (event: React.MouseEvent) => {
-    event.preventDefault()!;
-  };
-
   return (
     <Grid container spacing={gridSpacing}>
       <Grid size={{ xs: 12, sm: 6 }}>
         <FormControl fullWidth>
           <TextField
             fullWidth
-            label="First Name"
-            name="firstName"
-            value={values.firstName}
+            label="Phone Number"
+            name="phoneNumber"
+            value={values.phoneNumber}
             onChange={handleChange}
           />
           {errors.firstName && (
             <FormHelperText error id="standard-weight-helper-text-email-login">
-              {errors.firstName}
+              {errors.phoneNumber}
             </FormHelperText>
           )}
         </FormControl>
@@ -69,113 +73,224 @@ const ProfessionalInformation = ({
         <FormControl fullWidth>
           <TextField
             fullWidth
-            label="Last Name"
-            name="lastName"
-            value={values.lastName}
+            label="Certification Number"
+            name="certificationNumber"
+            value={values.certificationNumber}
             onChange={handleChange}
           />
-          {errors.lastName && (
+          {errors.certificationNumber && (
             <FormHelperText error id="standard-weight-helper-text-email-login">
-              {errors.lastName}
+              {errors.certificationNumber}
             </FormHelperText>
           )}
         </FormControl>
-        {/* <FormControl fullWidth>
-              <InputLabel id="demo-simple-select-label">Industry</InputLabel>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                label="Industry"
-                value={1}
-              >
-                <MenuItem value={1}>company.com</MenuItem>
-                <MenuItem value={2}>company.com</MenuItem>
-                <MenuItem value={3}>company.com</MenuItem>
-              </Select>
-            </FormControl> */}
       </Grid>
       <Grid size={{ xs: 12, sm: 6 }}>
         <FormControl fullWidth>
           <TextField
             fullWidth
-            label="Email"
-            type="email"
-            name="email"
-            value={values.email}
+            label="Certifying Authority"
+            type="text"
+            name="certifyingAuthority"
+            value={values.certifyingAuthority}
             onChange={handleChange}
           />
-          {errors.email && (
+          {errors.certifyingAuthority && (
             <FormHelperText error id="standard-weight-helper-text-email-login">
-              {errors.email}
+              {errors.certifyingAuthority}
             </FormHelperText>
           )}
         </FormControl>
       </Grid>
       <Grid size={{ xs: 12, sm: 6 }}>
         <FormControl fullWidth>
-          <InputLabel htmlFor="outlined-adornment-password">
-            Password
-          </InputLabel>
-          <OutlinedInput
+          <TextField
             fullWidth
-            id="outlined-adornment-password"
-            type={showPassword ? "text" : "password"}
-            value={values.password}
-            name="password"
+            label="Certification Type"
+            type="text"
+            name="certificationType"
+            value={values.certificationType}
             onChange={handleChange}
-            endAdornment={
-              <InputAdornment position="end">
-                <IconButton
-                  aria-label={
-                    showPassword ? "hide the password" : "display the password"
-                  }
-                  onClick={handleClickShowPassword}
-                  onMouseDown={handleMouseDownPassword}
-                  edge="end"
-                >
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
-                </IconButton>
-              </InputAdornment>
-            }
-            label="Password"
           />
-          {errors.password && (
+          {errors.certificationType && (
             <FormHelperText error id="standard-weight-helper-text-email-login">
-              {errors.password}
+              {errors.certificationType}
             </FormHelperText>
           )}
         </FormControl>
-        {/* <OutlinedInput
-              id="outlined-adornment-passwordas"
-              type={showPassword ? "text" : "password"}
-              value={values.password}
-              name="password"
-              onBlur={handleBlur}
-              onChange={handleChange}
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={handleClickShowPassword}
-                    onMouseDown={handleMouseDownPassword}
-                    edge="end"
-                    size="large"
-                  >
-                    {showPassword ? <Visibility /> : <VisibilityOff />}
-                  </IconButton>
-                </InputAdornment>
-              }
-              inputProps={{}}
-              label="Password"
-            /> */}
       </Grid>
 
-      {/* <Grid size={{ xs: 12 }}>
-            <FormControlLabel
-              control={<Checkbox defaultChecked name="checkedA" color="primary" />}
-              label="Same as billing address"
+      <Grid size={{ xs: 12, sm: 6 }}>
+        <FormControl fullWidth>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              value={
+                values.certificationExpiryDate
+                  ? dayjs(values.certificationExpiryDate)
+                  : null
+              }
+              onChange={(value) => {
+                setFieldValue(
+                  "certificationExpiryDate",
+                  value ? value.toISOString() : null
+                );
+              }}
+              label="Certification Expiry"
+              name="certificationExpiryDate"
             />
-          </Grid> */}
+          </LocalizationProvider>
+          {errors.certificationExpiryDate && (
+            <FormHelperText error id="standard-weight-helper-text-email-login">
+              {errors.certificationExpiryDate}
+            </FormHelperText>
+          )}
+        </FormControl>
+      </Grid>
+      <Grid size={{ xs: 12, sm: 6 }}>
+        <FormControl fullWidth>
+          <TextField
+            fullWidth
+            label="Years of Experience"
+            type="number"
+            name="yearsOfExperience"
+            value={values.yearsOfExperience}
+            onChange={handleChange}
+          />
+          {errors.yearsOfExperience && (
+            <FormHelperText error id="standard-weight-helper-text-email-login">
+              {errors.yearsOfExperience}
+            </FormHelperText>
+          )}
+        </FormControl>
+      </Grid>
+      <Grid size={{ xs: 12, sm: 6 }}>
+        <FormControl fullWidth>
+          <InputLabel id="specialization-name-label">Specialization</InputLabel>
+          <Select
+            labelId="demo-multiple-name-label"
+            id="specialization-name-label"
+            multiple
+            name="specializations"
+            value={values.specializations || []}
+            onChange={handleChange}
+            input={<OutlinedInput label="Name" />}
+            MenuProps={MenuProps}
+          >
+            {["Diamonds", "Rubies", "Sapphires"].map((name) => (
+              <MenuItem key={name} value={name}>
+                {name}
+              </MenuItem>
+            ))}
+          </Select>
+          {errors.specializations && (
+            <FormHelperText error id="standard-weight-helper-text-email-login">
+              {errors.specializations}
+            </FormHelperText>
+          )}
+        </FormControl>
+      </Grid>
+      <Grid size={{ xs: 12, sm: 6 }}>
+        <FormControl fullWidth>
+          <InputLabel id="specialization-name-label">
+            Professional Memberships
+          </InputLabel>
+          <Select
+            labelId="demo-multiple-name-label"
+            id="specialization-name-label"
+            multiple
+            name="professionalMemberships"
+            value={values.professionalMemberships || []}
+            onChange={handleChange}
+            input={<OutlinedInput label="Name" />}
+            MenuProps={MenuProps}
+          >
+            {["American Gem Society"].map((name) => (
+              <MenuItem key={name} value={name}>
+                {name}
+              </MenuItem>
+            ))}
+          </Select>
+          {errors.professionalMemberships && (
+            <FormHelperText error id="standard-weight-helper-text-email-login">
+              {errors.professionalMemberships}
+            </FormHelperText>
+          )}
+        </FormControl>
+      </Grid>
+      <Grid size={{ xs: 12, sm: 6 }}>
+        <FormControl fullWidth>
+          <InputLabel id="specialization-name-label">
+            Verification Methods
+          </InputLabel>
+          <Select
+            labelId="demo-multiple-name-label"
+            id="specialization-name-label"
+            multiple
+            name="verificationMethods"
+            value={values.verificationMethods || []}
+            onChange={handleChange}
+            input={<OutlinedInput label="Name" />}
+            MenuProps={MenuProps}
+          >
+            {["Visual Inspection", "Spectroscopy"].map((name) => (
+              <MenuItem key={name} value={name}>
+                {name}
+              </MenuItem>
+            ))}
+          </Select>
+          {errors.verificationMethods && (
+            <FormHelperText error id="standard-weight-helper-text-email-login">
+              {errors.verificationMethods}
+            </FormHelperText>
+          )}
+        </FormControl>
+      </Grid>
+      <Grid size={{ xs: 12, sm: 6 }}>
+        <FormControl fullWidth>
+          <InputLabel id="specialization-name-label">
+            Verification Equipment
+          </InputLabel>
+          <Select
+            labelId="demo-multiple-name-label"
+            id="specialization-name-label"
+            multiple
+            name="verificationEquipment"
+            value={values.verificationEquipment || []}
+            onChange={handleChange}
+            input={<OutlinedInput label="Name" />}
+            MenuProps={MenuProps}
+          >
+            {["Gem Microscope", "Refractometer"].map((name) => (
+              <MenuItem key={name} value={name}>
+                {name}
+              </MenuItem>
+            ))}
+          </Select>
+          {errors.verificationEquipment && (
+            <FormHelperText error id="standard-weight-helper-text-email-login">
+              {errors.verificationEquipment}
+            </FormHelperText>
+          )}
+        </FormControl>
+      </Grid>
+      <Grid size={{ xs: 12, sm: 6 }}>
+        <FormControl fullWidth>
+          <TextField
+            fullWidth
+            label="Bio"
+            name="endorserBio"
+            multiline
+            rows={4}
+            value={values.endorserBio}
+            onChange={handleChange}
+          />
+          {errors.endorserBio && (
+            <FormHelperText error id="standard-weight-helper-text-email-login">
+              {errors.endorserBio}
+            </FormHelperText>
+          )}
+        </FormControl>
+      </Grid>
     </Grid>
   );
 };

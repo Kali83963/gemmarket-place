@@ -23,14 +23,16 @@ import { UserProfile } from "types/user-profile";
 import { ThemeMode } from "types/config";
 import Avatar from "../extended/Avatar";
 import { useDrawer } from "@/contexts/DrawerContext";
+import { useRouter } from "next/router";
 
 interface RowDetailProps {
   rowValue: any;
+  handleDelete: (id: string) => {};
 }
 
 // ==============================|| CLIENT LIST - DETAILS ||============================== //
 
-const UserDetails = ({ rowValue }: RowDetailProps) => {
+const UserDetails = ({ rowValue, handleDelete }: RowDetailProps) => {
   const theme = useTheme();
   const balance = Math.floor(Math.random() * 4);
   const matchesXs = useMediaQuery(theme.breakpoints.down("sm"));
@@ -83,6 +85,7 @@ const UserDetails = ({ rowValue }: RowDetailProps) => {
                 color: "grey.900",
               }}
               startIcon={<EditTwoTone />}
+              href={`/dashboard/users/edit/${rowValue?.id}`}
             >
               Edit
             </Button>
@@ -92,7 +95,7 @@ const UserDetails = ({ rowValue }: RowDetailProps) => {
             justifyContent="flex-end"
             spacing={{ xs: 1, sm: 2.5 }}
           >
-            <Tooltip title="Delete">
+            <Tooltip title="Delete" onClick={() => handleDelete(rowValue.id)}>
               <IconButton
                 color="error"
                 sx={{

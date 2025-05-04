@@ -51,14 +51,17 @@ const VerificationInformation = ({
         <FormControl fullWidth>
           <TextField
             fullWidth
-            label="First Name"
-            name="firstName"
-            value={values.firstName}
+            label="Bio"
+            name="endorserBio"
+            multiline
+            rows={4}
+            maxRows={4}
+            value={values.endorserBio}
             onChange={handleChange}
           />
-          {errors.firstName && (
+          {errors.endorserBio && (
             <FormHelperText error id="standard-weight-helper-text-email-login">
-              {errors.firstName}
+              {errors.endorserBio}
             </FormHelperText>
           )}
         </FormControl>
@@ -78,19 +81,6 @@ const VerificationInformation = ({
             </FormHelperText>
           )}
         </FormControl>
-        {/* <FormControl fullWidth>
-              <InputLabel id="demo-simple-select-label">Industry</InputLabel>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                label="Industry"
-                value={1}
-              >
-                <MenuItem value={1}>company.com</MenuItem>
-                <MenuItem value={2}>company.com</MenuItem>
-                <MenuItem value={3}>company.com</MenuItem>
-              </Select>
-            </FormControl> */}
       </Grid>
       <Grid size={{ xs: 12, sm: 6 }}>
         <FormControl fullWidth>
@@ -109,71 +99,6 @@ const VerificationInformation = ({
           )}
         </FormControl>
       </Grid>
-      <Grid size={{ xs: 12, sm: 6 }}>
-        <FormControl fullWidth>
-          <InputLabel htmlFor="outlined-adornment-password">
-            Password
-          </InputLabel>
-          <OutlinedInput
-            fullWidth
-            id="outlined-adornment-password"
-            type={showPassword ? "text" : "password"}
-            value={values.password}
-            name="password"
-            onChange={handleChange}
-            endAdornment={
-              <InputAdornment position="end">
-                <IconButton
-                  aria-label={
-                    showPassword ? "hide the password" : "display the password"
-                  }
-                  onClick={handleClickShowPassword}
-                  onMouseDown={handleMouseDownPassword}
-                  edge="end"
-                >
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
-                </IconButton>
-              </InputAdornment>
-            }
-            label="Password"
-          />
-          {errors.password && (
-            <FormHelperText error id="standard-weight-helper-text-email-login">
-              {errors.password}
-            </FormHelperText>
-          )}
-        </FormControl>
-        {/* <OutlinedInput
-              id="outlined-adornment-passwordas"
-              type={showPassword ? "text" : "password"}
-              value={values.password}
-              name="password"
-              onBlur={handleBlur}
-              onChange={handleChange}
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={handleClickShowPassword}
-                    onMouseDown={handleMouseDownPassword}
-                    edge="end"
-                    size="large"
-                  >
-                    {showPassword ? <Visibility /> : <VisibilityOff />}
-                  </IconButton>
-                </InputAdornment>
-              }
-              inputProps={{}}
-              label="Password"
-            /> */}
-      </Grid>
-
-      {/* <Grid size={{ xs: 12 }}>
-            <FormControlLabel
-              control={<Checkbox defaultChecked name="checkedA" color="primary" />}
-              label="Same as billing address"
-            />
-          </Grid> */}
     </Grid>
   );
 };

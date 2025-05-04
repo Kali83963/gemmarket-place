@@ -30,7 +30,7 @@ export const dashboardlogin = asyncHandler(
       httpOnly: true,
       secure: process.env.NODE_ENV === "production", // only on HTTPS in prod
       sameSite: "strict",
-      maxAge: 60 * 60 * 1000, // 1 hour
+      maxAge: 60 * 60 * 100000, // 1 hour
     });
     console.log(user);
     successResponse(res, user, "Login successful");

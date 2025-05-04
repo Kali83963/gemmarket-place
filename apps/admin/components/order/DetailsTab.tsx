@@ -72,9 +72,7 @@ const rows = [
 
 // ==============================|| INVOICE DETAILS - DETAILS ||============================== //
 
-const InventoryTab = () => {
-  const theme = useTheme();
-
+const DetailsTab = ({ data }: any) => {
   const sxDivider = {
     borderColor: "primary.light",
   };
@@ -83,11 +81,8 @@ const InventoryTab = () => {
     <Grid container spacing={gridSpacing}>
       <Grid size={{ xs: 12 }}>
         <SubCard
-          title="Client"
           secondary={
-            <Typography variant="subtitle1">
-              Placed on 12.07.2018 10:00
-            </Typography>
+            <Typography variant="subtitle1">{data?.createdAt}</Typography>
           }
         >
           <Grid container spacing={gridSpacing}>
@@ -95,17 +90,21 @@ const InventoryTab = () => {
               <Grid container spacing={3}>
                 <Grid>
                   <Typography variant="body2">
-                    <CalendarTodayTwoToneIcon sx={detailsIconSX} /> Sophia Hale
+                    <CalendarTodayTwoToneIcon sx={detailsIconSX} />{" "}
+                    {data?.shippingInfo?.firstName}{" "}
+                    {data?.shippingInfo?.lastName}
                   </Typography>
                 </Grid>
                 <Grid>
                   <Typography variant="body2">
-                    <PhoneAndroidTwoToneIcon sx={detailsIconSX} /> 070 123 4567
+                    <PhoneAndroidTwoToneIcon sx={detailsIconSX} />{" "}
+                    {data?.shippingInfo?.phone}
                   </Typography>
                 </Grid>
                 <Grid>
                   <Typography variant="body2">
-                    <EmailTwoToneIcon sx={detailsIconSX} /> example@mail.com
+                    <EmailTwoToneIcon sx={detailsIconSX} />{" "}
+                    {data?.shippingInfo?.email}
                   </Typography>
                 </Grid>
               </Grid>
@@ -126,11 +125,13 @@ const InventoryTab = () => {
                         <Typography variant="subtitle1">
                           Transaction ID :
                         </Typography>
-                        <Typography variant="body2">000001-TXT</Typography>
+                        <Typography variant="body2">{data?.name}</Typography>
                       </Stack>
                       <Stack direction="row" spacing={1}>
                         <Typography variant="subtitle1">Amount :</Typography>
-                        <Typography variant="body2">$2500</Typography>
+                        <Typography variant="body2">
+                          {data?.totalAmount}
+                        </Typography>
                       </Stack>
                     </Stack>
                   </Stack>
@@ -150,7 +151,9 @@ const InventoryTab = () => {
                       </Stack>
                       <Stack direction="row" spacing={1}>
                         <Typography variant="subtitle1">Date :</Typography>
-                        <Typography variant="body2">12.15.2018</Typography>
+                        <Typography variant="body2">
+                          {data?.createdAt}
+                        </Typography>
                       </Stack>
                     </Stack>
                   </Stack>
@@ -161,17 +164,17 @@ const InventoryTab = () => {
                       <Typography variant="subtitle1">
                         Fulfillment status :
                       </Typography>
-                      <Typography variant="body2">Delivered</Typography>
+                      <Typography variant="body2">{data?.status}</Typography>
                     </Stack>
                     <Stack direction="row" spacing={1}>
                       <Typography variant="subtitle1">
                         Payment status :
                       </Typography>
                       <Chip
-                        label="Paid"
+                        label={"Paid"}
                         variant="outlined"
                         size="small"
-                        chipcolor="success"
+                        chipcolor={"success"}
                       />
                     </Stack>
                   </Stack>
@@ -191,42 +194,54 @@ const InventoryTab = () => {
                         <Typography variant="subtitle1">
                           First name :
                         </Typography>
-                        <Typography variant="body2">Joseph</Typography>
+                        <Typography variant="body2">
+                          {data?.shippingInfo?.firstName}
+                        </Typography>
                       </Stack>
                       <Stack direction="row" spacing={1}>
                         <Typography variant="subtitle1">Last name :</Typography>
-                        <Typography variant="body2">William</Typography>
+                        <Typography variant="body2">
+                          {data?.shippingInfo?.lastName}
+                        </Typography>
                       </Stack>
                     </Stack>
                     <Stack>
                       <Stack direction="row" spacing={1}>
                         <Typography variant="subtitle1">Address :</Typography>
                         <Typography variant="body2">
-                          4898 Joanne Lane street
+                          {data?.shippingInfo?.address}
                         </Typography>
                       </Stack>
                       <Stack direction="row" spacing={1}>
                         <Typography variant="subtitle1">City :</Typography>
-                        <Typography variant="body2">Boston</Typography>
+                        <Typography variant="body2">
+                          {data?.shippingInfo?.city}
+                        </Typography>
                       </Stack>
                       <Stack direction="row" spacing={1}>
                         <Typography variant="subtitle1">Country :</Typography>
-                        <Typography variant="body2">United States</Typography>
+                        <Typography variant="body2">
+                          {data?.shippingInfo?.country}
+                        </Typography>
                       </Stack>
                       <Stack direction="row" spacing={1}>
                         <Typography variant="subtitle1">State :</Typography>
-                        <Typography variant="body2">Massachusetts</Typography>
+                        <Typography variant="body2">
+                          {data?.shippingInfo?.state}
+                        </Typography>
                       </Stack>
                       <Stack direction="row" spacing={1}>
                         <Typography variant="subtitle1">Zip code :</Typography>
-                        <Typography variant="body2">02110</Typography>
+                        <Typography variant="body2">
+                          {data?.shippingInfo?.postalCode}
+                        </Typography>
                       </Stack>
                     </Stack>
                     <Stack>
                       <Stack direction="row" spacing={1}>
                         <Typography variant="subtitle1">Phone :</Typography>
                         <Typography variant="body2">
-                          +1 (070) 123-4567
+                          {data?.shippingInfo?.phone}
                         </Typography>
                       </Stack>
                     </Stack>
@@ -240,42 +255,54 @@ const InventoryTab = () => {
                         <Typography variant="subtitle1">
                           First name :
                         </Typography>
-                        <Typography variant="body2">Sara</Typography>
+                        <Typography variant="body2">
+                          {data?.shippingInfo?.firstName}
+                        </Typography>
                       </Stack>
                       <Stack direction="row" spacing={1}>
                         <Typography variant="subtitle1">Last name :</Typography>
-                        <Typography variant="body2">Soudan</Typography>
+                        <Typography variant="body2">
+                          {data?.shippingInfo?.lastName}
+                        </Typography>
                       </Stack>
                     </Stack>
                     <Stack>
                       <Stack direction="row" spacing={1}>
                         <Typography variant="subtitle1">Address :</Typography>
                         <Typography variant="body2">
-                          4898 Joanne Lane street
+                          {data?.shippingInfo?.address}
                         </Typography>
                       </Stack>
                       <Stack direction="row" spacing={1}>
                         <Typography variant="subtitle1">City :</Typography>
-                        <Typography variant="body2">Boston</Typography>
+                        <Typography variant="body2">
+                          {data?.shippingInfo?.city}
+                        </Typography>
                       </Stack>
                       <Stack direction="row" spacing={1}>
                         <Typography variant="subtitle1">Country :</Typography>
-                        <Typography variant="body2">United States</Typography>
+                        <Typography variant="body2">
+                          {data?.shippingInfo?.country}
+                        </Typography>
                       </Stack>
                       <Stack direction="row" spacing={1}>
                         <Typography variant="subtitle1">State :</Typography>
-                        <Typography variant="body2">Massachusetts</Typography>
+                        <Typography variant="body2">
+                          {data?.shippingInfo?.state}
+                        </Typography>
                       </Stack>
                       <Stack direction="row" spacing={1}>
                         <Typography variant="subtitle1">Zip code :</Typography>
-                        <Typography variant="body2">02110</Typography>
+                        <Typography variant="body2">
+                          {data?.shippingInfo?.postalCode}
+                        </Typography>
                       </Stack>
                     </Stack>
                     <Stack>
                       <Stack direction="row" spacing={1}>
                         <Typography variant="subtitle1">Phone :</Typography>
                         <Typography variant="body2">
-                          +1 (070) 123-4567
+                          {data?.shippingInfo?.phone}
                         </Typography>
                       </Stack>
                     </Stack>
@@ -287,7 +314,7 @@ const InventoryTab = () => {
         </SubCard>
       </Grid>
       <Grid size={{ xs: 12 }}>
-        <SubCard title="s" content={false}>
+        <SubCard title="Items" content={false}>
           <Grid container spacing={3}>
             <Grid size={{ xs: 12 }}>
               <TableContainer>
@@ -302,28 +329,19 @@ const InventoryTab = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {rows.map((row, index) => (
+                    {data?.orderItems.map((row: any, index: number) => (
                       <TableRow key={index}>
                         <TableCell sx={{ pl: 3 }}>
                           <Typography variant="subtitle1">
-                            {row.product}
+                            {row?.product.name}
                           </Typography>
                           <Typography variant="body2">
-                            {row.description}
+                            {row?.product.description}
                           </Typography>
                         </TableCell>
-                        <TableCell align="right">{row.quantity}</TableCell>
-                        <TableCell align="right">{row.amount}</TableCell>
-                        <TableCell align="right">{row.total}</TableCell>
-                        <TableCell sx={{ pr: 3 }} align="right">
-                          <IconButton
-                            color="error"
-                            size="large"
-                            aria-label="-Delete"
-                          >
-                            <DeleteTwoToneIcon />
-                          </IconButton>
-                        </TableCell>
+                        <TableCell align="right">{row?.quantity}</TableCell>
+                        <TableCell align="right">{row.price}</TableCell>
+                        <TableCell align="right">{row.price}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -335,10 +353,7 @@ const InventoryTab = () => {
                 sx={{
                   mx: 3,
                   mb: 3,
-                  bgcolor:
-                    theme.palette.mode === ThemeMode.DARK
-                      ? "dark.main"
-                      : "primary.light",
+                  bgcolor: "primary.light",
                 }}
               >
                 <Grid container justifyContent="flex-end" spacing={gridSpacing}>
@@ -351,29 +366,29 @@ const InventoryTab = () => {
                               Sub Total :
                             </Typography>
                           </Grid>
-                          <Grid size={{ xs: 12 }}>
+                          <Grid size={{ xs: 6 }}>
                             <Typography align="right" variant="body2">
-                              $4725.00
-                            </Typography>
-                          </Grid>
-                          <Grid size={{ xs: 12 }}>
-                            <Typography align="right" variant="subtitle1">
-                              Tax (10%) :
-                            </Typography>
-                          </Grid>
-                          <Grid size={{ xs: 12 }}>
-                            <Typography align="right" variant="body2">
-                              $57.00
+                              ${data?.totalAmount}
                             </Typography>
                           </Grid>
                           <Grid size={{ xs: 6 }}>
                             <Typography align="right" variant="subtitle1">
-                              Discount (5%) :
+                              Tax :
                             </Typography>
                           </Grid>
-                          <Grid size={{ xs: 12 }}>
+                          <Grid size={{ xs: 6 }}>
                             <Typography align="right" variant="body2">
-                              $45.00
+                              ${data?.tax}
+                            </Typography>
+                          </Grid>
+                          <Grid size={{ xs: 6 }}>
+                            <Typography align="right" variant="subtitle1">
+                              Shipping Cost :
+                            </Typography>
+                          </Grid>
+                          <Grid size={{ xs: 6 }}>
+                            <Typography align="right" variant="body2">
+                              ${data?.shippingCost}
                             </Typography>
                           </Grid>
                         </Grid>
@@ -383,7 +398,7 @@ const InventoryTab = () => {
                       </Grid>
                       <Grid size={{ xs: 12 }}>
                         <Grid container spacing={1}>
-                          <Grid size={{ xs: 12 }}>
+                          <Grid size={{ xs: 6 }}>
                             <Typography
                               align="right"
                               color="primary"
@@ -392,13 +407,16 @@ const InventoryTab = () => {
                               Total :
                             </Typography>
                           </Grid>
-                          <Grid size={{ xs: 12 }}>
+                          <Grid size={{ xs: 6 }}>
                             <Typography
                               align="right"
                               color="primary"
                               variant="subtitle1"
                             >
-                              $4827.00
+                              $
+                              {data?.totalAmount +
+                                data?.shippingCost +
+                                data?.tax}
                             </Typography>
                           </Grid>
                         </Grid>
@@ -415,4 +433,4 @@ const InventoryTab = () => {
   );
 };
 
-export default InventoryTab;
+export default DetailsTab;

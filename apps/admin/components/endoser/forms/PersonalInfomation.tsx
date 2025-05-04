@@ -80,19 +80,6 @@ const PersonalInformation = ({
             </FormHelperText>
           )}
         </FormControl>
-        {/* <FormControl fullWidth>
-              <InputLabel id="demo-simple-select-label">Industry</InputLabel>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                label="Industry"
-                value={1}
-              >
-                <MenuItem value={1}>company.com</MenuItem>
-                <MenuItem value={2}>company.com</MenuItem>
-                <MenuItem value={3}>company.com</MenuItem>
-              </Select>
-            </FormControl> */}
       </Grid>
       <Grid size={{ xs: 12, sm: 6 }}>
         <FormControl fullWidth>
@@ -145,37 +132,18 @@ const PersonalInformation = ({
             </FormHelperText>
           )}
         </FormControl>
-        {/* <OutlinedInput
-              id="outlined-adornment-passwordas"
-              type={showPassword ? "text" : "password"}
-              value={values.password}
-              name="password"
-              onBlur={handleBlur}
-              onChange={handleChange}
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={handleClickShowPassword}
-                    onMouseDown={handleMouseDownPassword}
-                    edge="end"
-                    size="large"
-                  >
-                    {showPassword ? <Visibility /> : <VisibilityOff />}
-                  </IconButton>
-                </InputAdornment>
-              }
-              inputProps={{}}
-              label="Password"
-            /> */}
       </Grid>
-
-      {/* <Grid size={{ xs: 12 }}>
-            <FormControlLabel
-              control={<Checkbox defaultChecked name="checkedA" color="primary" />}
-              label="Same as billing address"
-            />
-          </Grid> */}
+      <Grid size={{ xs: 12 }} sx={{ display: "flex", alignItems: "center" }}>
+        <InputLabel id="active-checkbox-label">Active</InputLabel>
+        <FormControl>
+          <Checkbox
+            name="isActive"
+            color="primary"
+            checked={values.isActive}
+            onChange={handleChange}
+          />
+        </FormControl>
+      </Grid>
     </Grid>
   );
 };

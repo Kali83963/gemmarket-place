@@ -123,6 +123,7 @@ export class UserService {
         lastName: true,
         email: true,
         role: true,
+        isActive: true,
         createdAt: true,
       },
     });

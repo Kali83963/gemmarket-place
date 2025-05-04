@@ -17,6 +17,7 @@ interface GenericTableProps {
   open: boolean;
   setOpen: (open: boolean) => void;
   setRowValue: (data: any) => void;
+  handleDelete?: (data: any) => void;
   HeaderComponent: React.FC<any>;
   BodyComponent: React.FC<TableRowsProps>;
 }
@@ -25,6 +26,7 @@ const GenericTable = ({
   open,
   setOpen,
   setRowValue,
+  handleDelete,
   data,
   HeaderComponent,
   BodyComponent,
@@ -97,6 +99,7 @@ const GenericTable = ({
           <HeaderComponent drawer={open} rows={rows} />
           <TableBody>
             <BodyComponent
+              handleDelete={handleDelete}
               rows={data}
               open={open}
               handleDrawerOpen={handleDrawerOpen}

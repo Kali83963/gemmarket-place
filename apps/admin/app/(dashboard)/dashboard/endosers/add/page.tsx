@@ -38,6 +38,8 @@ import { Formik } from "formik";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import ProfessionalInformation from "@/components/endoser/forms/ProfessionalInformation";
 import VerificationInformation from "@/components/endoser/forms/VerificationInformation";
+import { createEndoser } from "@/http/api";
+import { toast } from "react-toastify";
 
 const schema = z.object({
   firstName: z
@@ -48,7 +50,6 @@ const schema = z.object({
     .string()
     .max(255, "Last Name must be at most 255 characters")
     .nonempty("Last Name is required"),
-  role: z.enum(["BUYER", "SELLER"]),
   email: z
     .string()
     .email("Must be a valid email")
@@ -58,14 +59,45 @@ const schema = z.object({
     .string()
     .max(255, "Password must be at most 255 characters")
     .nonempty("Password is required"),
+  isActive: z.boolean().default(true),
+
+  phoneNumber: z.string(),
+
+  certificationNumber: z.string(),
+  certifyingAuthority: z.string(),
+  certificationType: z.string(),
+  certificationExpiryDate: z.date().nullable().optional(),
+
+  yearsOfExperience: z.number().int().nonnegative().optional(),
+  specializations: z.array(z.string()),
+  professionalMemberships: z.array(z.string()),
+  verificationMethods: z.array(z.string()),
+  verificationEquipment: z.array(z.string()),
+
+  endorserBio: z.string().optional(),
 });
 
 const initialValues = {
-  firstName: "", // Empty string to meet the "nonempty" rule
-  lastName: "", // Empty string to meet the "nonempty" rule
-  role: "BUYER", // Default to one of the valid enum values ("BUYER" or "SELLER")
-  email: "", // Empty string to meet the "nonempty" rule
-  password: "", // Empty string to meet the "nonempty" rule
+  firstName: "",
+  lastName: "",
+  email: "",
+  password: "",
+  isActive: true,
+
+  phoneNumber: "",
+
+  certificationNumber: "",
+  certifyingAuthority: "",
+  certificationType: "",
+  certificationExpiryDate: null,
+
+  yearsOfExperience: null, // optional number
+  specializations: [],
+  professionalMemberships: [],
+  verificationMethods: [],
+  verificationEquipment: [],
+
+  endorserBio: "",
 };
 
 // tabs
@@ -102,21 +134,6 @@ const tabsOption = [
     icon: <RecentActorsIcon />,
     caption: "Professional Settings",
   },
-  {
-    label: "Verification & Status",
-    icon: <PinDropTwoTone />,
-    caption: "Verification Settings",
-  },
-  //   {
-  //     label: "Address detail",
-  //     icon: <PinDropTwoTone />,
-  //     caption: "Address detail",
-  //   },
-  //   {
-  //     label: "Other Detail",
-  //     icon: <WorkTwoToneIcon />,
-  //     caption: "Update Profile Security",
-  //   },
 ];
 
 interface Props {
@@ -137,23 +154,43 @@ const AddEndoser = () => {
         <Formik
           initialValues={initialValues}
           validationSchema={toFormikValidationSchema(schema)}
-          onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
+          onSubmit={async (
+            values,
+            { setErrors, setStatus, setSubmitting, resetForm }
+          ) => {
             console.log(values);
-            // try {
-            //   await login(values.email, values.password);
-            //   if (scriptedRef.current) {
-            //     setStatus({ success: true });
-            //     router.push(DASHBOARD_PATH);
-            //     setSubmitting(false);
-            //   }
-            // } catch (err: any) {
-            //   console.error(err);
-            //   if (scriptedRef.current) {
-            //     setStatus({ success: false });
-            //     setErrors({ submit: err.message });
-            //     setSubmitting(false);
-            //   }
-            // }
+            try {
+              const {
+                firstName,
+                lastName,
+                email,
+                password,
+                isActive,
+                ...rest
+              } = values;
+              const payload = {
+                user: {
+                  firstName,
+                  lastName,
+                  email,
+                  password,
+                  isActive,
+                },
+                ...rest,
+              };
+              console.log(payload);
+              const respones = await createEndoser(payload);
+              toast.success(respones?.data.message);
+              // setValue(0);
+              // resetForm();
+              setStatus({ success: true });
+              setSubmitting(false);
+            } catch (err: any) {
+              console.error(err);
+              toast.error(err?.message);
+              setStatus({ success: false });
+              setSubmitting(false);
+            }
           }}
         >
           {({
@@ -161,6 +198,7 @@ const AddEndoser = () => {
             handleBlur,
             handleChange,
             handleSubmit,
+            setFieldValue,
             isSubmitting,
             touched,
             values,
@@ -254,14 +292,7 @@ const AddEndoser = () => {
                         <ProfessionalInformation
                           values={values}
                           touched={touched}
-                          errors={errors}
-                          handleChange={handleChange}
-                        />
-                      </TabPanel>
-                      <TabPanel value={value} index={2}>
-                        <VerificationInformation
-                          values={values}
-                          touched={touched}
+                          setFieldValue={setFieldValue}
                           errors={errors}
                           handleChange={handleChange}
                         />

@@ -4,13 +4,14 @@ import prisma from "@/config/prisma";
 import { string, z } from "zod";
 import { Request, Response } from "express";
 import { LoginDTO, RegisterUserDTO, User } from "@gemmarket/contracts";
-
+import { CartService } from "@/apps/cart/services/cart.service";
+const cartService = new CartService();
 class AuthService {
   async register(registerBody: RegisterUserDTO): Promise<User> {
     const { password, firstName, lastName, email, role } = registerBody; // Destructure all required fields
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user: User = await prisma.user.create({
+    const user = await prisma.user.create({
       data: {
         email, // Include email
         password: hashedPassword, // Use hashed password
@@ -19,6 +20,8 @@ class AuthService {
         role, // Include role
       },
     });
+
+    await cartService.createCart(user.id);
 
     const userData: User = {
       firstName: user.firstName,
@@ -54,12 +57,10 @@ class AuthService {
       process.env.JWT_SECRET!,
       { expiresIn: "1h" }
     );
-    const userData: User = {
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      role: user.role,
+    const userData = {
+      ...user,
     };
+    delete userData.password;
 
     return { token, user: userData };
   }

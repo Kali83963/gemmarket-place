@@ -137,7 +137,7 @@ const EndoserDetails = ({ rowValue }: RowDetailProps) => {
               </Stack>
               <Stack>
                 <Typography variant="subtitle1">
-                  {rowValue?.firstName} {rowValue?.lastName}
+                  {rowValue?.user.firstName} {rowValue?.user.lastName}
                   <Chip
                     label={label}
                     size="small"
@@ -152,7 +152,7 @@ const EndoserDetails = ({ rowValue }: RowDetailProps) => {
                   />
                 </Typography>
                 <Typography variant="subtitle2" noWrap>
-                  {rowValue?.role}
+                  {rowValue?.user.role}
                 </Typography>
               </Stack>
             </Stack>
@@ -169,17 +169,19 @@ const EndoserDetails = ({ rowValue }: RowDetailProps) => {
               <Typography variant="h5">Personal Information</Typography>
             </Grid>
             <Grid size={{ sm: 6, xs: 12 }}>
-              <Typography variant="subtitle1">{rowValue?.id}</Typography>
+              <Typography variant="subtitle1">{rowValue?.user.id}</Typography>
               <Typography variant="subtitle2">ID number</Typography>
             </Grid>
             <Grid size={{ sm: 6, xs: 12 }}>
               <Typography variant="subtitle1">
-                {rowValue?.firstName} {rowValue?.lastName}
+                {rowValue?.user.firstName} {rowValue?.user.lastName}
               </Typography>
-              <Typography variant="subtitle2">Customer name</Typography>
+              <Typography variant="subtitle2">Endorser name</Typography>
             </Grid>
             <Grid size={{ sm: 6, xs: 12 }}>
-              <Typography variant="subtitle1">{rowValue?.email}</Typography>
+              <Typography variant="subtitle1">
+                {rowValue?.user.email}
+              </Typography>
               <Typography variant="subtitle2">Email</Typography>
             </Grid>
           </Grid>
@@ -195,18 +197,108 @@ const EndoserDetails = ({ rowValue }: RowDetailProps) => {
               <Typography variant="h5">Professional Information</Typography>
             </Grid>
             <Grid size={{ sm: 6, xs: 12 }}>
-              <Typography variant="subtitle1">{rowValue?.id}</Typography>
-              <Typography variant="subtitle2">ID number</Typography>
+              <Typography variant="subtitle1">
+                {rowValue?.phoneNumber}
+              </Typography>
+              <Typography variant="subtitle2">Phone number</Typography>
             </Grid>
             <Grid size={{ sm: 6, xs: 12 }}>
               <Typography variant="subtitle1">
-                {rowValue?.firstName} {rowValue?.lastName}
+                {rowValue?.certificationNumber}
               </Typography>
-              <Typography variant="subtitle2">Customer name</Typography>
+              <Typography variant="subtitle2">Certification number</Typography>
             </Grid>
             <Grid size={{ sm: 6, xs: 12 }}>
-              <Typography variant="subtitle1">{rowValue?.email}</Typography>
-              <Typography variant="subtitle2">Email</Typography>
+              <Typography variant="subtitle1">
+                {rowValue?.certificationType}
+              </Typography>
+              <Typography variant="subtitle2">Certification Type</Typography>
+            </Grid>
+            <Grid size={{ sm: 6, xs: 12 }}>
+              <Typography variant="subtitle1">
+                {rowValue?.certifyingAuthority}
+              </Typography>
+              <Typography variant="subtitle2">
+                Certification Authority
+              </Typography>
+            </Grid>
+            <Grid size={{ sm: 6, xs: 12 }}>
+              <Typography variant="subtitle1">
+                {rowValue?.certificationExpiryDate}
+              </Typography>
+              <Typography variant="subtitle2">
+                Certification Expiry Date
+              </Typography>
+            </Grid>
+            <Grid size={{ sm: 6, xs: 12 }}>
+              <Typography variant="subtitle1">
+                {rowValue?.yearsOfExperience}
+              </Typography>
+              <Typography variant="subtitle2">Year of Experience</Typography>
+            </Grid>
+            <Grid size={{ sm: 6, xs: 12 }}>
+              {rowValue?.professionalMemberships?.map(
+                (s: any, index: number) => (
+                  <Typography variant="subtitle1">
+                    {s}
+                    {index < rowValue.professionalMemberships.length - 1
+                      ? ", "
+                      : ""}
+                  </Typography>
+                )
+              )}
+
+              <Typography variant="subtitle2">
+                Professional Membership
+              </Typography>
+            </Grid>
+            <Grid size={{ sm: 6, xs: 12 }}>
+              {rowValue?.specializations?.map((s: any, index: number) => (
+                <Typography variant="subtitle1">
+                  {s}
+                  {index < rowValue.specializations.length - 1 ? ", " : ""}
+                </Typography>
+              ))}
+
+              <Typography variant="subtitle2">Specialization</Typography>
+            </Grid>
+            <Grid size={{ sm: 6, xs: 12 }}>
+              {rowValue?.verificationEquipment?.map((s: any, index: number) => (
+                <Typography variant="subtitle1">
+                  {s}
+                  {index < rowValue.verificationEquipment.length - 1
+                    ? ", "
+                    : ""}
+                </Typography>
+              ))}
+
+              <Typography variant="subtitle2">
+                Verification Equipment
+              </Typography>
+            </Grid>
+            <Grid size={{ sm: 6, xs: 12 }}>
+              {rowValue?.verificationEquipment?.map((s: any, index: number) => (
+                <Typography variant="subtitle1">
+                  {s}
+                  {index < rowValue.verificationEquipment.length - 1
+                    ? ", "
+                    : ""}
+                </Typography>
+              ))}
+
+              <Typography variant="subtitle2">
+                Verification Equipment
+              </Typography>
+            </Grid>
+            <Grid size={{ sm: 6, xs: 12 }}>
+              {rowValue?.verificationMethods?.map((s: any, index: number) => (
+                <Typography variant="subtitle1">
+                  {s}
+                  {index < rowValue.verificationMethods.length - 1 ? ", " : ""}
+                </Typography>
+              ))}
+
+              <Typography variant="subtitle2">Verification Method</Typography>
             </Grid>
           </Grid>
         </Box>
@@ -221,18 +313,14 @@ const EndoserDetails = ({ rowValue }: RowDetailProps) => {
               <Typography variant="h5">Verification Information</Typography>
             </Grid>
             <Grid size={{ sm: 6, xs: 12 }}>
-              <Typography variant="subtitle1">{rowValue?.id}</Typography>
-              <Typography variant="subtitle2">ID number</Typography>
+              <Typography variant="subtitle1">{rowValue?.status}</Typography>
+              <Typography variant="subtitle2">Status</Typography>
             </Grid>
             <Grid size={{ sm: 6, xs: 12 }}>
               <Typography variant="subtitle1">
-                {rowValue?.firstName} {rowValue?.lastName}
+                {rowValue?.lastVerified}
               </Typography>
-              <Typography variant="subtitle2">Customer name</Typography>
-            </Grid>
-            <Grid size={{ sm: 6, xs: 12 }}>
-              <Typography variant="subtitle1">{rowValue?.email}</Typography>
-              <Typography variant="subtitle2">Email</Typography>
+              <Typography variant="subtitle2">Last Verified</Typography>
             </Grid>
           </Grid>
         </Box>

@@ -22,7 +22,7 @@ import { TableProvider } from "@/contexts/TableContext";
 import GenericTable from "@/components/table/GenericTable";
 import UserTableHeader from "@/components/users/table/UserTableHeaders";
 import UserRows from "@/components/users/table/UserRow";
-import { fetchUsers } from "@/http/api";
+import { deleteUser, fetchUsers } from "@/http/api";
 import { toast } from "react-toastify";
 
 const UsersPage = () => {
@@ -36,6 +36,16 @@ const UsersPage = () => {
     try {
       const response = await fetchUsers();
       setUsers(response?.data?.data);
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  };
+
+  const handleDeleteUser = async (id: string) => {
+    try {
+      const response = await deleteUser(id);
+      toast.error(response?.data.message);
+      await getUsers();
     } catch (error: any) {
       toast.error(error.message);
     }
@@ -61,6 +71,7 @@ const UsersPage = () => {
                 open={open}
                 setOpen={setOpen}
                 data={users}
+                handleDelete={handleDeleteUser}
                 setRowValue={setRowValue}
                 HeaderComponent={UserTableHeader}
                 BodyComponent={UserRows}
@@ -72,7 +83,10 @@ const UsersPage = () => {
             sx={{ borderLeft: "1px solid", borderLeftColor: "divider" }}
           >
             <CustomDrawer open={open} setOpen={setOpen} rowValue={rowValue!}>
-              <UserDetails rowValue={rowValue!} />
+              <UserDetails
+                rowValue={rowValue!}
+                handleDelete={handleDeleteUser}
+              />
             </CustomDrawer>
           </Grid>
         </Grid>

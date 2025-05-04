@@ -58,6 +58,7 @@ const schema = z.object({
     .string()
     .max(255, "Password must be at most 255 characters")
     .nonempty("Password is required"),
+  isActive: z.boolean().default(true),
 });
 
 const initialValues = {
@@ -66,6 +67,7 @@ const initialValues = {
   role: "BUYER", // Default to one of the valid enum values ("BUYER" or "SELLER")
   email: "", // Empty string to meet the "nonempty" rule
   password: "", // Empty string to meet the "nonempty" rule
+  isActive: true, // Empty string to meet the "nonempty" rule
 };
 
 // tabs
