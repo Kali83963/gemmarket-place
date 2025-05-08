@@ -18,7 +18,7 @@ export const asyncHandler =
       errorResponse(
         res,
         error.message || "Something went wrong",
-        error.statusCode || 500
+        error.statusCode || 400
       );
     });
   };

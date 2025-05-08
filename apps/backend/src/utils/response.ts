@@ -15,7 +15,7 @@ export const successResponse = (
 export const errorResponse = (
   res: Response,
   message = "Something went wrong",
-  status = 500,
+  status = 400,
   data: any = null
 ) => {
   return res.status(status).json({

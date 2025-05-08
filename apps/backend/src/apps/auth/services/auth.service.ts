@@ -91,12 +91,11 @@ class AuthService {
       process.env.JWT_SECRET!,
       { expiresIn: "1y" }
     );
-    const userData: User = {
-      firstName: user.email,
-      lastName: user.lastName,
-      email: user.email,
-      role: user.role,
+    const userData = {
+      ...user,
     };
+
+    delete userData.password;
 
     return { token, user: userData };
   }

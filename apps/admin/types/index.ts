@@ -1,7 +1,7 @@
 import { ChipProps, SvgIconTypeMap } from "@mui/material";
 
 import { UserProfile } from "./user-profile";
-import { FunctionComponent, ReactNode } from "react";
+import { FunctionComponent, ReactElement, ReactNode } from "react";
 import { OverridableComponent } from "@mui/material/OverridableComponent";
 
 export interface InitialLoginContextProps {
@@ -9,7 +9,9 @@ export interface InitialLoginContextProps {
   isInitialized?: boolean;
   user?: any | null | undefined;
 }
-
+export type GuardProps = {
+  children: ReactElement | null;
+};
 export type KeyedObject = {
   [key: string]: string | number | KeyedObject | any;
 };

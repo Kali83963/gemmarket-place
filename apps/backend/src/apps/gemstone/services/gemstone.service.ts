@@ -2,6 +2,10 @@
 import { z } from "zod";
 import prisma from "@/config/prisma";
 import { CERTIFICATE_STATUS, GEMSTONE_STATUS, User } from "@prisma/client";
+import { BlockChainService } from "../../blockchain/blockchain.service";
+import fs from "fs";
+import axios from "axios";
+import crypto from "crypto";
 
 // DTOs and Interfaces
 export interface GemstoneDTO {
@@ -16,6 +20,7 @@ export const gemstoneSchema = z.object({
   name: z.string().min(1),
   type: z.string().min(1),
   shape: z.string().min(1),
+  // signerAddress: z.string(),
   description: z.string().min(1),
   treatment: z.string().min(1),
   weight: z.number().positive(),
@@ -54,10 +59,16 @@ export const updateGemstoneSchema = gemstoneSchema.partial();
 
 export type UpdateGemstoneDto = z.infer<typeof updateGemstoneSchema>;
 
+const blockChainService = new BlockChainService();
+async function downloadFile(url: string): Promise<Buffer> {
+  const response = await axios.get(url, { responseType: "arraybuffer" });
+  return Buffer.from(response.data);
+}
 export class GemstoneService {
-  async addGemstone(data: GemstoneDTO, user: any) {
+  async addGemstone(data: CreateGemstoneDto, user: any) {
     // Validate the input data using Zod schema
     const validatedData = gemstoneSchema.parse(data);
+    // const { signerAddress, ...restValidatedData } = data;
 
     const prismaData = {
       ...validatedData,
@@ -76,12 +87,64 @@ export class GemstoneService {
       },
     });
 
+    const blockchainHash = await blockChainService.generateGemstoneHash(
+      gemstone,
+      gemstone.certification_document
+    );
+    // const onChainHash = await this.generateGemstoneHash(
+    //   gemstone,
+    //   gemstone.certification_document
+    // );
+
+    const { id, onChainHash } = await blockChainService.registerGemstoneOnChain(
+      "signerAddress",
+      blockchainHash
+    );
+
+    await prisma.gemstone.update({
+      where: {
+        id: gemstone.id,
+      },
+      data: {
+        blockchainGemstoneId: id,
+        blockchainHash: onChainHash,
+      }, // Ensure that the data matches Prisma's input type,
+      include: {
+        user: true,
+      },
+    });
+
     delete gemstone.user.password;
 
     // Type assertion to ensure the validated data matches Prisma's GemstoneCreateInput
     return gemstone;
   }
 
+  async verifyGemstone(id: number, data: any) {
+    const { certification_document, signerAddress } = data;
+    const gemstone = await prisma.gemstone.findUniqueOrThrow({
+      where: {
+        id,
+      },
+    });
+
+    const status = await blockChainService.verifyGemstoneOnChain(
+      signerAddress,
+      gemstone,
+      certification_document
+    );
+
+    await prisma.gemstone.update({
+      where: {
+        id,
+      },
+      data: {
+        certificationStatus: status,
+      },
+    });
+
+    return status;
+  }
   async editGemstone(id: number, data: Partial<GemstoneDTO>) {
     const validatedData = gemstoneSchema.parse(data);
     const prismaData = {
@@ -97,7 +160,7 @@ export class GemstoneService {
     });
   }
 
-  async updateGemstoneStatu(
+  async updateGemstoneStatus(
     id: number,
     data: {
       isActive?: boolean;
@@ -215,5 +278,20 @@ export class GemstoneService {
         },
       },
     });
+  }
+  async generateGemstoneHash(gemstone, certification) {
+    let certBuffer: Buffer;
+
+    if (certification.startsWith("http")) {
+      certBuffer = await downloadFile(certification);
+    } else {
+      certBuffer = fs.readFileSync(certification); // Local path
+    }
+    const certHash = crypto
+      .createHash("sha256")
+      .update(certBuffer)
+      .digest("hex");
+    const data = `${gemstone.name}-${gemstone.type}-${gemstone.weight}-${certHash}`;
+    return crypto.createHash("sha256").update(data).digest("hex");
   }
 }

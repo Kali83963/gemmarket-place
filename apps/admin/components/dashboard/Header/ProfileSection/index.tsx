@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useRef, useState } from "react";
 
 // material-ui
@@ -41,15 +43,14 @@ import {
 import Transitions from "@/components/extended/Transitions";
 import MainCard from "@/components/cards/MainCard";
 import { borderRadius } from "@/theme";
+import { useRouter } from "next/navigation";
 
 const User1 = "/assets/images/users/user-round.svg";
 
 const ProfileSection = () => {
   const theme = useTheme();
-  // const navigate = useNavigate();
+  const router = useRouter();
 
-  const [sdm, setSdm] = useState(true);
-  const [value, setValue] = useState("");
   const [notification, setNotification] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const { logout, user } = useAuth();
@@ -84,9 +85,9 @@ const ProfileSection = () => {
     setSelectedIndex(index);
     handleClose(event);
 
-    // if (route && route !== '') {
-    //     navigate(route);
-    // }
+    if (route && route !== "") {
+      router.push(route);
+    }
   };
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
@@ -194,12 +195,9 @@ const ProfileSection = () => {
                             variant="h4"
                             sx={{ fontWeight: 400 }}
                           >
-                            {user?.name}
+                            {user?.firstName} {user?.lastName}
                           </Typography>
                         </Stack>
-                        <Typography variant="subtitle2">
-                          Project Admin
-                        </Typography>
                       </Stack>
                     </Box>
                     <PerfectScrollbar
@@ -209,7 +207,7 @@ const ProfileSection = () => {
                         overflowX: "hidden",
                       }}
                     >
-                      <Box sx={{ padding: 2, paddingTop: 0 }}>
+                      <Box sx={{ paddingTop: 0 }}>
                         <Divider />
                         <List
                           component="nav"
@@ -227,7 +225,9 @@ const ProfileSection = () => {
                             selected={selectedIndex === 0}
                             onClick={(
                               event: React.MouseEvent<HTMLDivElement>
-                            ) => handleListItemClick(event, 0, "user/profile")}
+                            ) =>
+                              handleListItemClick(event, 0, "dashboard/account")
+                            }
                           >
                             <ListItemIcon>
                               <IconSettings stroke={1.5} size="20px" />

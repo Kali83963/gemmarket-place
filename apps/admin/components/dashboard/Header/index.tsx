@@ -58,16 +58,12 @@ const Header = () => {
           </Avatar>
         )}
       </Box>
-
       <Box sx={{ flexGrow: 1 }} />
       <Box sx={{ flexGrow: 1 }} />
-
-      {/* notification */}
-      <NotificationSection />
-
+      {/* notification
+      <NotificationSection /> */}
       {/* profile */}
       <ProfileSection />
-
       {/* mobile header */}
       <Box sx={{ display: { xs: "block", sm: "none" } }}>
         <MobileSection />

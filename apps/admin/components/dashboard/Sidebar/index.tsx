@@ -29,6 +29,7 @@ const Sidebar = () => {
 
   const { menuMaster } = useGetMenuMaster();
   const drawerOpen = menuMaster.isDashboardDrawerOpened;
+
   //   const { menuOrientation, miniDrawer } = useConfig();
 
   const logo = useMemo(

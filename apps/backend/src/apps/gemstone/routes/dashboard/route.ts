@@ -15,6 +15,7 @@ import {
   getGemstoneAdmin,
   searchGemstones,
   updateGemstoneStatus,
+  verifyGemstone,
 } from "../../controller/gemstone.controller";
 import { validate } from "@gemmarket/contracts";
 
@@ -25,6 +26,12 @@ router.get(
   isAuthenticate,
   authorize(["ADMIN", "SUPERUSER"]),
   searchGemstones
+);
+router.post(
+  "/gemstone/verify/:id",
+  isAuthenticate,
+  // authorize(["ADMIN", "SUPERUSER"]),
+  verifyGemstone
 );
 
 router.get(

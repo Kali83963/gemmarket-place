@@ -8,6 +8,8 @@ import { InitialLoginContextProps, KeyedObject } from "@/types";
 import { JWTContextType } from "@/types/auth";
 import accountReducer from "@/store/accountReducer";
 import Loader from "@/components/Loader";
+import { getCookie } from "@/utils/getCookies";
+import { getUserProfile } from "@/http/api";
 
 // constant
 const initialState: InitialLoginContextProps = {
@@ -16,7 +18,7 @@ const initialState: InitialLoginContextProps = {
   user: null,
 };
 
-const verifyToken: (st: string) => boolean = (serviceToken) => {
+const verifyToken: (st: string | null) => boolean = (serviceToken) => {
   if (!serviceToken) {
     return false;
   }
@@ -46,11 +48,11 @@ export const JWTProvider = ({ children }: { children: React.ReactElement }) => {
   useEffect(() => {
     const init = async () => {
       try {
-        const serviceToken = window.localStorage.getItem("serviceToken");
-        if (serviceToken && verifyToken(serviceToken)) {
-          setSession(serviceToken);
-          const response = await axios.get("/api/account/me");
-          const { user } = response.data;
+        const tokenFromCookie = getCookie("token");
+        if (tokenFromCookie && verifyToken(tokenFromCookie)) {
+          // setSession(serviceToken);
+          const response = await getUserProfile();
+          const user = response.data;
           dispatch({
             type: LOGIN,
             payload: {
@@ -75,7 +77,8 @@ export const JWTProvider = ({ children }: { children: React.ReactElement }) => {
   }, []);
 
   const authLogin = async (response: { data: any; message: any }) => {
-    const { data } = response.data;
+    const { data } = response;
+    console.log(data);
     dispatch({
       type: LOGIN,
       payload: {

@@ -113,9 +113,6 @@ export class UserService {
     const user = await prisma.user.findUnique({
       where: {
         id: userId,
-        role: {
-          in: ["BUYER", "SELLER"],
-        },
       },
       select: {
         id: true,

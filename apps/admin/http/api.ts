@@ -3,12 +3,18 @@ import HttpService from "./httpService";
 // example.ts
 export async function login(payload: any) {
   const http = HttpService.getInstance();
-  try {
-    const response = await http.post("/login", payload);
-    return response;
-  } catch (err) {
-    console.error("Error fetching user:", err);
-  }
+  const response = await http.post("/login", payload);
+  return response;
+  // try {
+  // } catch (err) {
+  //   console.error("Error fetching user:", err);
+  // }
+}
+export async function getUserProfile() {
+  const http = HttpService.getInstance();
+
+  const response = await http.get("/user/profile");
+  return response;
 }
 export async function createUser(payload: any) {
   const http = HttpService.getInstance();

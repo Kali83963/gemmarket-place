@@ -46,7 +46,7 @@ router.delete(
   deleteUser
 );
 
-router.get("/users/profile", isAuthenticate, getUserProfile);
+router.get("/user/profile", isAuthenticate, getUserProfile);
 
 router.put("/users/profile", isAuthenticate, updateUserProfile);
 

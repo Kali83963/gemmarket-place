@@ -23,10 +23,25 @@ export const editGemstone = asyncHandler(
     successResponse(res, gemstone, "Gemstone edited successfully", 201);
   }
 );
+export const verifyGemstone = asyncHandler(
+  async (req: Request, res: Response) => {
+    const status = await gemstoneService.verifyGemstone(
+      +req.params.id,
+      req.body
+    );
+
+    successResponse(
+      res,
+      null,
+      `Gemstone ${req.params.id} ${status} successfully`,
+      201
+    );
+  }
+);
 
 export const updateGemstoneStatus = asyncHandler(
   async (req: Request, res: Response) => {
-    const gemstone = await gemstoneService.updateGemstoneStatu(
+    const gemstone = await gemstoneService.updateGemstoneStatus(
       +req.params.id,
       req.body
     );

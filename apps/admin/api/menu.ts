@@ -10,7 +10,7 @@ import { MenuProps } from "@/types/menu";
 
 const initialState: MenuProps = {
   openedItem: "dashboard",
-  isDashboardDrawerOpened: false,
+  isDashboardDrawerOpened: true,
 };
 
 export const endpoints = {

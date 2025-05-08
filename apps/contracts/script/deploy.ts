@@ -11,7 +11,10 @@ async function main() {
   const gemstoneRegistry = await GemstoneRegistry.deploy();
   await gemstoneRegistry.waitForDeployment();
 
-  console.log("GemstoneRegistry deployed to:", gemstoneRegistry.getAddress());
+  console.log(
+    "GemstoneRegistry deployed to:",
+    await gemstoneRegistry.getAddress()
+  );
 
   // Save contract address & ABI
   const dataDir = path.resolve(__dirname, "../abi");

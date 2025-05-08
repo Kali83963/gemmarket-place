@@ -36,7 +36,7 @@ model Gemstone {
   quantity                 Int
   sku                      String
 
-   createdAt DateTime @default(now())
+  createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   allowOffers       Boolean @default(false)
@@ -50,6 +50,9 @@ model Gemstone {
 
   verifiedById      String? // optional to allow unverified gemstones
   verifiedBy        User?   @relation("VerifiedGemstones", fields: [verifiedById], references: [id])
+
+  blockchainHash         String?
+  blockchainGemstoneId   Int?
 
   images            GemstoneImage[]
   cartItems         CartItem[]

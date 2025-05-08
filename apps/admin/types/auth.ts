@@ -19,7 +19,7 @@ export interface JWTData {
 export type JWTContextType = {
   isLoggedIn: boolean;
   isInitialized?: boolean;
-  user?: UserProfile | null | undefined;
+  user?: any | null | undefined;
   logout: () => void;
   authLogin: (response: { data: any; message: any }) => Promise<void>;
   register: (

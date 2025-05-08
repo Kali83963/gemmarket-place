@@ -27,6 +27,7 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import AnimateButton from "@/components/extended/AnimatedButton";
 import { login } from "@/http/api";
+import { toast } from "react-toastify";
 
 const schema = z.object({
   email: z
@@ -60,8 +61,8 @@ const JWTLogin = ({ loginProp, ...others }: { loginProp?: number }) => {
   return (
     <Formik
       initialValues={{
-        email: "info@codedthemes.com",
-        password: "123456",
+        email: "",
+        password: "",
         submit: null,
       }}
       validationSchema={toFormikValidationSchema(schema)}
@@ -73,6 +74,8 @@ const JWTLogin = ({ loginProp, ...others }: { loginProp?: number }) => {
           };
           const response = await login(payload);
           console.log(response);
+          toast.success(response?.data?.message);
+          // toast.success("response?.data?.message");
           setStatus({ success: true });
           authLogin(response?.data);
           router.push(DASHBOARD_PATH);
@@ -83,10 +86,11 @@ const JWTLogin = ({ loginProp, ...others }: { loginProp?: number }) => {
           //   setSubmitting(false);
           // }
         } catch (err: any) {
-          console.error(err);
+          console.error(err?.reponse?.data.message);
+          toast.error(err?.reponse?.data.message);
           if (scriptedRef.current) {
             setStatus({ success: false });
-            setErrors({ submit: err.message });
+            setErrors({ submit: err?.reponse?.data.message });
             setSubmitting(false);
           }
         }
@@ -172,38 +176,6 @@ const JWTLogin = ({ loginProp, ...others }: { loginProp?: number }) => {
             )}
           </FormControl>
 
-          <Grid container alignItems="center" justifyContent="space-between">
-            <Grid>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={checked}
-                    onChange={(event) => setChecked(event.target.checked)}
-                    name="checked"
-                    color="primary"
-                  />
-                }
-                label="Keep me logged in"
-              />
-            </Grid>
-            <Grid>
-              <Typography
-                variant="subtitle1"
-                component={Link}
-                href={"/forgot-password"}
-                color="secondary"
-                sx={{ textDecoration: "none" }}
-              >
-                Forgot Password?
-              </Typography>
-            </Grid>
-          </Grid>
-
-          {errors.submit && (
-            <Box sx={{ mt: 3 }}>
-              <FormHelperText error>{errors.submit}</FormHelperText>
-            </Box>
-          )}
           <Box sx={{ mt: 2 }}>
             <AnimateButton>
               <Button
