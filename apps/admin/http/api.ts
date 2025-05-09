@@ -54,6 +54,12 @@ export async function editUser(id: string, payload: any) {
     console.error("Error Creating user:", err);
   }
 }
+export async function updateUser(payload: any) {
+  const http = HttpService.getInstance();
+
+  const response = await http.put(`/users/profile`, payload);
+  return response;
+}
 export async function deleteUser(id: string) {
   const http = HttpService.getInstance();
   try {

@@ -86,11 +86,11 @@ const JWTLogin = ({ loginProp, ...others }: { loginProp?: number }) => {
           //   setSubmitting(false);
           // }
         } catch (err: any) {
-          console.error(err?.reponse?.data.message);
-          toast.error(err?.reponse?.data.message);
+          console.log(err);
+          toast.error(err?.response?.data?.message);
           if (scriptedRef.current) {
             setStatus({ success: false });
-            setErrors({ submit: err?.reponse?.data.message });
+            setErrors({ submit: err?.message });
             setSubmitting(false);
           }
         }

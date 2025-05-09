@@ -33,7 +33,7 @@ import { toFormikValidationSchema } from "zod-formik-adapter";
 import { toast } from "react-toastify";
 import { z } from "zod";
 import { Stack } from "@mui/material";
-import { fetchUser, getUserProfile } from "@/http/api";
+import { fetchUser, getUserProfile, updateUser } from "@/http/api";
 
 // tabs
 function TabPanel({ children, value, index, ...other }: TabsProps) {
@@ -141,19 +141,19 @@ const Profile = () => {
           ) => {
             console.log(values);
             try {
-              const response = null;
+              const response = await updateUser(values);
 
               setStatus({ success: true });
               setSubmitting(false);
               resetForm();
-              toast.success("User created successfully!");
+              toast.success(response?.data?.message);
             } catch (err: any) {
               console.error(err);
 
               setStatus({ success: false });
               setErrors({ firstName: err.message });
               setSubmitting(false);
-              toast.error("Error creating User!");
+              toast.error(err?.response?.data?.message);
             }
           }}
         >

@@ -54,6 +54,8 @@ export const getUserProfile = asyncHandler(
 export const updateUserProfile = asyncHandler(
   async (req: Request, res: Response) => {
     const { id } = req.user;
+    console.log("id", id);
+    console.log("user", req.user);
     const user = await userService.editUser(id, req.body);
     if (!user) {
       return errorResponse(res, "User not found", 404);

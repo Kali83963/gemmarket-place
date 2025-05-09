@@ -19,6 +19,9 @@ router.post(
   createUser
 );
 
+router.get("/user/profile", isAuthenticate, getUserProfile);
+
+router.put("/users/profile", isAuthenticate, updateUserProfile);
 router.get(
   "/users/",
   isAuthenticate,
@@ -45,9 +48,5 @@ router.delete(
   authorize(["ADMIN", "SUPERUSER"]),
   deleteUser
 );
-
-router.get("/user/profile", isAuthenticate, getUserProfile);
-
-router.put("/users/profile", isAuthenticate, updateUserProfile);
 
 export { router as userDashboardRoutes };

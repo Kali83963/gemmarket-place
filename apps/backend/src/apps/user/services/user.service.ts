@@ -34,10 +34,14 @@ export class UserService {
   ): Promise<User> {
     const { password } = updateUserBody;
 
+    console.log(userId);
+
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);
       updateUserBody.password = hashedPassword;
     }
+
+    // Add already exist email check
 
     const updatedUser = await prisma.user.update({
       where: { id: userId },
