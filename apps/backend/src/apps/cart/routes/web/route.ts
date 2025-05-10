@@ -10,8 +10,8 @@ import { isAuthenticate } from "@/middleware/authMiddleware";
 
 const router = Router();
 router.get("/cart/", isAuthenticate, getCart);
-router.post("/cart/add", isAuthenticate, createCart);
-router.post("/cart/update", isAuthenticate, addItem);
+router.post("/cart/add", isAuthenticate, addItem);
+// router.post("/cart/update", isAuthenticate, addItem);
 router.delete("/cart/remove/:itemId", isAuthenticate, removeItem);
 router.delete("/cart/clear", isAuthenticate, clearCart);
 

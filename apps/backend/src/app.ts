@@ -7,9 +7,9 @@ import { appRoutes } from "./routes";
 
 dotenv.config();
 const corsOptions = {
-  origin: "http://localhost:3001", // Only allow requests from localhost:3001
-  credentials: true, // Allow cookies and authentication data
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allowed methods
+  origin: /localhost:(3000|3001)$/,
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 };
 const app = express();
 app.use(cookieParser());

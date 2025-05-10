@@ -6,9 +6,15 @@ import { errorResponse, successResponse } from "@/utils/response";
 const authService: AuthService = new AuthService();
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
-  const user = await authService.register(req.body);
+  const { token, user } = await authService.register(req.body);
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production", // only on HTTPS in prod
+    sameSite: "strict",
+    maxAge: 160 * 160 * 10000, // 1 hour
+  });
 
-  successResponse(res, user, "User created successfully", 201);
+  successResponse(res, { user: user }, "Login successful", 201);
 });
 
 export const weblogin = asyncHandler(async (req: Request, res: Response) => {
@@ -17,10 +23,10 @@ export const weblogin = asyncHandler(async (req: Request, res: Response) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production", // only on HTTPS in prod
     sameSite: "strict",
-    maxAge: 60 * 60 * 1000, // 1 hour
+    maxAge: 160 * 160 * 10000, // 1 hour
   });
   console.log(user);
-  successResponse(res, user, "Login successful");
+  successResponse(res, { user: user }, "Login successful");
 });
 
 export const dashboardlogin = asyncHandler(

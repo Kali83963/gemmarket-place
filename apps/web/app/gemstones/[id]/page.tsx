@@ -18,35 +18,122 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/seperator";
 import { Badge } from "@/components/ui/badge";
 import { GemstoneCard } from "@/components/gemstone-card";
-import React, { useEffect, useState } from "react";
-import { apiUrl } from "@/constants";
+import React, { useState } from "react";
+import { useGetGemstoneByIdQuery, useAddToCartMutation } from "@/store/slices/gemstoneApi";
+import { useRouter } from "next/navigation";
+import { addToCart } from "@/store/slices/cartSlice";
+import { RootState } from "@/store";
 
-export type PageProps = Promise<{ id: string }>;
-// export default async function GemstoneDetailPage(props: { params: PageProps }) {
+import { CertificateViewer } from "@/components/certificate-viewer";
+import { toast } from "sonner";
+import {  useAppSelector } from "@/store/hooks";
+import { useDispatch } from "react-redux";
+
 export default function GemstoneDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const [gemstone, setGemstone] = useState<any>({});
-  // const id = (await props.params).id;
+  const router = useRouter();
+  const dispatch = useDispatch();
+  const cartItems = useAppSelector((state: RootState) => state.cart.items);
   const { id } = React.use(params);
-  const fetchGemstone = async () => {
+  const { data: gemstone, isLoading, error } = useGetGemstoneByIdQuery(Number(id));
+  const [addToCart] = useAddToCartMutation();
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+
+  const handleBackToResults = () => {
+    router.back();
+  };
+
+  const handleAddToCart = async () => {
+    if (!gemstone) return;
+    
+    if (!isAuthenticated) {
+      // Store current URL to redirect back after login
+      sessionStorage.setItem('redirectAfterLogin', window.location.pathname);
+      router.push('/auth/login');
+      return;
+    }
+    
     try {
-      const response = await fetch(`${apiUrl}/gemstones/${id}`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch gemstone");
-      }
-      const data = await response.json();
-      setGemstone(data.data);
+      const cartItem = {
+        itemData: {
+          productId: gemstone.id,
+          quantity: 1,
+          price: gemstone.price,
+          size: gemstone.dimension,
+          color: gemstone.color,
+        }
+      };
+      await addToCart(cartItem).unwrap();
+      toast.success("Added to cart successfully!");
     } catch (error) {
-      console.error("Error fetching gemstones:", error);
+      toast.error("Failed to add item to cart");
     }
   };
 
-  useEffect(() => {
-    fetchGemstone(); // Call the fetchGemstone function when the component mounts
-  }, []); // Empty dependency array ensures this runs only once when the component mounts
+  const handleShare = async () => {
+    if (!gemstone) return;
+
+    const shareData = {
+      title: gemstone.name,
+      text: `Check out this beautiful ${gemstone.type} gemstone on GemMarket`,
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        // Fallback for browsers that don't support Web Share API
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success("Link copied to clipboard!");
+      }
+    } catch (error) {
+      if (error instanceof Error && error.name !== "AbortError") {
+        toast.error("Failed to share. Please try again.");
+      }
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex h-[50vh] items-center justify-center">
+          <div className="text-center">
+            <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+            <p className="text-gray-600">Loading gemstone details...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex h-[50vh] items-center justify-center">
+          <div className="text-center">
+            <p className="text-red-600">Error loading gemstone details. Please try again later.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!gemstone) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex h-[50vh] items-center justify-center">
+          <div className="text-center">
+            <p className="text-gray-600">Gemstone not found.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -60,24 +147,30 @@ export default function GemstoneDetailPage({
           Gemstones
         </Link>
         <ChevronRight className="mx-2 h-4 w-4" />
-        <Link href="/gemstones?type=diamond" className="hover:text-blue-600">
-          Diamonds
+        <Link href={`/gemstones?type=${gemstone.type.toLowerCase()}`} className="hover:text-blue-600">
+          {gemstone.type}
         </Link>
         <ChevronRight className="mx-2 h-4 w-4" />
-        <span className="text-gray-900">Round Brilliant Diamond</span>
+        <span className="text-gray-900">{gemstone.name}</span>
       </div>
 
       <div className="mb-8 flex items-center gap-4">
-        <Button variant="outline" size="sm" className="gap-2">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="gap-2"
+          onClick={handleBackToResults}
+        >
           <ArrowLeft className="h-4 w-4" />
           Back to Results
         </Button>
         <div className="ml-auto flex gap-2">
-          <Button variant="outline" size="sm" className="gap-2">
-            <Heart className="h-4 w-4" />
-            <span className="hidden sm:inline">Save</span>
-          </Button>
-          <Button variant="outline" size="sm" className="gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="gap-2"
+            onClick={handleShare}
+          >
             <Share2 className="h-4 w-4" />
             <span className="hidden sm:inline">Share</span>
           </Button>
@@ -89,28 +182,26 @@ export default function GemstoneDetailPage({
         <div className="space-y-4">
           <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-100">
             <img
-              src="/placeholder.svg?height=600&width=600"
-              alt="Diamond"
+              src={gemstone.images[selectedImageIndex]?.url || "/placeholder.svg?height=600&width=600"}
+              alt={gemstone.name}
               className="h-full w-full object-cover"
             />
-            <Button
-              variant="secondary"
-              size="sm"
-              className="absolute bottom-4 right-4 gap-2"
-            >
-              <RotateCw className="h-4 w-4" />
-              View 360°
-            </Button>
+            
           </div>
           <div className="grid grid-cols-4 gap-2">
-            {gemstone?.images?.map((image: any, index: number) => (
+            {gemstone.images?.map((image, index) => (
               <div
                 key={index}
-                className="aspect-square cursor-pointer overflow-hidden rounded-md border-2 border-transparent hover:border-blue-600"
+                className={`aspect-square cursor-pointer overflow-hidden rounded-md border-2 ${
+                  selectedImageIndex === index
+                    ? "border-blue-600"
+                    : "border-transparent hover:border-blue-600"
+                }`}
+                onClick={() => setSelectedImageIndex(index)}
               >
                 <img
                   src={image.url}
-                  alt={gemstone.name}
+                  alt={`${gemstone.name} - Image ${index + 1}`}
                   className="h-full w-full object-cover"
                 />
               </div>
@@ -121,51 +212,41 @@ export default function GemstoneDetailPage({
         {/* Product Info */}
         <div>
           <div className="mb-4 flex items-center justify-between">
-            <Badge className="bg-blue-600">GIA Certified</Badge>
-            <div className="flex items-center text-yellow-500">
-              <Star className="mr-1 h-5 w-5 fill-yellow-400 text-yellow-400" />
-              <span className="font-medium">4.9</span>
-              <span className="ml-1 text-sm text-gray-500">(24 reviews)</span>
-            </div>
+            <Badge className="bg-blue-600">{gemstone.certification} Certified</Badge>
+            {gemstone.showOnSaleLabel && (
+              <Badge variant="outline" className="border-green-200 bg-green-50 text-green-700">
+                On Sale
+              </Badge>
+            )}
           </div>
 
           <h1 className="mb-2 text-3xl font-bold text-gray-900">
-            Round Brilliant Diamond - 1.25 Carat
+            {gemstone.name}
           </h1>
           <p className="mb-4 text-gray-600">
-            Exquisite round brilliant cut diamond with exceptional clarity and
-            color. GIA certified.
+            {gemstone.description}
           </p>
 
           <div className="mb-6">
-            <div className="mb-2 text-3xl font-bold text-blue-700">$5,299</div>
-            <div className="flex items-center text-sm text-gray-500">
-              <span className="mr-2 line-through">$5,999</span>
-              <Badge
-                variant="outline"
-                className="border-green-200 bg-green-50 text-green-700"
-              >
-                Save $700
-              </Badge>
-            </div>
+            <div className="mb-2 text-3xl font-bold text-blue-700">${gemstone.price.toLocaleString()}</div>
           </div>
 
           <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
             <div className="rounded-lg bg-blue-50 p-3">
               <div className="text-sm text-gray-500">Carat</div>
-              <div className="font-semibold">1.25</div>
+              <div className="font-semibold">{gemstone.weight} ct</div>
             </div>
             <div className="rounded-lg bg-blue-50 p-3">
               <div className="text-sm text-gray-500">Color</div>
-              <div className="font-semibold">D</div>
+              <div className="font-semibold">{gemstone.color_grade}  ({gemstone.color})</div>
             </div>
             <div className="rounded-lg bg-blue-50 p-3">
               <div className="text-sm text-gray-500">Clarity</div>
-              <div className="font-semibold">VS1</div>
+              <div className="font-semibold">{gemstone.clarity_grade}</div>
             </div>
             <div className="rounded-lg bg-blue-50 p-3">
               <div className="text-sm text-gray-500">Cut</div>
-              <div className="font-semibold">Excellent</div>
+              <div className="font-semibold">{gemstone.cut_grade}</div>
             </div>
           </div>
 
@@ -176,19 +257,15 @@ export default function GemstoneDetailPage({
             <div className="flex items-center">
               <div className="mr-3 h-12 w-12 rounded-full bg-blue-100">
                 <div className="flex h-full w-full items-center justify-center text-blue-600">
-                  DS
+                  {gemstone.user.firstName[0]}{gemstone.user.lastName[0]}
                 </div>
               </div>
               <div>
-                <div className="font-medium">Diamond Specialists Inc.</div>
+                <div className="font-medium">{gemstone.user.firstName} {gemstone.user.lastName}</div>
                 <div className="flex items-center text-sm text-gray-500">
-                  <Star className="mr-1 h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  <span>4.9 · 152 reviews · Since 2015</span>
+                <span>Seller since {new Date(gemstone.user.createdAt).getFullYear()}</span>
                 </div>
               </div>
-              {/* <Button variant="outline" size="sm" className="ml-auto">
-                View Profile
-              </Button> */}
             </div>
           </div>
 
@@ -199,7 +276,7 @@ export default function GemstoneDetailPage({
             </div>
             <div className="flex items-center text-sm text-gray-700">
               <Check className="mr-2 h-4 w-4 text-green-500" />
-              GIA certification included
+              {gemstone.certification} certification included
             </div>
             <div className="flex items-center text-sm text-gray-700">
               <Check className="mr-2 h-4 w-4 text-green-500" />
@@ -207,7 +284,7 @@ export default function GemstoneDetailPage({
             </div>
             <div className="flex items-center text-sm text-gray-700">
               <Check className="mr-2 h-4 w-4 text-green-500" />
-              Free shipping with insurance
+              {gemstone.chargeForShipping ? "Shipping charges apply" : "Free shipping with insurance"}
             </div>
           </div>
 
@@ -215,18 +292,11 @@ export default function GemstoneDetailPage({
             <Button
               size="lg"
               className="flex-1 gap-2 bg-blue-600 hover:bg-blue-700"
+              onClick={handleAddToCart}
             >
               <ShoppingCart className="h-5 w-5" />
               Add to Cart
             </Button>
-            {/* <Button
-              size="lg"
-              variant="outline"
-              className="flex-1 gap-2 border-blue-600 text-blue-600 hover:bg-blue-50"
-            >
-              <MessageSquare className="h-5 w-5" />
-              Message Seller
-            </Button> */}
           </div>
         </div>
       </div>
@@ -237,7 +307,6 @@ export default function GemstoneDetailPage({
           <TabsList className="w-full justify-start">
             <TabsTrigger value="details">Details</TabsTrigger>
             <TabsTrigger value="certificate">Certificate</TabsTrigger>
-            <TabsTrigger value="reviews">Reviews</TabsTrigger>
             <TabsTrigger value="shipping">Shipping & Returns</TabsTrigger>
           </TabsList>
           <TabsContent value="details" className="mt-6">
@@ -248,36 +317,36 @@ export default function GemstoneDetailPage({
                   <h4 className="mb-2 font-medium">Specifications</h4>
                   <ul className="space-y-2 text-gray-700">
                     <li className="flex justify-between">
-                      <span className="text-gray-500">Shape</span>
-                      <span>Round Brilliant</span>
+                      <span>Shape</span>
+                      <span className="font-medium">{gemstone.shape}</span>
                     </li>
                     <li className="flex justify-between">
                       <span className="text-gray-500">Carat Weight</span>
-                      <span>1.25</span>
+                      <span className="font-medium">{gemstone.weight}</span>
                     </li>
                     <li className="flex justify-between">
                       <span className="text-gray-500">Color Grade</span>
-                      <span>D (Colorless)</span>
+                      <span className="font-medium">{gemstone.color_grade}  ({gemstone.color})</span>
                     </li>
                     <li className="flex justify-between">
                       <span className="text-gray-500">Clarity Grade</span>
-                      <span>VS1</span>
+                      <span className="font-medium">{gemstone.clarity_grade}</span>
                     </li>
                     <li className="flex justify-between">
                       <span className="text-gray-500">Cut Grade</span>
-                      <span>Excellent</span>
+                      <span className="font-medium">{gemstone.cut_grade}</span>
                     </li>
                     <li className="flex justify-between">
                       <span className="text-gray-500">Polish</span>
-                      <span>Excellent</span>
+                      <span className="font-medium">{gemstone.polish}</span>
                     </li>
                     <li className="flex justify-between">
                       <span className="text-gray-500">Symmetry</span>
-                      <span>Excellent</span>
+                      <span>{gemstone.symmetry}</span>
                     </li>
                     <li className="flex justify-between">
                       <span className="text-gray-500">Fluorescence</span>
-                      <span>None</span>
+                      <span>{gemstone.fluorescence}</span>
                     </li>
                   </ul>
                 </div>
@@ -285,25 +354,10 @@ export default function GemstoneDetailPage({
                   <h4 className="mb-2 font-medium">Measurements</h4>
                   <ul className="space-y-2 text-gray-700">
                     <li className="flex justify-between">
-                      <span className="text-gray-500">Diameter</span>
-                      <span>6.9 mm</span>
+                      <span className="text-gray-500">Dimensions</span>
+                      <span>{gemstone.dimension}</span>
                     </li>
-                    <li className="flex justify-between">
-                      <span className="text-gray-500">Table</span>
-                      <span>58%</span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span className="text-gray-500">Depth</span>
-                      <span>61.2%</span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span className="text-gray-500">Girdle</span>
-                      <span>Medium</span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span className="text-gray-500">Culet</span>
-                      <span>None</span>
-                    </li>
+                   
                   </ul>
 
                   <h4 className="mb-2 mt-6 font-medium">
@@ -312,15 +366,15 @@ export default function GemstoneDetailPage({
                   <ul className="space-y-2 text-gray-700">
                     <li className="flex justify-between">
                       <span className="text-gray-500">Certificate</span>
-                      <span>GIA #12345678</span>
+                      <span>{gemstone.certification}</span>
                     </li>
                     <li className="flex justify-between">
                       <span className="text-gray-500">Origin</span>
-                      <span>South Africa</span>
+                      <span>{gemstone.origin}</span>
                     </li>
                     <li className="flex justify-between">
                       <span className="text-gray-500">Treatment</span>
-                      <span>None</span>
+                      <span>{gemstone.treatment}</span>
                     </li>
                   </ul>
                 </div>
@@ -328,203 +382,47 @@ export default function GemstoneDetailPage({
 
               <h4 className="mb-2 mt-6 font-medium">Description</h4>
               <p className="text-gray-700">
-                This exquisite 1.25 carat round brilliant diamond is a true
-                masterpiece of nature. With its D color grade, it belongs to the
-                rare colorless category, displaying exceptional white
-                brilliance. The VS1 clarity ensures that any inclusions are
-                barely visible even under 10x magnification, resulting in a
-                clean and pure appearance.
+                {gemstone.description}
               </p>
-              <p className="mt-4 text-gray-700">
-                The excellent cut grade maximizes the diamond's fire,
-                brilliance, and scintillation, creating a mesmerizing play of
-                light. This diamond comes with a GIA certificate, guaranteeing
-                its authenticity and quality. Perfect for an engagement ring or
-                a special jewelry piece, this diamond represents the pinnacle of
-                quality and beauty.
-              </p>
+              
             </div>
           </TabsContent>
 
           <TabsContent value="certificate" className="mt-6">
             <div className="rounded-lg border bg-white p-6">
-              <div className="mb-6 flex items-center justify-between">
-                <h3 className="text-xl font-semibold">
-                  GIA Certificate #12345678
-                </h3>
-                <Button variant="outline" className="gap-2">
-                  <Certificate className="h-4 w-4" />
-                  Download Certificate
-                </Button>
-              </div>
-
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <div>
-                  <img
-                    src="/placeholder.svg?height=400&width=300&text=Certificate Preview"
-                    alt="GIA Certificate"
-                    className="w-full rounded-lg border"
-                  />
-                </div>
+              <h3 className="mb-4 text-xl font-semibold">Certificate Information</h3>
+              <div className="space-y-6">
+                <CertificateViewer
+                  documentUrl={gemstone.certification_document}
+                  certificateType={gemstone.certification}
+                  gemstoneName={gemstone.name}
+                />
                 <div>
                   <h4 className="mb-4 font-medium">Certificate Information</h4>
                   <ul className="space-y-3 text-gray-700">
                     <li className="flex justify-between">
-                      <span className="text-gray-500">Certificate Number</span>
-                      <span>GIA #12345678</span>
+                      <span>Certificate Type</span>
+                      <span className="font-medium">{gemstone.certification}</span>
                     </li>
                     <li className="flex justify-between">
-                      <span className="text-gray-500">Issue Date</span>
-                      <span>January 15, 2023</span>
+                      <span>Status</span>
+                      <span className="font-medium">{gemstone.certificationStatus}</span>
                     </li>
                     <li className="flex justify-between">
-                      <span className="text-gray-500">Laboratory</span>
-                      <span>GIA (Gemological Institute of America)</span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span className="text-gray-500">Report Type</span>
-                      <span>Diamond Grading Report</span>
+                      <span>Verified By</span>
+                      <span className="font-medium">
+                        {gemstone.verifiedBy 
+                          ? `${gemstone.verifiedBy.firstName} ${gemstone.verifiedBy.lastName}`
+                          : "Not verified yet"}
+                      </span>
                     </li>
                   </ul>
-
-                  <div className="mt-6">
-                    <h4 className="mb-2 font-medium">Verify Certificate</h4>
-                    <p className="text-sm text-gray-600">
-                      You can verify the authenticity of this certificate by
-                      visiting the GIA website and entering the certificate
-                      number.
-                    </p>
-                    <Button className="mt-4 gap-2 bg-blue-600 hover:bg-blue-700">
-                      Verify on GIA Website
-                    </Button>
-                  </div>
                 </div>
               </div>
             </div>
           </TabsContent>
 
-          <TabsContent value="reviews" className="mt-6">
-            <div className="rounded-lg border bg-white p-6">
-              <div className="mb-6 flex items-center justify-between">
-                <h3 className="text-xl font-semibold">Customer Reviews</h3>
-                <Button className="gap-2 bg-blue-600 hover:bg-blue-700">
-                  Write a Review
-                </Button>
-              </div>
-
-              <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
-                <div className="col-span-1 rounded-lg bg-blue-50 p-4 text-center md:col-span-1">
-                  <div className="mb-2 text-4xl font-bold text-blue-700">
-                    4.9
-                  </div>
-                  <div className="mb-4 flex justify-center">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star
-                        key={star}
-                        className={`h-5 w-5 ${star <= 5 ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`}
-                      />
-                    ))}
-                  </div>
-                  <p className="text-sm text-gray-600">Based on 24 reviews</p>
-                </div>
-
-                <div className="col-span-1 md:col-span-2">
-                  <div className="space-y-2">
-                    {[5, 4, 3, 2, 1].map((rating) => (
-                      <div key={rating} className="flex items-center">
-                        <div className="mr-2 w-8 text-sm text-gray-600">
-                          {rating} star
-                        </div>
-                        <div className="mr-2 h-2 flex-1 overflow-hidden rounded-full bg-gray-200">
-                          <div
-                            className="h-full rounded-full bg-yellow-400"
-                            style={{
-                              width:
-                                rating === 5
-                                  ? "80%"
-                                  : rating === 4
-                                    ? "15%"
-                                    : "5%",
-                            }}
-                          ></div>
-                        </div>
-                        <div className="w-8 text-right text-sm text-gray-600">
-                          {rating === 5
-                            ? "80%"
-                            : rating === 4
-                              ? "15%"
-                              : rating === 3
-                                ? "5%"
-                                : "0%"}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <Separator className="my-6" />
-
-              {/* Review List */}
-              <div className="space-y-6">
-                {[1, 2, 3].map((review) => (
-                  <div key={review} className="border-b pb-6 last:border-0">
-                    <div className="mb-2 flex items-center justify-between">
-                      <div className="flex items-center">
-                        <div className="mr-3 h-10 w-10 rounded-full bg-blue-100">
-                          <div className="flex h-full w-full items-center justify-center text-blue-600">
-                            {review === 1 ? "JD" : review === 2 ? "AK" : "MP"}
-                          </div>
-                        </div>
-                        <div>
-                          <div className="font-medium">
-                            {review === 1
-                              ? "John Doe"
-                              : review === 2
-                                ? "Amanda Kim"
-                                : "Michael Patel"}
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {review === 1
-                              ? "March 15, 2023"
-                              : review === 2
-                                ? "February 28, 2023"
-                                : "January 10, 2023"}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star
-                            key={star}
-                            className="h-4 w-4 fill-yellow-400 text-yellow-400"
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    <h4 className="mb-1 font-medium">
-                      {review === 1
-                        ? "Exceptional quality and service"
-                        : review === 2
-                          ? "Beautiful diamond, exactly as described"
-                          : "Perfect for my engagement ring"}
-                    </h4>
-                    <p className="text-gray-700">
-                      {review === 1
-                        ? "The diamond exceeded my expectations. The brilliance and fire are incredible, and it looks even better in person than in the photos. The seller was very responsive and shipping was fast and secure."
-                        : review === 2
-                          ? "I was nervous about purchasing a diamond online, but this seller made the process easy and transparent. The certificate matched exactly, and the diamond is stunning. Highly recommend!"
-                          : "I purchased this diamond for an engagement ring, and my fiancée absolutely loves it. The quality is outstanding, and it sparkles beautifully in any light. Great value for the price."}
-                    </p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-6 flex justify-center">
-                <Button variant="outline">Load More Reviews</Button>
-              </div>
-            </div>
-          </TabsContent>
+        
 
           <TabsContent value="shipping" className="mt-6">
             <div className="rounded-lg border bg-white p-6">
@@ -613,15 +511,7 @@ export default function GemstoneDetailPage({
         </Tabs>
       </div>
 
-      {/* Similar Items */}
-      <section className="mt-12">
-        <h2 className="mb-6 text-2xl font-bold">You May Also Like</h2>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {[1, 2, 3, 4].map((i) => (
-            <GemstoneCard key={i} />
-          ))}
-        </div>
-      </section>
+
     </div>
   );
 }

@@ -15,7 +15,15 @@ export class CartService {
       include: {
         items: {
           include: {
-            product: true, // Include Gemstone details
+            product: {
+              include: {
+                images: {
+                  select: {
+                    url: true,
+                  },
+                },
+              },
+            }, // Include Gemstone details
           },
         },
       },
@@ -52,23 +60,25 @@ export class CartService {
     });
 
     if (productExist) {
-      const quantity =
-        itemData.quantity < 0
-          ? productExist.quantity - itemData.quantity
-          : productExist.quantity + itemData.quantity;
-      return await prisma.cartItem.update({
-        where: {
-          cartId_productId_color_size: {
-            cartId,
-            productId: itemData.productId,
-            color: itemData.color,
-            size: itemData.size,
-          },
-        },
-        data: {
-          quantity: quantity,
-        },
-      });
+      throw new Error("Product already exists in cart");
+
+      // const quantity =
+      //   itemData.quantity < 0
+      //     ? productExist.quantity - itemData.quantity
+      //     : productExist.quantity + itemData.quantity;
+      // return await prisma.cartItem.update({
+      //   where: {
+      //     cartId_productId_color_size: {
+      //       cartId,
+      //       productId: itemData.productId,
+      //       color: itemData.color,
+      //       size: itemData.size,
+      //     },
+      //   },
+      //   data: {
+      //     quantity: quantity,
+      //   },
+      // });
     }
     return await prisma.cartItem.create({
       data: {

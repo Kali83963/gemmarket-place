@@ -287,7 +287,7 @@ export class GemstoneService {
       where: {
         isActive: true,
         certificationStatus: CERTIFICATE_STATUS.ACCEPTED,
-        status: GEMSTONE_STATUS.AVAILABLE,
+        // status: GEMSTONE_STATUS.AVAILABLE,
         AND: [
           {
             name: {

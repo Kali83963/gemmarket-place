@@ -7,7 +7,9 @@ import { LoginDTO, RegisterUserDTO, User } from "@gemmarket/contracts";
 import { CartService } from "@/apps/cart/services/cart.service";
 const cartService = new CartService();
 class AuthService {
-  async register(registerBody: RegisterUserDTO): Promise<User> {
+  async register(
+    registerBody: RegisterUserDTO
+  ): Promise<{ token: string; user: User }> {
     const { password, firstName, lastName, email, role } = registerBody; // Destructure all required fields
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -23,14 +25,17 @@ class AuthService {
 
     await cartService.createCart(user.id);
 
-    const userData: User = {
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      role: user.role,
+    const token = jwt.sign(
+      { id: user.id, role: user.role },
+      process.env.JWT_SECRET!,
+      { expiresIn: "1h" }
+    );
+    const userData = {
+      ...user,
     };
+    delete userData.password;
 
-    return userData;
+    return { token, user: userData };
   }
 
   async weblogin(loginBody: LoginDTO): Promise<{ token: string; user: User }> {

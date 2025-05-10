@@ -15,13 +15,18 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/seperator"; // Fixed typo in import
-import { apiUrl } from "@/constants";
+import { Separator } from "@/components/ui/seperator";
+import { useLoginMutation } from "@/store/slices/authApi";
+import { useAppDispatch } from "@/store/hooks";
+import { setCredentials } from "@/store/slices/authSlice";
+import { toast } from "sonner";
 
 export default function LoginPage() {
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const router = useRouter();
+  const dispatch = useAppDispatch();
+  const [login, { isLoading: isSubmitting }] = useLoginMutation();
 
   const {
     register,
@@ -35,29 +40,24 @@ export default function LoginPage() {
   });
 
   const onSubmit = async (data: any) => {
-    setIsSubmitting(true);
     setSubmitError("");
+    setSuccessMessage("");
 
     try {
-      const response = await fetch(`${apiUrl}/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Login failed");
+      const response = await login(data).unwrap();
+      dispatch(setCredentials(response));
+      toast.success("Login successful!");
+      
+      // Check for redirect URL
+      const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
+      if (redirectUrl) {
+        sessionStorage.removeItem('redirectAfterLogin');
+        router.push(redirectUrl);
+      } else {
+        router.push("/");
       }
-      router.push("/");
-      console.log("Login successful!");
-    } catch (error) {
-      // @ts-ignore
-      setSubmitError(error.message || "Invalid email or password");
-    } finally {
-      setIsSubmitting(false);
+    } catch (error: any) {
+      setSubmitError(error?.data?.message || "Invalid email or password");
     }
   };
 
@@ -87,6 +87,11 @@ export default function LoginPage() {
             {submitError && (
               <div className="p-3 text-sm bg-red-50 border border-red-200 text-red-600 rounded-md">
                 {submitError}
+              </div>
+            )}
+            {successMessage && (
+              <div className="p-3 text-sm bg-green-50 border border-green-200 text-green-600 rounded-md">
+                {successMessage}
               </div>
             )}
 

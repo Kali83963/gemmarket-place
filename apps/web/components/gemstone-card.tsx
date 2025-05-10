@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { Heart, Star, BadgeIcon as Certificate, RotateCw } from "lucide-react";
+import { Heart, Star, BadgeIcon as Certificate, RotateCw, ChevronLeft, ChevronRight } from "lucide-react";
+import useEmblaCarousel from 'embla-carousel-react';
+import { useCallback } from "react";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +19,7 @@ interface GemstoneCardProps {
   id?: number;
   name?: string;
   price?: number;
-  image?: string;
+  images?: {url : string}[];
   carat?: number;
   cut?: string;
   color?: string;
@@ -31,7 +33,7 @@ export function GemstoneCard({
   id = 1,
   name = "Round Brilliant Diamond",
   price = 5299,
-  image = "/placeholder.svg?height=300&width=400",
+  images = [{url: "/placeholder.svg?height=300&width=400"}],
   carat = 1.25,
   cut = "Excellent",
   color = "D",
@@ -40,8 +42,16 @@ export function GemstoneCard({
   featured = false,
   className,
 }: GemstoneCardProps) {
-  // Extract gemstone type from name (e.g., "Blue Sapphire" -> "Sapphire")
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
   const gemstoneType = name.split(" ").pop() || "Diamond";
+
+  const scrollPrev = useCallback(() => {
+    if (emblaApi) emblaApi.scrollPrev();
+  }, [emblaApi]);
+
+  const scrollNext = useCallback(() => {
+    if (emblaApi) emblaApi.scrollNext();
+  }, [emblaApi]);
 
   return (
     <Card
@@ -56,28 +66,42 @@ export function GemstoneCard({
             Featured
           </Badge>
         )}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute right-3 top-3 z-10 rounded-full bg-white/80 text-gray-700 backdrop-blur-sm hover:bg-white hover:text-red-500"
-        >
-          <Heart className="h-5 w-5" />
-          <span className="sr-only">Add to wishlist</span>
-        </Button>
+        
         <div className="relative h-48 w-full overflow-hidden bg-gray-100">
-          <img
-            src={image}
-            alt={name}
-            className="h-full w-full object-cover transition-transform hover:scale-105"
-          />
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute bottom-3 right-3 rounded-full bg-white/80 text-gray-700 backdrop-blur-sm hover:bg-white"
-          >
-            <RotateCw className="h-5 w-5" />
-            <span className="sr-only">View 360°</span>
-          </Button>
+          <div className="embla h-full" ref={emblaRef}>
+            <div className="embla__container h-full">
+              {images.map((image, index) => (
+                <div key={index} className="embla__slide h-full flex-[0_0_100%]">
+                  <img
+                    src={image.url}
+                    alt={`${name} - Image ${index + 1}`}
+                    className="h-full w-full object-cover transition-transform hover:scale-105"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {images.length > 1 && (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white"
+                onClick={scrollPrev}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white"
+                onClick={scrollNext}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </>
+          )}
         </div>
       </div>
       <CardHeader className="p-4 pb-0">
@@ -88,10 +112,6 @@ export function GemstoneCard({
           >
             {gemstoneType}
           </Badge>
-          <div className="flex items-center text-sm text-yellow-500">
-            <Star className="mr-1 h-4 w-4 fill-yellow-400 text-yellow-400" />
-            <span>{rating}</span>
-          </div>
         </div>
         <CardTitle className="mt-2 text-lg">
           <Link href={`/gemstones/${id}`} className="hover:text-blue-600">
@@ -128,9 +148,11 @@ export function GemstoneCard({
           <p className="text-sm text-gray-500">Price</p>
           <p className="text-xl font-bold text-blue-700">${price.toLocaleString()}</p>
         </div>
-        <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-          View Details
-        </Button>
+        <Link href={`/gemstones/${id}`}>
+          <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+            View Details
+          </Button>
+        </Link>
       </CardFooter>
     </Card>
   );

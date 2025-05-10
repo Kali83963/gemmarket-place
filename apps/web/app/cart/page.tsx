@@ -16,6 +16,8 @@ import {
 import { Separator } from "@/components/ui/seperator";
 import { Input } from "@/components/ui/input";
 import { LoadingSpinner } from "@/components/loading-spinner";
+import { useGetCartQuery, useRemoveFromCartMutation, Cart, CartItem, useClearCartMutation } from "@/store/slices/gemstoneApi";
+import { useAppSelector } from "@/store/hooks";
 
 // Mock cart data
 const initialCartItems = [
@@ -46,15 +48,12 @@ export default function CartPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [couponCode, setCouponCode] = useState("");
   const [couponApplied, setCouponApplied] = useState(false);
+  const { user, isAuthenticated } = useAppSelector((state) => state.auth);
+  const { data: cart }: { data: Cart | undefined } = useGetCartQuery();
+  const [removeFromCart] = useRemoveFromCartMutation();
+  const [clearCart] = useClearCartMutation();
 
-  const updateQuantity = (id: number, newQuantity: number) => {
-    if (newQuantity < 1) return;
-    setCartItems(
-      cartItems.map((item) =>
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      )
-    );
-  };
+  
 
   const removeItem = (id: number) => {
     setCartItems(cartItems.filter((item) => item.id !== id));
@@ -79,7 +78,7 @@ export default function CartPage() {
   const tax = (subtotal - discount) * 0.08; // 8% tax
   const total = subtotal - discount + shipping + tax;
 
-  if (cartItems.length === 0) {
+  if (cart?.items.length === 0) {
     return (
       <div className="container mx-auto px-4 py-12">
         <div className="flex flex-col items-center justify-center space-y-6 text-center">
@@ -128,6 +127,7 @@ export default function CartPage() {
                 variant="ghost"
                 size="sm"
                 className="text-red-500 hover:text-red-700"
+                onClick={() => clearCart()}
               >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Clear Cart
@@ -135,69 +135,43 @@ export default function CartPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {cartItems.map((item) => (
+                {cart?.items.map((item : CartItem) => (
                   <div
-                    key={item.id}
+                    key={item.productId}
                     className="flex flex-col rounded-lg border p-4 sm:flex-row"
                   >
                     <div className="mb-4 flex-shrink-0 sm:mb-0 sm:mr-4">
                       <img
-                        src={item.image || "/placeholder.svg"}
-                        alt={item.name}
+                        src={item.product?.images[0].url || "/placeholder.svg"}
+                        alt={item.product?.name || "Product Image"}
                         className="h-24 w-24 rounded-md object-cover"
                       />
                     </div>
                     <div className="flex flex-1 flex-col">
                       <div className="flex flex-col justify-between sm:flex-row">
                         <div>
-                          <h3 className="text-lg font-medium">{item.name}</h3>
-                          <p className="text-sm text-gray-500">{item.specs}</p>
+                          <h3 className="text-lg font-medium">{item.product?.name}</h3>
+                          <p className="text-sm text-gray-500">{item.product?.description}</p>
                           <p className="text-sm text-gray-500">
-                            Seller: {item.seller}
+                            Seller: {item.product?.user?.firstName} {item.product?.user?.lastName}
                           </p>
                         </div>
                         <div className="mt-2 text-right sm:mt-0">
                           <p className="text-lg font-bold text-blue-700">
                             ${item.price.toLocaleString()}
                           </p>
-                        </div>
-                      </div>
-                      <div className="mt-4 flex items-center justify-between">
-                        <div className="flex items-center">
                           <Button
-                            variant="outline"
-                            size="icon"
-                            className="h-8 w-8 rounded-r-none"
-                            onClick={() =>
-                              updateQuantity(item.id, item.quantity - 1)
-                            }
+                            variant="ghost"
+                            size="sm"
+                            className="text-red-500 hover:text-red-700"
+                            onClick={() => clearCart()}
                           >
-                            <Minus className="h-3 w-3" />
-                          </Button>
-                          <div className="flex h-8 w-12 items-center justify-center border-y">
-                            {item.quantity}
-                          </div>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="h-8 w-8 rounded-l-none"
-                            onClick={() =>
-                              updateQuantity(item.id, item.quantity + 1)
-                            }
-                          >
-                            <Plus className="h-3 w-3" />
+                            <Trash2 className=" h-4 w-4" />
                           </Button>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-red-500 hover:text-red-700"
-                          onClick={() => removeItem(item.id)}
-                        >
-                          <X className="mr-1 h-4 w-4" />
-                          Remove
-                        </Button>
                       </div>
+                      
+                      
                     </div>
                   </div>
                 ))}

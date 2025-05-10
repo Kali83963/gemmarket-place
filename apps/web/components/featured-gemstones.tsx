@@ -30,7 +30,7 @@ export default function FeaturedGemstones({ gemstones }: Props) {
               key={gemstone.id}
               name={gemstone.name}
               price={gemstone.price}
-              image={gemstone.images[0]?.url}
+              images={gemstone.images}
               carat={gemstone.weight}
               cut={gemstone.cut_grade}
             />

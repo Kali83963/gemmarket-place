@@ -1,8 +1,11 @@
 "use client";
 import Link from "next/link";
 import { Search, Star } from "lucide-react";
-
+import { useGetGemstonesQuery } from "@/store/slices/gemstoneApi";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
+
 import { Input } from "@/components/ui/input";
 import FeaturedGemstones from "@/components/featured-gemstones";
 import GemstoneCategories from "@/components/gemstone-categories";
@@ -21,25 +24,16 @@ export interface Gemstone {
 }
 
 export default function Home() {
-  const [gemstones, setGemstones] = useState<Gemstone[]>([]);
+  const { data: featuredGemstones, isLoading: isLoadingFeatured } = useGetGemstonesQuery({
+    featured: true,
+    limit: 4
+  });
 
-  const fetchGemstones = async () => {
-    const res = await fetch(`${apiUrl}/gemstones/all`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    if (!res.ok) {
-      throw new Error("Failed to fetch gemstones");
-    }
-    const data = await res.json();
-    setGemstones(data.data);
-  };
-
-  useEffect(() => {
-    fetchGemstones();
-  }, []);
+  const { data: recentListings, isLoading: isLoadingRecent } = useGetGemstonesQuery({
+    sort: 'createdAt',
+    order: 'desc',
+    limit: 8
+  });
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -123,7 +117,7 @@ export default function Home() {
       <GemstoneCategories />
 
       {/* Featured Gemstones */}
-      <FeaturedGemstones gemstones={gemstones} />
+      <FeaturedGemstones gemstones={featuredGemstones || []} />
 
       {/* How It Works */}
       <HowItWorks />
@@ -141,12 +135,12 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {/* Updated GemstoneCard with proper key and props */}
-            {gemstones.map((gemstone) => (
+            {recentListings?.map((gemstone) => (
               <GemstoneCard
                 key={gemstone.id}
                 name={gemstone.name}
                 price={gemstone.price}
-                image={gemstone.images[0].url}
+                images={gemstone.images}
                 carat={gemstone.weight}
                 cut={gemstone.cut_grade}
               />
