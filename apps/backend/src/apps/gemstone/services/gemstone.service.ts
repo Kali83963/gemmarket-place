@@ -141,8 +141,9 @@ export class GemstoneService {
     });
   }
 
-  async verifyGemstone(id: number, data: any) {
+  async verifyGemstone(id: number, data: any, user: any) {
     const { status } = data;
+    const { id: userId } = user;
 
     const gemstone = await prisma.gemstone.update({
       where: {
@@ -150,6 +151,16 @@ export class GemstoneService {
       },
       data: {
         certificationStatus: status,
+        verifiedById: userId,
+      },
+      include: {
+        user: true,
+        verifiedBy: true,
+        images: {
+          select: {
+            url: true,
+          },
+        },
       },
     });
 
@@ -225,6 +236,8 @@ export class GemstoneService {
     return await prisma.gemstone.findUnique({
       where: { id },
       include: {
+        user: true,
+        verifiedBy: true,
         images: {
           select: {
             url: true,
@@ -264,13 +277,8 @@ export class GemstoneService {
     return await prisma.gemstone.findMany({
       where,
       include: {
-        user: {
-          select: {
-            firstName: true,
-            lastName: true,
-            email: true,
-          },
-        },
+        user: true,
+        verifiedBy: true,
         images: {
           select: {
             url: true,

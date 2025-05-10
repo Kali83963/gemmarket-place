@@ -26,7 +26,8 @@ export const verifyGemstone = asyncHandler(
   async (req: Request, res: Response) => {
     const status = await gemstoneService.verifyGemstone(
       +req.params.id,
-      req.body
+      req.body,
+      req.user
     );
 
     successResponse(
