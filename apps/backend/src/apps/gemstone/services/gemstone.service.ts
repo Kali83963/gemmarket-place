@@ -1,7 +1,12 @@
 // App/Gemstone/Services/GemstoneService.ts
 import { z } from "zod";
 import prisma from "@/config/prisma";
-import { CERTIFICATE_STATUS, GEMSTONE_STATUS, User } from "@prisma/client";
+import {
+  CERTIFICATE_STATUS,
+  GEMSTONE_STATUS,
+  Role,
+  User,
+} from "@prisma/client";
 import { BlockChainService } from "../../blockchain/blockchain.service";
 import fs from "fs";
 import axios from "axios";
@@ -87,54 +92,59 @@ export class GemstoneService {
       },
     });
 
-    const blockchainHash = await blockChainService.generateGemstoneHash(
-      gemstone,
-      gemstone.certification_document
-    );
-    // const onChainHash = await this.generateGemstoneHash(
+    await prisma.user.update({
+      where: {
+        id: gemstone.user.id,
+      },
+      data: {
+        role: Role.SELLER,
+      },
+    });
+
+    // const blockchainHash = await blockChainService.generateGemstoneHash(
     //   gemstone,
     //   gemstone.certification_document
     // );
-
-    const { id, onChainHash } = await blockChainService.registerGemstoneOnChain(
-      "signerAddress",
-      blockchainHash
+    const onChainHash = await this.generateHash(
+      gemstone,
+      gemstone.certification_document
     );
+
+    // const { id, onChainHash } = await blockChainService.registerGemstoneOnChain(
+    //   "signerAddress",
+    //   blockchainHash
+    // );
 
     await prisma.gemstone.update({
       where: {
         id: gemstone.id,
       },
       data: {
-        blockchainGemstoneId: id,
         blockchainHash: onChainHash,
       }, // Ensure that the data matches Prisma's input type,
-      include: {
-        user: true,
-      },
     });
-
-    delete gemstone.user.password;
 
     // Type assertion to ensure the validated data matches Prisma's GemstoneCreateInput
     return gemstone;
   }
 
-  async verifyGemstone(id: number, data: any) {
-    const { certification_document, signerAddress } = data;
-    const gemstone = await prisma.gemstone.findUniqueOrThrow({
+  async updateGemstoneBlockChainId(id: number, data: any) {
+    const { blockChainId } = data;
+    const gemstone = await prisma.gemstone.update({
       where: {
-        id,
+        id: id,
+      },
+      data: {
+        blockchainGemstoneId: blockChainId,
+        status: GEMSTONE_STATUS.AVAILABLE,
       },
     });
+  }
 
-    const status = await blockChainService.verifyGemstoneOnChain(
-      signerAddress,
-      gemstone,
-      certification_document
-    );
+  async verifyGemstone(id: number, data: any) {
+    const { status } = data;
 
-    await prisma.gemstone.update({
+    const gemstone = await prisma.gemstone.update({
       where: {
         id,
       },
@@ -143,7 +153,7 @@ export class GemstoneService {
       },
     });
 
-    return status;
+    return gemstone;
   }
   async editGemstone(id: number, data: Partial<GemstoneDTO>) {
     const validatedData = gemstoneSchema.parse(data);
@@ -165,7 +175,6 @@ export class GemstoneService {
     data: {
       isActive?: boolean;
       status?: GEMSTONE_STATUS;
-      certificationStatus?: CERTIFICATE_STATUS;
     }
   ) {
     return await prisma.gemstone.update({
@@ -174,6 +183,21 @@ export class GemstoneService {
         ...data,
       },
     });
+  }
+
+  async generateGemstoneHash(
+    id: number,
+    data: {
+      certification?: string;
+    }
+  ) {
+    const gemstone = await prisma.gemstone.findUnique({
+      where: { id },
+    });
+
+    const gemstoneHash = await this.generateHash(gemstone, data.certification);
+
+    return gemstoneHash;
   }
 
   async deleteGemstone(id: number) {
@@ -210,21 +234,35 @@ export class GemstoneService {
     });
   }
 
-  async searchGemstones() {
-    // certificationStatus?: boolean // origin?: string, // maxPrice?: number, // minPrice?: number, // type?: string,
-    // const where: any = {};
-    // if (type) where.type = type;
-    // if (minPrice || maxPrice)
-    //   where.price = {
-    //     ...(minPrice ? { gte: minPrice } : {}),
-    //     ...(maxPrice ? { lte: maxPrice } : {}),
-    //   };
-    // if (origin) where.origin = origin;
-    // if (certificationStatus !== undefined)
-    //   where.certificationStatus = certificationStatus;
+  async searchGemstones(params?: {
+    type?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    origin?: string;
+    certificationStatus?: boolean;
+  }) {
+    const { type, minPrice, maxPrice, origin, certificationStatus } =
+      params || {};
+
+    const where: any = {};
+
+    if (type) where.type = type;
+
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      where.price = {
+        ...(minPrice !== undefined ? { gte: minPrice } : {}),
+        ...(maxPrice !== undefined ? { lte: maxPrice } : {}),
+      };
+    }
+
+    if (origin) where.origin = origin;
+
+    if (certificationStatus !== undefined) {
+      where.certificationStatus = certificationStatus;
+    }
 
     return await prisma.gemstone.findMany({
-      // where,
+      where,
       include: {
         user: {
           select: {
@@ -249,7 +287,7 @@ export class GemstoneService {
       where: {
         isActive: true,
         certificationStatus: CERTIFICATE_STATUS.ACCEPTED,
-        status: GEMSTONE_STATUS.AVIALABLE,
+        status: GEMSTONE_STATUS.AVAILABLE,
         AND: [
           {
             name: {
@@ -279,7 +317,7 @@ export class GemstoneService {
       },
     });
   }
-  async generateGemstoneHash(gemstone, certification) {
+  async generateHash(gemstone, certification) {
     let certBuffer: Buffer;
 
     if (certification.startsWith("http")) {

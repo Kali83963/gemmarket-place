@@ -33,34 +33,33 @@ import { toast } from "react-toastify";
 import React from "react";
 import { z } from "zod";
 import AnimateButton from "../extended/AnimatedButton";
-import { updateGemstoneStatusAdmin } from "@/http/api";
+import {
+  generateGemstoneHash,
+  updateGemstoneStatusAdmin,
+  verifyGemstone,
+} from "@/http/api";
+import { Upload, UploadProps, Button as UploadButton } from "antd";
+import { UploadIcon } from "lucide-react";
+import { getContract } from "@/utils/contracts";
 
 const schema = z.object({
-  status: z.enum(["PENDING", "AVAILABLE", "SOLD"]),
-  isActive: z.boolean().default(true),
+  file: z.string().nonempty(),
 });
 
-const initialValues = {
-  status: "",
-  isActive: true, // Empty string to meet the "nonempty" rule
+const uploadProps: UploadProps = {
+  name: "file",
+  action: "http://localhost:5000/uploads",
+  onPreview: (file) => window.open(file.url, "_blank"),
 };
 
-const VerificationTab = ({
-  data,
+const EndorserVerificationTab = ({
+  blockChainId,
   id,
-  onSumbitForm,
 }: {
-  data: any;
+  blockChainId: any;
   id: string;
-  onSumbitForm: any;
 }) => {
   const theme = useTheme();
-
-  const [formValues, setFormValues] = React.useState(data);
-
-  React.useEffect(() => {
-    setFormValues(data);
-  }, []);
 
   const sxDivider = {
     borderColor: "primary.light",
@@ -79,32 +78,45 @@ const VerificationTab = ({
               <Grid container spacing={gridSpacing}>
                 <Formik
                   enableReinitialize={true}
-                  initialValues={formValues}
+                  initialValues={{
+                    file: "",
+                  }}
                   validationSchema={toFormikValidationSchema(schema)}
                   onSubmit={async (
                     values,
                     { setErrors, setStatus, setSubmitting, resetForm }
                   ) => {
-                    console.log(values);
                     try {
-                      const response = await updateGemstoneStatusAdmin(
-                        id,
-                        values
-                      );
+                      const payload = {
+                        certification: values.file,
+                      };
+                      const response = await generateGemstoneHash(id, payload);
+                      const verificationHash = response.data.data;
+                      const contract = await getContract();
+                      try {
+                        const tx = await contract.verifyGemstone(
+                          blockChainId || 1,
+                          verificationHash
+                        );
+
+                        const status = await tx.wait();
+                      } catch (e) {
+                        console.error(e);
+                      }
+
+                      await verifyGemstone(id, { status: "ACCEPTED" });
 
                       setStatus({ success: true });
                       setSubmitting(false);
-                      onSumbitForm((prev: any) => ({ ...prev, ...values }));
-                      setFormValues(values);
                       resetForm();
                       toast.success(response?.data?.message);
                     } catch (err: any) {
                       console.error(err);
 
                       setStatus({ success: false });
-                      setErrors({ firstName: err.message });
+                      setErrors({ file: err.message });
                       setSubmitting(false);
-                      toast.error("Error creating User!");
+                      toast.error("Error Verifying Gemstone !");
                     }
                   }}
                 >
@@ -112,48 +124,53 @@ const VerificationTab = ({
                     errors,
                     handleBlur,
                     handleChange,
+                    setFieldValue,
                     handleSubmit,
                     isSubmitting,
                     touched,
                     values,
                   }) => (
                     <>
-                      <form onSubmit={handleSubmit}>
+                      <form onSubmit={handleSubmit} style={{ width: "100%" }}>
                         <Grid size={{ xs: 12 }}>
-                          <FormControl fullWidth>
+                          <Stack spacing={2}>
                             <InputLabel id="role-select-label">
-                              Status
+                              Certificate
                             </InputLabel>
-                            <Select
-                              labelId="role-select-label"
-                              id="role-select"
-                              label="Status"
-                              name="status"
-                              onChange={handleChange}
-                              value={values?.status}
+                            <Upload
+                              maxCount={1}
+                              {...uploadProps}
+                              onRemove={(info) => {
+                                console.log(info);
+                                setFieldValue("file", "");
+                              }}
+                              onChange={(info) => {
+                                if (info.file.status !== "uploading") {
+                                  console.log(info.file, info.fileList);
+                                }
+                                if (info.file.status === "done") {
+                                  console.log(info);
+                                  setFieldValue(
+                                    "file",
+                                    info.file.response.fileUrl
+                                  );
+                                  toast.success(
+                                    `${info.file.name} file uploaded successfully`
+                                  );
+                                } else if (info.file.status === "error") {
+                                  toast.error(
+                                    `${info.file.name} file upload failed.`
+                                  );
+                                }
+                              }}
                             >
-                              <MenuItem value={"PENDING"}>Pending</MenuItem>
-                              <MenuItem value={"AVAILABLE"}>AVAILABLE</MenuItem>
-                              <MenuItem value={"SOLD"}>SOLD</MenuItem>
-                            </Select>
-                          </FormControl>
+                              <UploadButton icon={<UploadIcon />}>
+                                Click to Upload
+                              </UploadButton>
+                            </Upload>
+                          </Stack>
                         </Grid>
-                        <Grid
-                          size={{ xs: 12 }}
-                          sx={{ display: "flex", alignItems: "center" }}
-                        >
-                          <InputLabel id="active-checkbox-label">
-                            Active
-                          </InputLabel>
-                          <FormControl>
-                            <Checkbox
-                              name="isActive"
-                              color="primary"
-                              checked={values?.isActive}
-                              onChange={handleChange}
-                            />
-                          </FormControl>
-                        </Grid>
+
                         <CardActions>
                           <Grid
                             container
@@ -169,7 +186,7 @@ const VerificationTab = ({
                                   fullWidth
                                   type="submit"
                                 >
-                                  Save
+                                  Verify
                                 </Button>
                               </AnimateButton>
                             </Grid>
@@ -188,4 +205,4 @@ const VerificationTab = ({
   );
 };
 
-export default VerificationTab;
+export default EndorserVerificationTab;

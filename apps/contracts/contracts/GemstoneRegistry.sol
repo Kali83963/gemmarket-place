@@ -16,6 +16,7 @@ contract GemstoneRegistry {
 
     event GemstoneRegistered(uint gemstoneId, string hash, address seller);
     event GemstoneVerified(uint gemstoneId);
+    event GemstoneRejected(uint gemstoneId);
     event GemstoneTransferred(uint gemstoneId, address newOwner);
 
     function registerGemstone(string memory _hash) public returns (uint) {
@@ -25,15 +26,20 @@ contract GemstoneRegistry {
         return gemstoneCount - 1;  
     }
 
-    function verifyGemstone(uint _id) public {
-        gemstones[_id].isVerified = true;
-        gemstones[_id].status = Status.VERIFIED;
-        emit GemstoneVerified(_id);
-    }
-
-    function rejectGemstone(uint _id) public {
+    function verifyGemstone(uint _id, string memory _hash) public returns (Status) {
+        require(_id < gemstoneCount, "Invalid gemstone ID");
         require(gemstones[_id].status == Status.PENDING, "Already verified or rejected");
-        gemstones[_id].status = Status.REJECTED;
+
+        if (keccak256(bytes(gemstones[_id].hash)) == keccak256(bytes(_hash))) {
+            gemstones[_id].isVerified = true;
+            gemstones[_id].status = Status.VERIFIED;
+            emit GemstoneVerified(_id);
+        } else {
+            gemstones[_id].status = Status.REJECTED;
+            emit GemstoneRejected(_id);
+        }
+
+        return gemstones[_id].status;
     }
 
     function transferGemstone(uint _id, address _to) public {

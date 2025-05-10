@@ -2,76 +2,18 @@
 import { useTheme } from "@mui/material/styles";
 import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Grid";
-import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Typography from "@mui/material/Typography";
 
-// project imports
+import Typography from "@mui/material/Typography";
 
 import { gridSpacing } from "store/constant";
 
-// assets
-import CalendarTodayTwoToneIcon from "@mui/icons-material/CalendarTodayTwoTone";
-import DeleteTwoToneIcon from "@mui/icons-material/DeleteTwoTone";
-import EmailTwoToneIcon from "@mui/icons-material/EmailTwoTone";
-import PhoneAndroidTwoToneIcon from "@mui/icons-material/PhoneAndroidTwoTone";
-import { Image } from "antd";
+import { Image, Upload } from "antd";
 // types
 import { ThemeMode } from "types/config";
 import Chip from "@/components/extended/Chip";
 import SubCard from "../cards/SubCard";
-import { Slider } from "@mui/material";
-
-const detailsIconSX = {
-  width: 15,
-  height: 15,
-  verticalAlign: "text-top",
-  mr: 0.5,
-  mt: 0.25,
-};
-
-// table data
-function createData(
-  product: string,
-  description: string,
-  quantity: string,
-  amount: string,
-  total: string
-) {
-  return { product, description, quantity, amount, total };
-}
-
-const rows = [
-  createData(
-    "Logo Design",
-    "lorem ipsum dolor sit amat, connecter adieu siccing eliot",
-    "6",
-    "$200.00",
-    "$1200.00"
-  ),
-  createData(
-    "Landing Page",
-    "lorem ipsum dolor sit amat, connecter adieu siccing eliot",
-    "7",
-    "$100.00",
-    "$700.00"
-  ),
-  createData(
-    "Admin Template",
-    "lorem ipsum dolor sit amat, connecter adieu siccing eliot",
-    "5",
-    "$150.00",
-    "$750.00"
-  ),
-];
-
-// ==============================|| INVOICE DETAILS - DETAILS ||============================== //
+import { Box, Slider } from "@mui/material";
 
 const MediaTab = ({ data }: any) => {
   const theme = useTheme();
@@ -94,15 +36,17 @@ const MediaTab = ({ data }: any) => {
             </Grid>
             <Grid size={{ xs: 12 }}>
               <Grid container spacing={gridSpacing}>
-                <Grid size={{ sm: 6, md: 6, xs: 12 }}>
-                  <Stack spacing={2}>
-                    <Typography variant="h4">Gemstone Images</Typography>
+                <Grid size={{ xs: 12 }}>
+                  {/* <Stack spacing={2}> */}
+                  <Typography variant="h4">Gemstone Images</Typography>
+                  <Box display="flex" flexWrap="wrap" gap={2}>
                     <Image.PreviewGroup>
                       {data?.images.map((image: any) => {
-                        return <Image src={image?.url} />;
+                        return <Image src={image?.url} width={200} />;
                       })}
                     </Image.PreviewGroup>
-                  </Stack>
+                  </Box>
+                  {/* </Stack> */}
                 </Grid>
               </Grid>
             </Grid>
@@ -111,12 +55,27 @@ const MediaTab = ({ data }: any) => {
             </Grid>
             <Grid size={{ xs: 12 }}>
               <Grid container spacing={gridSpacing}>
-                <Grid size={{ sm: 6, md: 4 }}>
+                <Grid size={{ xs: 12 }}>
                   <Stack spacing={2}>
                     <Typography variant="h4">Certificate</Typography>
-                    <Image.PreviewGroup>
-                      <Image src={data?.certification_document} />
-                    </Image.PreviewGroup>
+                    <Upload
+                      fileList={[
+                        {
+                          uid: "1",
+                          name: "certificate",
+                          status: "done",
+                          url: data?.certification_document,
+                        },
+                      ]}
+                      showUploadList={{
+                        showDownloadIcon: true,
+                        showRemoveIcon: false, // Hide the cross button
+                        showPreviewIcon: true, // Optional: show eye icon
+                      }}
+                      onPreview={(file) => window.open(file.url, "_blank")} // Open in new tab
+                      listType="text" // or 'picture' or 'picture-card'
+                      itemRender={(originNode, file) => originNode} // optional: just renders default list
+                    />
                   </Stack>
                 </Grid>
               </Grid>

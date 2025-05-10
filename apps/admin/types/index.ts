@@ -65,6 +65,7 @@ export type NavItemType = {
   title?: ReactNode | string;
   color?: "primary" | "secondary" | "default" | undefined;
   caption?: ReactNode | string;
+  allowedRoles?: string[];
   breadcrumbs?: boolean;
   disabled?: boolean;
   chip?: ChipProps;

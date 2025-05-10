@@ -93,6 +93,10 @@ model User {
   gemstoneVerifier  GemstoneVerifier?
   order             Order[]
   cart              Cart?
+
+  soldTransactions Transaction[] @relation("SellerTransactions")
+
+  
 }
 
 model GemstoneVerifier {
@@ -164,6 +168,8 @@ model Order {
   shippingInfo  ShippingInfo   @relation(fields: [shippingInfoId], references: [id])
   paymentInfo   PaymentInfo    @relation(fields: [paymentInfoId], references: [id])
   orderItems    OrderItem[]
+
+  transaction   Transaction?
 }
 
 model ShippingInfo {
@@ -206,6 +212,33 @@ model OrderItem {
   product     Gemstone  @relation(fields: [productId], references: [id])
 }
 
+model Transaction {
+  id             String    @id @default(uuid())
+  orderId        String    @unique
+  order          Order     @relation(fields: [orderId], references: [id])
+
+  sellerId       String
+  seller         User      @relation("SellerTransactions", fields: [sellerId], references: [id])
+
+  totalAmount    Float
+  platformFee    Float
+  sellerPayout   Float
+
+  status         PAYMENT_STATUS
+  paymentDate    DateTime  @default(now())
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+
+enum PAYMENT_STATUS {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
 enum ORDER_STATUS {
   PENDING
   PAID
@@ -225,7 +258,7 @@ enum Role {
 enum GEMSTONE_STATUS {
   ACCEPTED
   REJECTED
-  AVIALABLE
+  AVAILABLE
   PENDING
   SOLD
 }

@@ -13,6 +13,7 @@ const dashboard: NavItemType = {
   id: "dashboard",
   title: "Dashboard",
   icon: icons.IconDashboard,
+  allowedRoles: ["ADMIN"],
   type: "group",
   children: [
     {
@@ -22,6 +23,7 @@ const dashboard: NavItemType = {
       url: "/dashboard",
       icon: icons.IconDashboard,
       breadcrumbs: false,
+      allowedRoles: ["ADMIN"],
     },
   ],
 };

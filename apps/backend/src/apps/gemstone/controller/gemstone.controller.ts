@@ -14,7 +14,6 @@ export const addGemstone = asyncHandler(async (req: Request, res: Response) => {
 
 export const editGemstone = asyncHandler(
   async (req: Request, res: Response) => {
-    console.log("JERE");
     const gemstone = await gemstoneService.editGemstone(
       +req.params.id,
       req.body
@@ -39,9 +38,31 @@ export const verifyGemstone = asyncHandler(
   }
 );
 
+export const generateGemstoneHash = asyncHandler(
+  async (req: Request, res: Response) => {
+    const data = await gemstoneService.generateGemstoneHash(
+      +req.params.id,
+      req.body
+    );
+
+    successResponse(res, data, `Hash Generated successfully`, 201);
+  }
+);
+
 export const updateGemstoneStatus = asyncHandler(
   async (req: Request, res: Response) => {
     const gemstone = await gemstoneService.updateGemstoneStatus(
+      +req.params.id,
+      req.body
+    );
+
+    successResponse(res, gemstone, "Gemstone edited successfully", 201);
+  }
+);
+
+export const updateGemstoneBlockChainId = asyncHandler(
+  async (req: Request, res: Response) => {
+    const gemstone = await gemstoneService.updateGemstoneBlockChainId(
       +req.params.id,
       req.body
     );
@@ -71,7 +92,7 @@ export const getGemstoneAdmin = asyncHandler(
 
 export const searchGemstones = asyncHandler(
   async (req: Request, res: Response) => {
-    const gemstones = await gemstoneService.searchGemstones();
+    const gemstones = await gemstoneService.searchGemstones(req.params);
     successResponse(res, gemstones, "Gemstone reterived successfully");
   }
 );

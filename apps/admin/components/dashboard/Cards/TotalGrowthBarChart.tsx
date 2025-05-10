@@ -105,16 +105,16 @@ const chartOptions: ChartProps = {
 
 const status = [
   {
-    value: "today",
-    label: "Today",
+    value: "day",
+    label: "Daily",
   },
   {
     value: "month",
-    label: "This Month",
+    label: "Monthly",
   },
   {
     value: "year",
-    label: "This Year",
+    label: "Yearly",
   },
 ];
 
@@ -122,18 +122,25 @@ const status = [
 
 interface TotalGrowthBarChartProps {
   isLoading: boolean;
+  values: any;
+  handleChangeDuration: any;
 }
 
-const TotalGrowthBarChart = ({ isLoading }: TotalGrowthBarChartProps) => {
+const TotalGrowthBarChart = ({
+  isLoading,
+  values,
+  handleChangeDuration,
+}: TotalGrowthBarChartProps) => {
   const theme = useTheme();
-  const [series] = useState([
-    {
-      name: "Investment",
-      data: [35, 125, 35, 35, 35, 80, 35, 20, 35, 45, 15, 75],
-    },
-  ]);
+  const [series, setSeries] = useState({
+    labels: [],
+    data: [],
+    name: "Revenue",
+  });
 
-  const [value, setValue] = useState("today");
+  const [value, setValue] = useState("day");
+
+  console.log("Series", series);
 
   const { primary } = theme.palette.text;
   const divider = theme.palette.divider;
@@ -151,20 +158,7 @@ const TotalGrowthBarChart = ({ isLoading }: TotalGrowthBarChartProps) => {
       colors: [primaryDark, secondaryMain, secondaryLight],
       xaxis: {
         type: "category",
-        categories: [
-          "Jan",
-          "Feb",
-          "Mar",
-          "Apr",
-          "May",
-          "Jun",
-          "Jul",
-          "Aug",
-          "Sep",
-          "Oct",
-          "Nov",
-          "Dec",
-        ],
+        categories: series?.labels,
         labels: {
           style: {
             colors: [
@@ -208,8 +202,18 @@ const TotalGrowthBarChart = ({ isLoading }: TotalGrowthBarChartProps) => {
     primary,
     divider,
     isLoading,
+    series,
     grey500,
   ]);
+
+  const onChangeDuration = (value: any) => {
+    handleChangeDuration(value);
+    setValue(value);
+  };
+
+  useEffect(() => {
+    setSeries((prev: any) => ({ ...prev, ...values }));
+  }, [values]);
 
   return (
     <>
@@ -229,9 +233,6 @@ const TotalGrowthBarChart = ({ isLoading }: TotalGrowthBarChartProps) => {
                     <Grid>
                       <Typography variant="subtitle2">Total Growth</Typography>
                     </Grid>
-                    <Grid>
-                      <Typography variant="h3">$2,324.00</Typography>
-                    </Grid>
                   </Grid>
                 </Grid>
                 <Grid>
@@ -239,7 +240,7 @@ const TotalGrowthBarChart = ({ isLoading }: TotalGrowthBarChartProps) => {
                     id="standard-select-currency"
                     select
                     value={value}
-                    onChange={(e) => setValue(e.target.value)}
+                    onChange={(e) => onChangeDuration(e.target.value)}
                   >
                     {status.map((option) => (
                       <MenuItem key={option.value} value={option.value}>
@@ -260,7 +261,12 @@ const TotalGrowthBarChart = ({ isLoading }: TotalGrowthBarChartProps) => {
             >
               <ReactApexChart
                 options={options}
-                series={series}
+                series={[
+                  {
+                    name: series.name,
+                    data: series.data,
+                  },
+                ]}
                 type="bar"
                 height={480}
               />

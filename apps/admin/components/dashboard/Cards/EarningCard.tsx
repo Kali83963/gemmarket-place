@@ -31,17 +31,14 @@ import AttachMoneyOutlinedIcon from "@mui/icons-material/AttachMoneyOutlined";
 
 interface EarningCardProps {
   isLoading: boolean;
+  value: any;
 }
 
-const EarningCard = ({ isLoading }: EarningCardProps) => {
+const EarningCard = ({ isLoading, value }: EarningCardProps) => {
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = React.useState<
     Element | (() => Element) | null | undefined
   >(null);
-
-  const handleClick = (event: React.SyntheticEvent) => {
-    setAnchorEl(event.currentTarget);
-  };
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -130,23 +127,8 @@ const EarningCard = ({ isLoading }: EarningCardProps) => {
                         mb: 0.75,
                       }}
                     >
-                      $500.00
+                      ${value}
                     </Typography>
-                  </Grid>
-                  <Grid>
-                    <Avatar
-                      sx={{
-                        cursor: "pointer",
-
-                        bgcolor: "secondary.200",
-                        color: "secondary.dark",
-                      }}
-                    >
-                      <ArrowUpwardIcon
-                        fontSize="inherit"
-                        sx={{ transform: "rotate3d(1, 1, 1, 45deg)" }}
-                      />
-                    </Avatar>
                   </Grid>
                 </Grid>
               </Grid>

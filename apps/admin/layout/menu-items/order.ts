@@ -13,6 +13,7 @@ const order: NavItemType = {
   id: "orders",
   title: "Order",
   icon: icons.IconDashboard,
+  allowedRoles: ["ADMIN"],
   type: "group",
   children: [
     {
@@ -21,6 +22,7 @@ const order: NavItemType = {
       type: "item",
       url: "/dashboard/order",
       icon: icons.IconDashboard,
+      allowedRoles: ["ADMIN"],
       breadcrumbs: true,
     },
   ],

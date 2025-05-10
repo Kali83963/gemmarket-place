@@ -1,9 +1,12 @@
 import prisma from "@/config/prisma";
+import { Role } from "@prisma/client";
 import {
   eachDayOfInterval,
   eachMonthOfInterval,
   eachWeekOfInterval,
   eachYearOfInterval,
+  endOfMonth,
+  endOfYear,
   format,
   startOfMonth,
   startOfQuarter,
@@ -16,58 +19,129 @@ import {
 
 export class AnalyticsService {
   async getDashboardStats() {
+    const now = new Date();
     const [
       totalGemstones,
       soldGemstones,
+      totalOrders,
+      totalUsers,
       totalRevenue,
-      gemstonesByStatus,
-      usersByRole,
-      totalOrdersByStatus,
-      activeGemstones,
-      topSellingGemstones,
-      monthlySales,
-      pendingCertifications,
+      yearSeriesData,
+      weekSeriesData,
+      monthlyRevenue,
+      yearlyRevenue,
     ] = await Promise.all([
-      prisma.gemstone.count(),
-      prisma.gemstone.count({ where: { status: "SOLD" } }),
-      prisma.order.aggregate({ _sum: { totalAmount: true } }),
-      prisma.gemstone.groupBy({
-        by: ["status"],
-        _count: true,
-      }),
-      prisma.user.groupBy({
-        by: ["role"],
-        _count: true,
-      }),
-      prisma.order.groupBy({
-        by: ["status"],
-        _count: true,
-      }),
       prisma.gemstone.count({ where: { isActive: true } }),
-      prisma.orderItem.groupBy({
-        by: ["productId"],
-        _sum: { quantity: true },
-        orderBy: { _sum: { quantity: "desc" } },
-        take: 5,
-      }),
-      prisma.order.groupBy({
-        by: ["createdAt"],
+      prisma.gemstone.count({ where: { isActive: true, status: "SOLD" } }),
+      prisma.order.aggregate({
         _sum: { totalAmount: true },
+        where: {
+          status: "PAID",
+        },
       }),
-      prisma.gemstone.count({ where: { certificationStatus: "PENDING" } }),
+      prisma.user.count({
+        where: {
+          isActive: true,
+          role: {
+            in: [Role.BUYER, Role.SELLER],
+          },
+        },
+      }),
+      prisma.transaction.aggregate({
+        _sum: {
+          platformFee: true,
+        },
+      }),
+      // Monthly revenue over past 12 months
+      // SUM("totalAmount") AS total
+      prisma.$queryRaw<{ month: number; count: number }[]>`
+        SELECT 
+          EXTRACT(MONTH FROM "createdAt") AS month,
+          COUNT(*) AS count
+        FROM "Order"
+        WHERE "status" = 'PAID'
+          AND "createdAt" >= NOW() - INTERVAL '12 months'
+        GROUP BY month
+        ORDER BY month;
+      `,
+
+      // Weekly revenue (past 7 days)
+      // SUM("totalAmount") AS total
+      prisma.$queryRaw<{ day: string; count: number }[]>`
+        SELECT 
+          TO_CHAR("createdAt", 'Day') AS day,
+          COUNT(*) AS count
+        FROM "Order"
+        WHERE "status" = 'PAID'
+          AND "createdAt" >= NOW() - INTERVAL '7 days'
+        GROUP BY day
+        ORDER BY MIN("createdAt");
+      `,
+
+      // Total revenue for current month
+      prisma.order.aggregate({
+        where: {
+          status: "PAID",
+          createdAt: {
+            gte: startOfMonth(now),
+            lte: endOfMonth(now),
+          },
+        },
+        _sum: {
+          totalAmount: true,
+        },
+      }),
+
+      // Total revenue for current year
+      prisma.order.aggregate({
+        where: {
+          status: "PAID",
+          createdAt: {
+            gte: startOfYear(now),
+            lte: endOfYear(now),
+          },
+        },
+        _sum: {
+          totalAmount: true,
+        },
+      }),
     ]);
+
+    const yearSeries = {
+      total: yearlyRevenue._sum.totalAmount || 0,
+      name: "series1",
+      data: Array.from({ length: 12 }, (_, i) => {
+        const match = yearSeriesData.find((d) => Number(d.month) === i + 1);
+        return match ? Number(match?.count) : 0;
+      }),
+    };
+
+    const dayOrder = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
+
+    const monthSeries = {
+      total: monthlyRevenue._sum.totalAmount || 0,
+      name: "series1",
+      data: dayOrder.map((day) => {
+        const match = weekSeriesData.find((d) => d.day.trim() === day);
+        return match ? Number(match.count) : 0;
+      }),
+    };
 
     return {
       totalGemstones,
+      totalUsers,
       soldGemstones,
-      totalRevenue: totalRevenue._sum.totalAmount || 0,
-      gemstonesByStatus,
-      usersByRole,
-      totalOrdersByStatus,
-      activeGemstones,
-      topSellingGemstones,
-      monthlySales,
-      pendingCertifications,
+      totalOrders: totalOrders._sum.totalAmount || 0,
+      orders: { monthSeries, yearSeries },
+      totalRevenue: totalRevenue._sum.platformFee || 0,
     };
   }
 
@@ -174,6 +248,7 @@ export class AnalyticsService {
   //       },
   //     };
   //   };
+
   async fetchAnalyticsData(range: string) {
     const today = new Date();
     let fromDate: Date;
@@ -190,15 +265,14 @@ export class AnalyticsService {
         break;
       case "day":
       default:
-        fromDate = subDays(today, 29); // Last 30 days including today
+        fromDate = subDays(today, 6); // Last 7 days including today
         bucketType = "day";
     }
 
-    // Fetch data
     const [orders, users] = await Promise.all([
       prisma.order.findMany({
         where: { createdAt: { gte: fromDate, lte: today } },
-        select: { createdAt: true },
+        select: { createdAt: true, totalAmount: true },
       }),
       prisma.user.findMany({
         where: { createdAt: { gte: fromDate, lte: today } },
@@ -206,47 +280,60 @@ export class AnalyticsService {
       }),
     ]);
 
-    // Generate time buckets
     let timeBuckets: string[] = [];
 
     if (bucketType === "day") {
-      timeBuckets = eachDayOfInterval({ start: fromDate, end: today }).map(
-        (date) => format(date, "yyyy-MM-dd")
-      );
+      timeBuckets = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     } else if (bucketType === "month") {
-      timeBuckets = eachMonthOfInterval({ start: fromDate, end: today }).map(
-        (date) => format(date, "MMM yyyy")
-      );
+      timeBuckets = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
     } else if (bucketType === "year") {
       timeBuckets = eachYearOfInterval({ start: fromDate, end: today }).map(
         (date) => format(date, "yyyy")
       );
     }
 
-    // Group by time bucket
     const bucketData = (
-      items: { createdAt: Date }[],
-      formatter: (d: Date) => string
+      items: { createdAt: Date; totalAmount?: number }[],
+      formatter: (d: Date) => string,
+      isCost = false
     ) => {
-      const counts: Record<string, number> = {};
+      const values: Record<string, number> = {};
       items.forEach((item) => {
         const key = formatter(item.createdAt);
-        counts[key] = (counts[key] || 0) + 1;
+        const amount = isCost ? item.totalAmount || 0 : 1;
+        values[key] = (values[key] || 0) + amount;
       });
 
-      return timeBuckets.map((label) => ({
-        label,
-        value: counts[label] || 0,
-      }));
+      const labels: string[] = [];
+      const data: number[] = [];
+
+      timeBuckets.forEach((label) => {
+        labels.push(label);
+        data.push(values[label] || 0);
+      });
+      return { data, labels };
     };
 
     const formatKey = (date: Date) => {
-      if (bucketType === "day") return format(date, "yyyy-MM-dd");
-      if (bucketType === "month") return format(date, "MMM yyyy");
-      return format(date, "yyyy");
+      if (bucketType === "day") return format(date, "EEE"); // e.g., "Mon"
+      if (bucketType === "month") return format(date, "MMM"); // e.g., "Jan"
+      return format(date, "yyyy"); // e.g., "2022"
     };
 
-    const ordersTrend = bucketData(orders, formatKey);
+    const ordersTrend = bucketData(orders, formatKey, true);
     const customersTrend = bucketData(users, formatKey);
 
     return {

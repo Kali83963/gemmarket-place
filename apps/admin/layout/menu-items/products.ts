@@ -13,6 +13,7 @@ const products: NavItemType = {
   id: "products",
   title: "Products",
   icon: icons.IconDashboard,
+  allowedRoles: ["ADMIN", "ENDORSER"],
   type: "group",
   children: [
     {
@@ -21,6 +22,7 @@ const products: NavItemType = {
       type: "item",
       url: "/dashboard/gemstone",
       icon: icons.IconDashboard,
+      allowedRoles: ["ADMIN", "ENDORSER"],
       breadcrumbs: true,
     },
   ],

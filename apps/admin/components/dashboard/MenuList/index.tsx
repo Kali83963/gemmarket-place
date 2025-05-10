@@ -18,9 +18,11 @@ import { useGetMenuMaster, useGetMenu } from "api/menu";
 
 // types
 import { NavItemType } from "types";
+import useAuth from "@/hooks/useAuth";
 
 const MenuList = () => {
   const downMD = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
+  const { user } = useAuth();
 
   const { menuLoading } = useGetMenu();
   const { menuMaster } = useGetMenuMaster();
@@ -81,38 +83,45 @@ const MenuList = () => {
   const navItems = menuItems.items
     .slice(0, lastItemIndex + 1)
     .map((item, index) => {
-      switch (item.type) {
-        case "group":
-          if (item.url && item.id !== lastItemId) {
+      if (item.allowedRoles?.includes(user?.role)) {
+        switch (item.type) {
+          case "group":
+            if (item.url && item.id !== lastItemId) {
+              return (
+                <List key={item.id}>
+                  <NavItem
+                    item={item}
+                    level={1}
+                    isParents
+                    setSelectedID={() => setSelectedID("")}
+                  />
+                  {!isHorizontal && index !== 0 && <Divider sx={{ py: 0.5 }} />}
+                </List>
+              );
+            }
             return (
-              <List key={item.id}>
-                <NavItem
-                  item={item}
-                  level={1}
-                  isParents
-                  setSelectedID={() => setSelectedID("")}
-                />
-                {!isHorizontal && index !== 0 && <Divider sx={{ py: 0.5 }} />}
-              </List>
+              <NavGroup
+                key={item.id}
+                setSelectedID={setSelectedID}
+                selectedID={selectedID}
+                item={item}
+                lastItem={lastItem!}
+                remItems={remItems}
+                lastItemId={lastItemId}
+              />
             );
-          }
-          return (
-            <NavGroup
-              key={item.id}
-              setSelectedID={setSelectedID}
-              selectedID={selectedID}
-              item={item}
-              lastItem={lastItem!}
-              remItems={remItems}
-              lastItemId={lastItemId}
-            />
-          );
-        default:
-          return (
-            <Typography key={item.id} variant="h6" color="error" align="center">
-              Menu Items Error
-            </Typography>
-          );
+          default:
+            return (
+              <Typography
+                key={item.id}
+                variant="h6"
+                color="error"
+                align="center"
+              >
+                Menu Items Error
+              </Typography>
+            );
+        }
       }
     });
 

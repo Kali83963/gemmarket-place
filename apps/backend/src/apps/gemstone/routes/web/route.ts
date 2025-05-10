@@ -14,6 +14,7 @@ import {
   getAllGemstones,
   getGemstone,
   getGemstoneAdmin,
+  updateGemstoneBlockChainId,
 } from "../../controller/gemstone.controller";
 
 const router = Router();
@@ -25,6 +26,12 @@ router.post(
   authorize(["SELLER"]),
   validate(gemstoneSchema),
   addGemstone
+);
+router.put(
+  "/gemstone/block-chain/:id",
+  isAuthenticate,
+  authorize(["SELLER"]),
+  updateGemstoneBlockChainId
 );
 router.put(
   "/gemstone/:id",

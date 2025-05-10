@@ -92,7 +92,7 @@ const TotalIncomeLightCard = ({
                 </ListItemAvatar>
                 <ListItemText
                   sx={{ py: 0, mt: 0.45, mb: 0.45 }}
-                  primary={<Typography variant="h4">${total}k</Typography>}
+                  primary={<Typography variant="h4">{total}</Typography>}
                   secondary={
                     <Typography
                       variant="subtitle2"

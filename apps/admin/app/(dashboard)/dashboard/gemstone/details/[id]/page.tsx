@@ -24,6 +24,8 @@ import MediaTab from "@/components/gemstone/MediaTab";
 import { fetchGemstone } from "@/http/api";
 import { toast } from "react-toastify";
 import VerificationTab from "@/components/gemstone/VerificationTab";
+import useAuth from "@/hooks/useAuth";
+import EndorserVerificationTab from "@/components/gemstone/EndorserVerificationTab";
 
 // tab content
 function TabPanel({ children, value, index, ...other }: TabsProps) {
@@ -52,7 +54,13 @@ export type PageProps = Promise<{ id: string }>;
 const GemstoneDetails = ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = React.use(params);
   const [value, setValue] = useState<number>(0);
-  const [data, setData] = useState();
+  const { user } = useAuth();
+  const [data, setData] = useState({
+    status: null,
+    isActive: null,
+    blockchainGemstoneId: null,
+    certificationStatus: "",
+  });
   const handleChangeTabs = (
     event: React.SyntheticEvent<Element, Event>,
     newValue: number
@@ -119,13 +127,17 @@ const GemstoneDetails = ({ params }: { params: Promise<{ id: string }> }) => {
           label="Images & Media"
           {...a11yProps(1)}
         />
-        <Tab
-          icon={<LocalShippingTwoToneIcon />}
-          component={Link}
-          href="#"
-          label="Verification"
-          {...a11yProps(2)}
-        />
+        {(user?.role === "ENDORSER" &&
+          data?.certificationStatus === "PENDING") ||
+        user?.role === "ADMIN" ? (
+          <Tab
+            icon={<LocalShippingTwoToneIcon />}
+            component={Link}
+            href="#"
+            label="Verification"
+            {...a11yProps(2)}
+          />
+        ) : null}
       </Tabs>
 
       {/* tab - details */}
@@ -138,7 +150,19 @@ const GemstoneDetails = ({ params }: { params: Promise<{ id: string }> }) => {
         <MediaTab data={data} />
       </TabPanel>
       <TabPanel value={value} index={2}>
-        <VerificationTab data={data} />
+        {user?.role === "ENDORSER" &&
+        data?.certificationStatus === "PENDING" ? (
+          <EndorserVerificationTab
+            blockChainId={data?.blockchainGemstoneId}
+            id={id}
+          />
+        ) : (
+          <VerificationTab
+            onSumbitForm={setData}
+            data={{ status: data?.status, isActive: data?.isActive }}
+            id={id}
+          />
+        )}
       </TabPanel>
     </MainCard>
   );

@@ -146,6 +146,7 @@ const Profile = () => {
               setStatus({ success: true });
               setSubmitting(false);
               resetForm();
+              setFormValues(response?.data?.data);
               toast.success(response?.data?.message);
             } catch (err: any) {
               console.error(err);

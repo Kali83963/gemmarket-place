@@ -139,6 +139,12 @@ export async function fetchGemstone(id: string) {
     console.error("Error Geting Endoser user:", err);
   }
 }
+export async function updateGemstoneStatusAdmin(id: string, payload: any) {
+  const http = HttpService.getInstance();
+
+  const response = await http.put(`/gemstone/${id}`, payload);
+  return response;
+}
 export async function editGemstone(id: string, payload: any) {
   const http = HttpService.getInstance();
   try {
@@ -176,4 +182,24 @@ export async function fetchOrder(id: string) {
   } catch (err) {
     console.error("Error Geting Endoser user:", err);
   }
+}
+export async function getAnalytics() {
+  const http = HttpService.getInstance();
+  const response = await http.get(`/analytics`);
+  return response;
+}
+export async function getCharts(param = "day") {
+  const http = HttpService.getInstance();
+  const response = await http.get(`/charts?range=${param}`);
+  return response;
+}
+export async function generateGemstoneHash(id: string, payload: any) {
+  const http = HttpService.getInstance();
+  const response = await http.post(`/gemstone/hash/${id}`, payload);
+  return response;
+}
+export async function verifyGemstone(id: string, payload: any) {
+  const http = HttpService.getInstance();
+  const response = await http.post(`/gemstone/verify/${id}`, payload);
+  return response;
 }

@@ -13,6 +13,7 @@ const users: NavItemType = {
   id: "user",
   title: "User",
   icon: icons.IconUser,
+  allowedRoles: ["ADMIN"],
   type: "group",
   children: [
     {
@@ -21,6 +22,7 @@ const users: NavItemType = {
       type: "item",
       url: "/dashboard/users",
       icon: icons.IconDashboard,
+      allowedRoles: ["ADMIN"],
       breadcrumbs: true,
       // children: [
       //   {
@@ -38,6 +40,7 @@ const users: NavItemType = {
       title: "Endosers",
       type: "item",
       url: "/dashboard/endosers",
+      allowedRoles: ["ADMIN"],
       icon: icons.IconDashboard,
       breadcrumbs: true,
     },

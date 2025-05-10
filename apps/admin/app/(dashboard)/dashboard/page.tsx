@@ -15,13 +15,50 @@ import TotalOrderLineChartCard from "@/components/dashboard/Cards/TotalOrderInli
 import TotalGrowthBarChart from "@/components/dashboard/Cards/TotalGrowthBarChart";
 import TotalIncomeDarkCard from "@/components/dashboard/Cards/TotalIncomeDarkChart";
 import TotalIncomeLightCard from "@/components/dashboard/Cards/TotalIncomeLightCard";
+import { getAnalytics, getCharts } from "@/http/api";
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 
 const Dashboard = () => {
   const [isLoading, setLoading] = useState(true);
+  const [cardData, setCardData] = useState({
+    totalRevenue: 0,
+    orders: {},
+    totalUsers: 0,
+    totalGemstones: 0,
+  });
+  const [chartData, setChartData] = useState({
+    ordersTrend: {},
+  });
+  const getDashboardData = async () => {
+    try {
+      setLoading(true);
+      const [cardDataResponse, chartDataResponse] = await Promise.all([
+        getAnalytics(),
+        getCharts(),
+      ]);
+      setCardData(cardDataResponse?.data?.data);
+      setChartData(chartDataResponse?.data?.data);
+    } catch (e: any) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onChangeChartDuration = async (value: any) => {
+    try {
+      const response = await getCharts(value);
+      setChartData(response?.data?.data);
+    } catch (e: any) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    setLoading(false);
+    getDashboardData();
   }, []);
 
   return (
@@ -29,22 +66,28 @@ const Dashboard = () => {
       <Grid size={{ xs: 12 }}>
         <Grid container spacing={gridSpacing}>
           <Grid size={{ lg: 4, md: 6, sm: 6, xs: 12 }}>
-            <EarningCard isLoading={isLoading} />
+            <EarningCard isLoading={isLoading} value={cardData?.totalRevenue} />
           </Grid>
           <Grid size={{ lg: 4, md: 6, sm: 6, xs: 12 }}>
-            <TotalOrderLineChartCard isLoading={isLoading} />
+            <TotalOrderLineChartCard
+              isLoading={isLoading}
+              value={cardData?.orders}
+            />
           </Grid>
           <Grid size={{ lg: 4, md: 12, sm: 12, xs: 12 }}>
             <Grid container spacing={gridSpacing}>
               <Grid size={{ lg: 12, md: 6, sm: 6, xs: 12 }}>
-                <TotalIncomeDarkCard isLoading={isLoading} />
+                <TotalIncomeDarkCard
+                  isLoading={isLoading}
+                  value={cardData?.totalUsers}
+                />
               </Grid>
               <Grid size={{ lg: 12, md: 6, sm: 6, xs: 12 }}>
                 <TotalIncomeLightCard
                   {...{
                     isLoading: isLoading,
-                    total: 203,
-                    label: "Total Income",
+                    total: cardData?.totalGemstones,
+                    label: "Total Gemstone",
                     icon: <StorefrontTwoToneIcon fontSize="inherit" />,
                   }}
                 />
@@ -56,7 +99,11 @@ const Dashboard = () => {
       <Grid size={{ xs: 12 }}>
         <Grid container spacing={gridSpacing}>
           <Grid size={{ xs: 12 }}>
-            <TotalGrowthBarChart isLoading={isLoading} />
+            <TotalGrowthBarChart
+              isLoading={isLoading}
+              handleChangeDuration={onChangeChartDuration}
+              values={chartData?.ordersTrend}
+            />
           </Grid>
         </Grid>
       </Grid>

@@ -49,9 +49,13 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
 
 interface TotalIncomeDarkCardProps {
   isLoading: boolean;
+  value: any;
 }
 
-const TotalIncomeDarkCard = ({ isLoading }: TotalIncomeDarkCardProps) => {
+const TotalIncomeDarkCard = ({
+  isLoading,
+  value,
+}: TotalIncomeDarkCardProps) => {
   const theme = useTheme();
 
   return (
@@ -86,7 +90,7 @@ const TotalIncomeDarkCard = ({ isLoading }: TotalIncomeDarkCardProps) => {
                   }}
                   primary={
                     <Typography variant="h4" sx={{ color: "#fff" }}>
-                      3
+                      {value}
                     </Typography>
                   }
                   secondary={

@@ -51,10 +51,7 @@ const chartOptions: ChartProps = {
     curve: "smooth",
     width: 3,
   },
-  yaxis: {
-    min: 0,
-    max: 100,
-  },
+
   tooltip: {
     theme: "dark",
     fixed: {
@@ -76,26 +73,14 @@ const chartOptions: ChartProps = {
 
 interface TotalOrderLineChartCardProps {
   isLoading: boolean;
+  value: any;
 }
 
 const TotalOrderLineChartCard = ({
   isLoading,
+  value,
 }: TotalOrderLineChartCardProps) => {
-  const yearSeries = [
-    {
-      name: "series1",
-      data: [35, 44, 9, 54, 45, 66, 41, 69, 25, 50, 35, 80],
-    },
-  ];
-
-  const monthSeries = [
-    {
-      name: "series1",
-      data: [45, 66, 41, 89, 25, 44, 9],
-    },
-  ];
-
-  const [series, setSeries] = React.useState(yearSeries);
+  const [series, setSeries] = React.useState(value?.yearSeries);
 
   const [timeValue, setTimeValue] = React.useState<boolean>(false);
   const handleChangeTime = (
@@ -103,8 +88,12 @@ const TotalOrderLineChartCard = ({
     newValue: boolean
   ) => {
     setTimeValue(newValue);
-    setSeries(timeValue ? yearSeries : monthSeries);
+    setSeries(timeValue ? value?.yearSeries : value?.monthSeries);
   };
+
+  React.useEffect(() => {
+    setSeries(value?.yearSeries);
+  }, [value]);
 
   return (
     <>
@@ -200,7 +189,7 @@ const TotalOrderLineChartCard = ({
                               mb: 0.75,
                             }}
                           >
-                            $108
+                            ${series?.total}
                           </Typography>
                         ) : (
                           <Typography
@@ -212,7 +201,7 @@ const TotalOrderLineChartCard = ({
                               mb: 0.75,
                             }}
                           >
-                            $961
+                            ${series?.total}
                           </Typography>
                         )}
                       </Grid>
@@ -233,7 +222,7 @@ const TotalOrderLineChartCard = ({
                   <Grid size={{ xs: 6 }}>
                     <ReactApexChart
                       options={chartOptions}
-                      series={series}
+                      series={[{ data: series?.data, name: series?.name }]}
                       type="line"
                       height={90}
                     />
