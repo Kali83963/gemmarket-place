@@ -29,7 +29,7 @@ export default function GemstoneCategories() {
           {categories.map((category, index) => (
             <Link
               key={index}
-              href={`/category/${category.name.toLowerCase()}`}
+              href={`#`}
               className="group flex flex-col items-center rounded-lg p-6 transition-all hover:shadow-md"
             >
               <div

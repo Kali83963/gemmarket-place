@@ -47,11 +47,11 @@ export default function LoginPage() {
       const response = await login(data).unwrap();
       dispatch(setCredentials(response));
       toast.success("Login successful!");
-      
+
       // Check for redirect URL
-      const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
+      const redirectUrl = sessionStorage.getItem("redirectAfterLogin");
       if (redirectUrl) {
-        sessionStorage.removeItem('redirectAfterLogin');
+        sessionStorage.removeItem("redirectAfterLogin");
         router.push(redirectUrl);
       } else {
         router.push("/");
@@ -124,12 +124,6 @@ export default function LoginPage() {
                 <Label htmlFor="password" className="text-gray-700">
                   Password
                 </Label>
-                <Link
-                  href="/auth/forgot-password"
-                  className="text-xs text-blue-600 hover:underline"
-                >
-                  Forgot password?
-                </Link>
               </div>
               <Input
                 id="password"

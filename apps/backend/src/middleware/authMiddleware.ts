@@ -30,7 +30,6 @@ export const isAuthenticate = async (
   next: NextFunction
 ): Promise<void> => {
   const token = req.cookies.token;
-  console.log(token);
 
   if (!token) {
     errorResponse(

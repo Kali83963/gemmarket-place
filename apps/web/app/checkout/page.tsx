@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import { useState } from "react";
 import Link from "next/link";
 import {
@@ -14,14 +13,20 @@ import {
   ShoppingBag,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useGetCartQuery, usePlaceOrderMutation } from "@/store/slices/gemstoneApi";
+import {
+  useGetCartQuery,
+  usePlaceOrderMutation,
+} from "@/store/slices/gemstoneApi";
 import { StripeProvider } from "@/components/stripe-provider";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { shippingSchema, ShippingFormData , paymentSchema , PaymentFormData } from "@/lib/validations/order";
-
+import {
+  shippingSchema,
+  ShippingFormData,
+  paymentSchema,
+  PaymentFormData,
+} from "@/lib/validations/order";
 import { toast } from "sonner";
-
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -44,31 +49,10 @@ import { Separator } from "@/components/ui/seperator";
 import { Textarea } from "@/components/ui/textarea";
 import { LoadingSpinner } from "@/components/loading-spinner";
 import { PaymentForm } from "@/components/payment-form";
-
-// Mock cart summary data
-const cartSummary = {
-  items: [
-    {
-      id: 1,
-      name: "Round Brilliant Diamond",
-      price: 5299,
-      quantity: 1,
-    },
-    {
-      id: 2,
-      name: "Blue Sapphire Oval",
-      price: 3450,
-      quantity: 1,
-    },
-  ],
-  subtotal: 8749,
-  discount: 0,
-  shipping: 50,
-  tax: 699.92,
-  total: 9498.92,
-};
+import { getContract } from "@/utils/contracts";
 
 export default function CheckoutPage() {
+  // All hooks must be called at the top level
   const router = useRouter();
   const { data: cart, isLoading: isCartLoading } = useGetCartQuery();
   const [currentStep, setCurrentStep] = useState<
@@ -77,26 +61,12 @@ export default function CheckoutPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [orderResponse, setOrderResponse] = useState<any>(null);
-
-  // Add check for empty cart
-  if (!isCartLoading && (!cart || cart.items.length === 0)) {
-    return (
-      <div className="container mx-auto px-4 py-12">
-        <div className="flex flex-col items-center justify-center space-y-6 text-center">
-          <div className="rounded-full bg-blue-100 p-6 text-blue-600">
-            <ShoppingBag className="h-12 w-12" />
-          </div>
-          <h1 className="text-3xl font-bold">Your Cart is Empty</h1>
-          <p className="max-w-md text-gray-600">
-            Please add items to your cart before proceeding to checkout.
-          </p>
-          <Button className="mt-4 bg-blue-600 hover:bg-blue-700" asChild>
-            <Link href="/gemstones">Browse Gemstones</Link>
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  const [paymentInfo, setPaymentInfo] = useState({
+    nameOnCard: "",
+    cardNumber: "",
+    token: "",
+    paymentMethod: "credit-card",
+  });
 
   const {
     register,
@@ -107,24 +77,23 @@ export default function CheckoutPage() {
   } = useForm<ShippingFormData>({
     resolver: zodResolver(shippingSchema),
     defaultValues: {
-      country: "US" // Set default value for country
-    }
-  });
-
-  const [paymentInfo, setPaymentInfo] = useState({
-    nameOnCard: "",
-    cardNumber: "",
-    token: "",
-    paymentMethod: "credit-card",
+      country: "US",
+    },
   });
 
   const [placeOrder] = usePlaceOrderMutation();
 
-  const subtotal = cart?.items.reduce((total, item) => total + (item.price * item.quantity), 0) ?? 0;
-  const shipping = 50; // Fixed shipping cost
-  const tax = subtotal * 0.08; // 8% tax rate
+  // Calculate totals
+  const subtotal =
+    cart?.items.reduce(
+      (total, item) => total + item.price * item.quantity,
+      0
+    ) ?? 0;
+  const shipping = 50;
+  const tax = subtotal * 0.08;
   const total = subtotal + shipping + tax;
 
+  // Event handlers
   const handleShippingSubmit = handleSubmit((data) => {
     setCurrentStep("payment");
   });
@@ -133,6 +102,10 @@ export default function CheckoutPage() {
     e.preventDefault();
     setCurrentStep("review");
   };
+
+  if (cart?.items.length !== 0) {
+    console.log(Number(cart?.items[0].product?.blockchainGemstoneId) - 1);
+  }
 
   const handlePlaceOrder = async () => {
     setIsProcessing(true);
@@ -159,15 +132,85 @@ export default function CheckoutPage() {
       };
 
       const response = await placeOrder(orderData).unwrap();
-      setOrderResponse(response.data);
+
+      const { contract, signer } = await getContract();
+
+      if (
+        cart?.items &&
+        cart?.items.length > 0 &&
+        cart?.items[0].product?.blockchainGemstoneId
+      ) {
+        const tx = await contract.transferGemstone(
+          Number(cart?.items[0].product?.blockchainGemstoneId),
+          signer.getAddress()
+        );
+        await tx.wait();
+      }
+
+      // console.log("Transaction successful:", tx);
+
+      // Process each gemstone transfer
+      // for (const item of cart?.items || []) {
+      //   const gemstoneId = item.product?.blockchainGemstoneId;
+      //   if (!gemstoneId) {
+      //     console.warn("No blockchain ID found for gemstone:", item.product?.name);
+      //     continue;
+      //   }
+
+      //   try {
+      //     const tx = await contract.transferGemstone(
+      //       Number(gemstoneId),
+      //       signer.getAddress()
+      //     );
+      //     await tx.wait();
+      //     console.log("Transaction successful for gemstone:", gemstoneId);
+      //   } catch (error) {
+      //     console.error("Error transferring gemstone:", error);
+      //     toast.error(`Failed to transfer gemstone ${item.product?.name}. Please contact support.`);
+      //   }
+      // }
+
       toast.success("Order placed successfully!");
-      setIsComplete(true);
+      // setIsComplete(true);
     } catch (error) {
       toast.error("Failed to place order. Please try again.");
     } finally {
       setIsProcessing(false);
     }
   };
+
+  // Render different states
+  if (isCartLoading) {
+    return (
+      <div className="container mx-auto px-4 py-12">
+        <div className="flex h-[50vh] items-center justify-center">
+          <div className="text-center">
+            <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+            <p className="text-gray-600">Loading...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isProcessing && (!cart || cart.items.length === 0)) {
+    return (
+      <div className="container mx-auto px-4 py-12">
+        <div className="flex flex-col items-center justify-center space-y-6 text-center">
+          <div className="rounded-full bg-blue-100 p-6 text-blue-600">
+            <ShoppingBag className="h-12 w-12" />
+          </div>
+          <h1 className="text-3xl font-bold">Your Cart is Empty</h1>
+          <p className="max-w-md text-gray-600">
+            Please add items to your cart before proceeding to checkout.
+          </p>
+          <Button className="mt-4 bg-blue-600 hover:bg-blue-700" asChild>
+            <Link href="/search">Browse Gemstones</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   if (isComplete && orderResponse) {
     return (
@@ -237,6 +280,7 @@ export default function CheckoutPage() {
     );
   }
 
+  // Main checkout form
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-6">
@@ -318,84 +362,74 @@ export default function CheckoutPage() {
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor="firstName">First Name</Label>
-                      <Input
-                        id="firstName"
-                        {...register("firstName")}
-                      />
+                      <Input id="firstName" {...register("firstName")} />
                       {errors.firstName && (
-                        <p className="text-sm text-red-500">{errors.firstName.message}</p>
+                        <p className="text-sm text-red-500">
+                          {errors.firstName.message}
+                        </p>
                       )}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="lastName">Last Name</Label>
-                      <Input
-                        id="lastName"
-                        {...register("lastName")}
-                      />
+                      <Input id="lastName" {...register("lastName")} />
                       {errors.lastName && (
-                        <p className="text-sm text-red-500">{errors.lastName.message}</p>
+                        <p className="text-sm text-red-500">
+                          {errors.lastName.message}
+                        </p>
                       )}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        {...register("email")}
-                      />
+                      <Input id="email" type="email" {...register("email")} />
                       {errors.email && (
-                        <p className="text-sm text-red-500">{errors.email.message}</p>
+                        <p className="text-sm text-red-500">
+                          {errors.email.message}
+                        </p>
                       )}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="phone">Phone</Label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        {...register("phone")}
-                      />
+                      <Input id="phone" type="tel" {...register("phone")} />
                       {errors.phone && (
-                        <p className="text-sm text-red-500">{errors.phone.message}</p>
+                        <p className="text-sm text-red-500">
+                          {errors.phone.message}
+                        </p>
                       )}
                     </div>
                     <div className="space-y-2 sm:col-span-2">
                       <Label htmlFor="address">Address</Label>
-                      <Input
-                        id="address"
-                        {...register("address")}
-                      />
+                      <Input id="address" {...register("address")} />
                       {errors.address && (
-                        <p className="text-sm text-red-500">{errors.address.message}</p>
+                        <p className="text-sm text-red-500">
+                          {errors.address.message}
+                        </p>
                       )}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="city">City</Label>
-                      <Input
-                        id="city"
-                        {...register("city")}
-                      />
+                      <Input id="city" {...register("city")} />
                       {errors.city && (
-                        <p className="text-sm text-red-500">{errors.city.message}</p>
+                        <p className="text-sm text-red-500">
+                          {errors.city.message}
+                        </p>
                       )}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="state">State/Province</Label>
-                      <Input
-                        id="state"
-                        {...register("state")}
-                      />
+                      <Input id="state" {...register("state")} />
                       {errors.state && (
-                        <p className="text-sm text-red-500">{errors.state.message}</p>
+                        <p className="text-sm text-red-500">
+                          {errors.state.message}
+                        </p>
                       )}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="postalCode">ZIP/Postal Code</Label>
-                      <Input
-                        id="postalCode"
-                        {...register("postalCode")}
-                      />
+                      <Input id="postalCode" {...register("postalCode")} />
                       {errors.postalCode && (
-                        <p className="text-sm text-red-500">{errors.postalCode.message}</p>
+                        <p className="text-sm text-red-500">
+                          {errors.postalCode.message}
+                        </p>
                       )}
                     </div>
                     <div className="space-y-2">
@@ -415,7 +449,9 @@ export default function CheckoutPage() {
                         </SelectContent>
                       </Select>
                       {errors.country && (
-                        <p className="text-sm text-red-500">{errors.country.message}</p>
+                        <p className="text-sm text-red-500">
+                          {errors.country.message}
+                        </p>
                       )}
                     </div>
                     <div className="space-y-2 sm:col-span-2">
@@ -444,7 +480,6 @@ export default function CheckoutPage() {
                 <StripeProvider>
                   <PaymentForm
                     onPaymentSuccess={(token: string, nameOnCard: string) => {
-                      console.log(token, nameOnCard);
                       setPaymentInfo({
                         ...paymentInfo,
                         cardNumber: "**** **** **** " + token.slice(-4),
@@ -559,15 +594,11 @@ export default function CheckoutPage() {
                         <div className="space-y-2">
                           <div className="flex justify-between">
                             <span className="text-gray-600">Subtotal</span>
-                            <span>
-                              ${subtotal.toLocaleString()}
-                            </span>
+                            <span>${subtotal.toLocaleString()}</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-gray-600">Shipping</span>
-                            <span>
-                              ${shipping.toLocaleString()}
-                            </span>
+                            <span>${shipping.toLocaleString()}</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-gray-600">Tax</span>
@@ -584,7 +615,7 @@ export default function CheckoutPage() {
                     </div>
                   </div>
 
-                  <div className="mt-6 flex items-center justify-between">
+                  <div className="mt-6 flex justify-between">
                     <Button
                       type="button"
                       variant="outline"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   User,
   Settings,
@@ -8,6 +8,7 @@ import {
   Heart,
   Package,
   LogOut,
+  Gem,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -26,15 +27,33 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { useAppSelector } from "@/store/hooks";
 import withAuth from "@/lib/utils/withAuth";
+import { RootState } from "@/store";
+import { useGetProfileQuery, useUpdateProfileMutation } from "@/store/slices/authApi";
+import { useGetUserGemstonesQuery } from "@/store/slices/gemstoneApi";
+import { GemstoneCard } from "@/components/gemstone-card";
+import { toast } from "sonner";
 
 function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
-  const {user}= useAppSelector((state: RootState) => state.auth);
+  const { data: profile, isLoading: isProfileLoading } = useGetProfileQuery();
+  const { data: userGemstones, isLoading: isGemstonesLoading } = useGetUserGemstonesQuery();
+  const [updateProfile] = useUpdateProfileMutation();
+
   const [formData, setFormData] = useState({
-    firstName: user?.firstName || "",
-    lastName: user?.lastName || "",
-    email: user?.email || "",
+    firstName: "",
+    lastName: "",
+    email: "",
   });
+
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        email: profile.email,
+      });
+    }
+  }, [profile]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -48,12 +67,28 @@ function ProfilePage() {
     setIsEditing((prev) => !prev);
   };
 
-  const handleSave = () => {
-    // TODO: dispatch an action to save/update the user profile
-    console.log("Saving data:", formData);
-    setIsEditing(false);
+  const handleSave = async () => {
+    try {
+      await updateProfile(formData).unwrap();
+      toast.success("Profile updated successfully");
+      setIsEditing(false);
+    } catch (error) {
+      toast.error("Failed to update profile");
+    }
   };
- 
+
+  if (isProfileLoading) {
+    return (
+      <div className="container mx-auto py-10 px-4 md:px-6">
+        <div className="flex h-[50vh] items-center justify-center">
+          <div className="text-center">
+            <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+            <p className="text-gray-600">Loading profile...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-10 px-4 md:px-6">
@@ -64,13 +99,13 @@ function ProfilePage() {
               <div className="flex justify-center mb-4">
                 <Avatar className="h-24 w-24">
                   <AvatarImage
-                    src="/placeholder.svg?height=96&width=96"
+                    src={profile?.picture || "/placeholder.svg?height=96&width=96"}
                     alt="User"
                   />
-                  <AvatarFallback>JD</AvatarFallback>
+                  <AvatarFallback>{profile?.firstName?.[0]}{profile?.lastName?.[0]}</AvatarFallback>
                 </Avatar>
               </div>
-              <CardTitle className="text-center">{user?.firstName + user?.lastName}</CardTitle>
+              <CardTitle className="text-center">{profile?.firstName} {profile?.lastName}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-1">
               <div className="flex items-center py-2">
@@ -87,6 +122,7 @@ function ProfilePage() {
           <Tabs defaultValue="personal" className="w-full">
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="personal">Personal Info</TabsTrigger>
+              <TabsTrigger value="gemstones">My Gemstones</TabsTrigger>
             </TabsList>
 
             <TabsContent value="personal" className="mt-6">
@@ -96,7 +132,7 @@ function ProfilePage() {
                     <CardTitle>Personal Information</CardTitle>
                     <Button
                       variant="outline"
-                      onClick={() => setIsEditing(!isEditing)}
+                      onClick={handleEditToggle}
                     >
                       {isEditing ? "Cancel" : "Edit"}
                     </Button>
@@ -106,59 +142,41 @@ function ProfilePage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="firstName">First Name</Label>
-          <Input
-            id="firstName"
-            value={formData.firstName}
-            onChange={handleChange}
-            readOnly={!isEditing}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="lastName">Last Name</Label>
-          <Input
-            id="lastName"
-            value={formData.lastName}
-            onChange={handleChange}
-            readOnly={!isEditing}
-          />
-        </div>
-      </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="firstName">First Name</Label>
+                      <Input
+                        id="firstName"
+                        value={formData.firstName}
+                        onChange={handleChange}
+                        readOnly={!isEditing}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="lastName">Last Name</Label>
+                      <Input
+                        id="lastName"
+                        value={formData.lastName}
+                        onChange={handleChange}
+                        readOnly={!isEditing}
+                      />
+                    </div>
+                  </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
-        <Input
-          id="email"
-          type="email"
-          value={formData.email}
-          onChange={handleChange}
-          readOnly={!isEditing}
-        />
-      </div>
-
-      <div className="flex gap-4 pt-4">
-        <button
-          onClick={handleEditToggle}
-          className="px-4 py-2 bg-blue-500 text-white rounded"
-        >
-          {isEditing ? "Cancel" : "Edit"}
-        </button>
-        {isEditing && (
-          <button
-            onClick={handleSave}
-            className="px-4 py-2 bg-green-600 text-white rounded"
-          >
-            Save
-          </button>
-        )}
-      </div>
-
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      readOnly={!isEditing}
+                    />
+                  </div>
                 </CardContent>
                 <CardFooter>
                   {isEditing && (
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700" onClick={handleSave}>
                       Save Changes
                     </Button>
                   )}
@@ -166,228 +184,44 @@ function ProfilePage() {
               </Card>
             </TabsContent>
 
-            <TabsContent value="addresses" className="mt-6">
+            <TabsContent value="gemstones" className="mt-6">
               <Card>
                 <CardHeader>
                   <div className="flex justify-between items-center">
-                    <CardTitle>Your Addresses</CardTitle>
-                    <Button variant="outline">Add New</Button>
+                    <CardTitle>My Gemstones</CardTitle>
+                    <Button className="bg-blue-600 hover:bg-blue-700" asChild>
+                      <a href="/add-gemstone">Add New Gemstone</a>
+                    </Button>
                   </div>
                   <CardDescription>
-                    Manage your shipping and billing addresses.
+                    Manage your listed gemstones
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="border rounded-lg p-4 relative">
-                    <div className="absolute top-4 right-4 bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                      Default
+                <CardContent>
+                  {isGemstonesLoading ? (
+                    <div className="flex h-[200px] items-center justify-center">
+                      <div className="text-center">
+                        <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+                        <p className="text-gray-600">Loading gemstones...</p>
+                      </div>
                     </div>
-                    <h3 className="font-medium">Home</h3>
-                    <p className="text-sm text-gray-500 mt-1">
-                      John Doe
-                      <br />
-                      123 Main Street
-                      <br />
-                      Apt 4B
-                      <br />
-                      New York, NY 10001
-                      <br />
-                      United States
-                      <br />
-                      +1 (555) 123-4567
-                    </p>
-                    <div className="flex gap-2 mt-4">
-                      <Button variant="outline" size="sm">
-                        Edit
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        Delete
+                  ) : userGemstones?.length === 0 ? (
+                    <div className="text-center py-12">
+                      <Gem className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium mb-2">No gemstones listed yet</h3>
+                      <p className="text-gray-500 mb-4">Start by adding your first gemstone to the marketplace</p>
+                      <Button className="bg-blue-600 hover:bg-blue-700" asChild>
+                        <a href="/add-gemstone">Add New Gemstone</a>
                       </Button>
                     </div>
-                  </div>
-
-                  <div className="border rounded-lg p-4">
-                    <h3 className="font-medium">Work</h3>
-                    <p className="text-sm text-gray-500 mt-1">
-                      John Doe
-                      <br />
-                      456 Business Ave
-                      <br />
-                      Suite 200
-                      <br />
-                      San Francisco, CA 94107
-                      <br />
-                      United States
-                      <br />
-                      +1 (555) 987-6543
-                    </p>
-                    <div className="flex gap-2 mt-4">
-                      <Button variant="outline" size="sm">
-                        Edit
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        Set as Default
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        Delete
-                      </Button>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {userGemstones?.map((gemstone) => (
+                        <GemstoneCard key={gemstone.id} {...gemstone} />
+                      ))}
                     </div>
-                  </div>
+                  )}
                 </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="payment" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <div className="flex justify-between items-center">
-                    <CardTitle>Payment Methods</CardTitle>
-                    <Button variant="outline">Add New</Button>
-                  </div>
-                  <CardDescription>
-                    Manage your payment methods.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="border rounded-lg p-4 relative">
-                    <div className="absolute top-4 right-4 bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                      Default
-                    </div>
-                    <div className="flex items-center">
-                      <div className="h-10 w-16 bg-gray-200 rounded flex items-center justify-center mr-4">
-                        <span className="font-bold text-sm">VISA</span>
-                      </div>
-                      <div>
-                        <p className="font-medium">Visa ending in 4242</p>
-                        <p className="text-sm text-gray-500">Expires 04/2025</p>
-                      </div>
-                    </div>
-                    <div className="flex gap-2 mt-4">
-                      <Button variant="outline" size="sm">
-                        Edit
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="border rounded-lg p-4">
-                    <div className="flex items-center">
-                      <div className="h-10 w-16 bg-gray-200 rounded flex items-center justify-center mr-4">
-                        <span className="font-bold text-sm">MC</span>
-                      </div>
-                      <div>
-                        <p className="font-medium">Mastercard ending in 8888</p>
-                        <p className="text-sm text-gray-500">Expires 12/2024</p>
-                      </div>
-                    </div>
-                    <div className="flex gap-2 mt-4">
-                      <Button variant="outline" size="sm">
-                        Edit
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        Set as Default
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="preferences" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Preferences</CardTitle>
-                  <CardDescription>
-                    Manage your notification and privacy settings.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div>
-                    <h3 className="text-lg font-medium mb-4">Notifications</h3>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">Email Notifications</p>
-                          <p className="text-sm text-gray-500">
-                            Receive emails about your account activity
-                          </p>
-                        </div>
-                        <Switch defaultChecked />
-                      </div>
-                      <Separator />
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">Order Updates</p>
-                          <p className="text-sm text-gray-500">
-                            Receive updates about your orders
-                          </p>
-                        </div>
-                        <Switch defaultChecked />
-                      </div>
-                      <Separator />
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">Marketing Emails</p>
-                          <p className="text-sm text-gray-500">
-                            Receive emails about new products and offers
-                          </p>
-                        </div>
-                        <Switch />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="text-lg font-medium mb-4">Privacy</h3>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">Profile Visibility</p>
-                          <p className="text-sm text-gray-500">
-                            Allow other users to see your profile
-                          </p>
-                        </div>
-                        <Switch defaultChecked />
-                      </div>
-                      <Separator />
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">Data Sharing</p>
-                          <p className="text-sm text-gray-500">
-                            Share your data with our partners
-                          </p>
-                        </div>
-                        <Switch />
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                    Save Preferences
-                  </Button>
-                </CardFooter>
               </Card>
             </TabsContent>
           </Tabs>
@@ -396,4 +230,5 @@ function ProfilePage() {
     </div>
   );
 }
+
 export default withAuth(ProfilePage);

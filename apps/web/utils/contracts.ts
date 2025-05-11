@@ -22,5 +22,5 @@ export async function getContract() {
     contractArtifact.abi,
     signer
   );
-  return contract;
+  return { contract, signer };
 }

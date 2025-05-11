@@ -43,8 +43,7 @@ export default function GemstoneDetailPage({
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const { isAuthenticated } = useAppSelector((state) => state.auth);
   const user = useAppSelector((state) => state.auth.user);
-  console.log(gemstone?.user.id)
-  console.log(user?.id)
+ 
   const handleBackToResults = () => {
     router.back();
   };

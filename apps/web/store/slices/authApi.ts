@@ -7,6 +7,10 @@ interface User {
   email: string;
   firstName: string;
   lastName: string;
+  picture: string | null;
+  role: string;
+  createdAt: string;
+  isActive: boolean;
 }
 
 interface AuthResponse {
@@ -14,6 +18,18 @@ interface AuthResponse {
     user: User;
   };
   message: string;
+}
+
+interface ProfileResponse {
+  data: User;
+  message: string;
+}
+
+interface UpdateProfileRequest {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  picture?: string;
 }
 
 export const authApi = createApi({
@@ -29,6 +45,7 @@ export const authApi = createApi({
     },
     credentials: "include",
   }),
+  tagTypes: ["User"],
   endpoints: (builder) => ({
     login: builder.mutation<AuthResponse["data"], LoginInput>({
       query: (credentials) => ({
@@ -57,6 +74,20 @@ export const authApi = createApi({
       transformResponse: (response: { data: User; message: string }) =>
         response.data,
     }),
+    getProfile: builder.query<User, void>({
+      query: () => "/users/profile",
+      transformResponse: (response: ProfileResponse) => response.data,
+      providesTags: ["User"],
+    }),
+    updateProfile: builder.mutation<User, UpdateProfileRequest>({
+      query: (data) => ({
+        url: "/users/profile",
+        method: "PUT",
+        body: data,
+      }),
+      transformResponse: (response: ProfileResponse) => response.data,
+      invalidatesTags: ["User"],
+    }),
   }),
 });
 
@@ -65,4 +96,6 @@ export const {
   useSignupMutation,
   useLogoutMutation,
   useGetCurrentUserQuery,
+  useGetProfileQuery,
+  useUpdateProfileMutation,
 } = authApi;

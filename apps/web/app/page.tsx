@@ -2,7 +2,14 @@
 import Link from "next/link";
 import { Search, Star } from "lucide-react";
 import { useGetGemstonesQuery } from "@/store/slices/gemstoneApi";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
@@ -14,19 +21,19 @@ import { GemstoneCard } from "@/components/gemstone-card";
 import { useEffect, useState } from "react";
 import { apiUrl } from "@/constants";
 
-
-
 export default function Home() {
-  const { data: featuredGemstones, isLoading: isLoadingFeatured } = useGetGemstonesQuery({
-    featured: true,
-    limit: 4
-  });
+  const { data: featuredGemstones, isLoading: isLoadingFeatured } =
+    useGetGemstonesQuery({
+      featured: true,
+      limit: 4,
+    });
 
-  const { data: recentListings, isLoading: isLoadingRecent } = useGetGemstonesQuery({
-    sort: 'createdAt',
-    order: 'desc',
-    limit: 8
-  });
+  const { data: recentListings, isLoading: isLoadingRecent } =
+    useGetGemstonesQuery({
+      sort: "createdAt",
+      order: "desc",
+      limit: 8,
+    });
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -43,12 +50,14 @@ export default function Home() {
                 secure purchases on our trusted marketplace.
               </p>
               <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-                <Button
-                  size="lg"
-                  className="bg-white text-blue-700 hover:bg-blue-50"
-                >
-                  Start Browsing
-                </Button>
+                <Link href={"/search"}>
+                  <Button
+                    size="lg"
+                    className="bg-white text-blue-700 hover:bg-blue-50"
+                  >
+                    Start Browsing
+                  </Button>
+                </Link>
                 <Link href={"/add-gemstone"}>
                   <Button
                     size="lg"
@@ -80,7 +89,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Search Section */}
+      {/* Search Section
       <section className="bg-white py-8">
         <div className="container mx-auto px-4">
           <div className="mx-auto flex max-w-3xl flex-col items-center space-y-4 rounded-xl bg-blue-50 p-6 shadow-md sm:flex-row sm:space-x-4 sm:space-y-0">
@@ -104,7 +113,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Categories */}
       <GemstoneCategories />
@@ -129,10 +138,7 @@ export default function Home() {
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {/* Updated GemstoneCard with proper key and props */}
             {recentListings?.map((gemstone) => (
-              <GemstoneCard
-                key={gemstone.id}
-                {...gemstone}
-              />
+              <GemstoneCard key={gemstone.id} {...gemstone} />
             ))}
           </div>
         </div>
