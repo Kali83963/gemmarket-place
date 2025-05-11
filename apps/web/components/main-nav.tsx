@@ -38,28 +38,6 @@ export function MainNav() {
   const { data: cart } = useGetCartQuery();
   const itemCount = cart?.items?.reduce((total: number, item: CartItem) => total + item.quantity, 0) ?? 0;
 
-  const routes = [
-    {
-      href: "/",
-      label: "Home",
-      active: pathname === "/",
-    },
-    {
-      href: "/gemstones",
-      label: "Browse Gemstones",
-      active: pathname === "/gemstones",
-    },
-    {
-      href: "/sellers",
-      label: "Sellers",
-      active: pathname === "/sellers",
-    },
-    {
-      href: "/how-it-works",
-      label: "How It Works",
-      active: pathname === "/how-it-works",
-    },
-  ];
 
   const handleLogout = () => {
     dispatch(logout());
@@ -74,28 +52,10 @@ export function MainNav() {
             <Diamond className="h-6 w-6 text-blue-600" />
             <span className="text-xl font-bold">GemMarket</span>
           </Link>
-          <nav className="hidden md:flex md:items-center md:space-x-6">
-            {routes.map((route) => (
-              <Link
-                key={route.href}
-                href={route.href}
-                className={cn(
-                  "text-sm font-medium transition-colors hover:text-blue-600",
-                  route.active ? "text-blue-600" : "text-gray-700"
-                )}
-              >
-                {route.label}
-              </Link>
-            ))}
-          </nav>
         </div>
 
         <div className="ml-auto flex items-center space-x-2">
           <div className="hidden md:flex md:items-center md:space-x-2">
-            <Button variant="ghost" size="icon" className="text-gray-700">
-              <Heart className="h-5 w-5" />
-              <span className="sr-only">Wishlist</span>
-            </Button>
             <Link href="/cart">
               <Button variant="ghost" size="icon" className="relative text-gray-700">
                 <ShoppingCart className="h-5 w-5" />
@@ -107,10 +67,7 @@ export function MainNav() {
                 <span className="sr-only">Cart</span>
               </Button>
             </Link>
-            <Button variant="ghost" size="icon" className="text-gray-700">
-              <Bell className="h-5 w-5" />
-              <span className="sr-only">Notifications</span>
-            </Button>
+            
 
             {isAuthenticated ? (
               <DropdownMenu>
@@ -144,11 +101,6 @@ export function MainNav() {
                   <DropdownMenuItem>
                     <Link href="/orders" className="flex w-full">
                       Orders
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link href="/wishlist" className="flex w-full">
-                      Wishlist
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
