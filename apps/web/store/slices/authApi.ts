@@ -1,6 +1,6 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import Cookies from 'js-cookie';
-import { LoginInput, SignupInput } from '@/lib/validations/auth';
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import Cookies from "js-cookie";
+import { LoginInput, SignupInput } from "@/lib/validations/auth";
 
 interface User {
   id: string;
@@ -17,44 +17,45 @@ interface AuthResponse {
 }
 
 export const authApi = createApi({
-  reducerPath: 'authApi',
+  reducerPath: "authApi",
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.NEXT_PUBLIC_API_URL,
     prepareHeaders: (headers) => {
-      const token = Cookies.get('token');
+      const token = Cookies.get("token");
       if (token) {
-        headers.set('authorization', `Bearer ${token}`);
+        headers.set("authorization", `Bearer ${token}`);
       }
       return headers;
     },
-    credentials: 'include',
+    credentials: "include",
   }),
   endpoints: (builder) => ({
-    login: builder.mutation<AuthResponse['data'], LoginInput>({
+    login: builder.mutation<AuthResponse["data"], LoginInput>({
       query: (credentials) => ({
-        url: '/login',
-        method: 'POST',
+        url: "/login",
+        method: "POST",
         body: credentials,
       }),
       transformResponse: (response: AuthResponse) => response.data,
     }),
-    signup: builder.mutation<AuthResponse['data'], SignupInput>({
+    signup: builder.mutation<AuthResponse["data"], SignupInput>({
       query: (userData) => ({
-        url: '/register',
-        method: 'POST',
+        url: "/register",
+        method: "POST",
         body: userData,
       }),
       transformResponse: (response: AuthResponse) => response.data,
     }),
     logout: builder.mutation<void, void>({
       query: () => ({
-        url: '/auth/logout',
-        method: 'POST',
+        url: "/auth/logout",
+        method: "POST",
       }),
     }),
     getCurrentUser: builder.query<User, void>({
-      query: () => '/auth/me',
-      transformResponse: (response: { data: User; message: string }) => response.data,
+      query: () => "/auth/me",
+      transformResponse: (response: { data: User; message: string }) =>
+        response.data,
     }),
   }),
 });
@@ -64,4 +65,4 @@ export const {
   useSignupMutation,
   useLogoutMutation,
   useGetCurrentUserQuery,
-} = authApi; 
+} = authApi;
