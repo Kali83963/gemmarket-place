@@ -25,8 +25,9 @@ import { Separator } from "@/components/ui/seperator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { useAppSelector } from "@/store/hooks";
+import withAuth from "@/lib/utils/withAuth";
 
-export default function ProfilePage() {
+function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const {user}= useAppSelector((state: RootState) => state.auth);
   const [formData, setFormData] = useState({
@@ -395,3 +396,4 @@ export default function ProfilePage() {
     </div>
   );
 }
+export default withAuth(ProfilePage);

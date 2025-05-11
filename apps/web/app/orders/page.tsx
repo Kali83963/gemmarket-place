@@ -7,8 +7,9 @@ import { Separator } from "@/components/ui/seperator";
 import { Badge } from "@/components/ui/badge";
 import { Package, ShoppingBag } from "lucide-react";
 import Link from "next/link";
+import withAuth from "@/lib/utils/withAuth";
 
-export default function OrdersPage() {
+function OrdersPage() {
   const { data: orders, isLoading, error } = useGetOrdersQuery();
 
   if (isLoading) {
@@ -132,3 +133,5 @@ export default function OrdersPage() {
     </div>
   );
 }
+
+export default withAuth(OrdersPage);
