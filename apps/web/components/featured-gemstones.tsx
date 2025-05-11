@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { GemstoneCard } from "@/components/gemstone-card";
-import { Gemstone } from "@/app/page";
+import { Gemstone } from "@/store/slices/gemstoneApi";
 
 interface Props {
   gemstones: Gemstone[];
@@ -28,11 +28,8 @@ export default function FeaturedGemstones({ gemstones }: Props) {
           {gemstones.map((gemstone) => (
             <GemstoneCard
               key={gemstone.id}
-              name={gemstone.name}
-              price={gemstone.price}
-              images={gemstone.images}
-              carat={gemstone.weight}
-              cut={gemstone.cut_grade}
+              {...gemstone}
+              featured={true}
             />
           ))}
         </div>

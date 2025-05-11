@@ -42,7 +42,9 @@ export default function GemstoneDetailPage({
   const [addToCart] = useAddToCartMutation();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const { isAuthenticated } = useAppSelector((state) => state.auth);
-
+  const user = useAppSelector((state) => state.auth.user);
+  console.log(gemstone?.user.id)
+  console.log(user?.id)
   const handleBackToResults = () => {
     router.back();
   };
@@ -289,14 +291,16 @@ export default function GemstoneDetailPage({
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Button
-              size="lg"
-              className="flex-1 gap-2 bg-blue-600 hover:bg-blue-700"
-              onClick={handleAddToCart}
-            >
-              <ShoppingCart className="h-5 w-5" />
-              Add to Cart
-            </Button>
+            {gemstone.userId !== user?.id && (
+              <Button
+                size="lg"
+                className="flex-1 gap-2 bg-blue-600 hover:bg-blue-700"
+                onClick={handleAddToCart}
+              >
+                <ShoppingCart className="h-5 w-5" />
+                Add to Cart
+              </Button>
+            )}
           </div>
         </div>
       </div>

@@ -16,34 +16,90 @@ import {
 } from "@/components/ui/card";
 
 interface GemstoneCardProps {
-  id?: number;
-  name?: string;
-  price?: number;
-  images?: {url : string}[];
-  carat?: number;
-  cut?: string;
-  color?: string;
-  clarity?: string;
-  rating?: number;
-  featured?: boolean;
+  id: number;
+  name: string;
+  type: string;
+  shape: string;
+  description: string;
+  treatment: string;
+  weight: number;
+  dimension: string;
+  certification: string;
+  color_grade: string;
+  clarity_grade: string;
+  cut_grade: string;
+  polish: string;
+  symmetry: string;
+  fluorescence: string;
+  color: string;
+  transparency: string;
+  color_saturation: string;
+  additional_specification: string;
+  price: number;
+  origin: string;
+  certification_document: string;
+  certificationStatus: string;
+  sellerId: number;
+  status: string;
+  quantity: number;
+  sku: string;
+  allowOffers: boolean;
+  showOnSaleLabel: boolean;
+  chargeForShipping: boolean;
+  isFeatured: boolean;
+  isActive: boolean;
+  userId: string;
+  verifiedById: string | null;
+  user: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    picture: string | null;
+    role: string;
+    createdAt: string;
+    isActive: boolean;
+  };
+  verifiedBy: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    picture: string | null;
+    role: string;
+    createdAt: string;
+    isActive: boolean;
+  } | null;
+  images: { url: string }[];
+  createdAt: string;
+  updatedAt: string;
+  blockchainHash: string;
+  blockchainGemstoneId: string | null;
   className?: string;
+  featured?: boolean;
 }
 
 export function GemstoneCard({
-  id = 1,
-  name = "Round Brilliant Diamond",
-  price = 5299,
-  images = [{url: "/placeholder.svg?height=300&width=400"}],
-  carat = 1.25,
-  cut = "Excellent",
-  color = "D",
-  clarity = "VS1",
-  rating = 4.9,
-  featured = false,
+  id,
+  name,
+  type,
+  shape,
+  description,
+  price,
+  images,
+  weight,
+  cut_grade,
+  color,
+  color_grade,
+  clarity_grade,
+  showOnSaleLabel,
+  certification,
+  user,
+  userId,
   className,
+  featured = false,
 }: GemstoneCardProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
-  const gemstoneType = name.split(" ").pop() || "Diamond";
 
   const scrollPrev = useCallback(() => {
     if (emblaApi) emblaApi.scrollPrev();
@@ -110,7 +166,7 @@ export function GemstoneCard({
             variant="outline"
             className="border-blue-200 bg-blue-50 text-blue-700"
           >
-            {gemstoneType}
+            {type}
           </Badge>
         </div>
         <CardTitle className="mt-2 text-lg">
@@ -120,26 +176,26 @@ export function GemstoneCard({
         </CardTitle>
         <CardDescription className="flex items-center text-sm text-gray-500">
           <Certificate className="mr-1 h-4 w-4" />
-          GIA Certified
+          {certification} Certified
         </CardDescription>
       </CardHeader>
       <CardContent className="p-4 pt-2">
         <div className="grid grid-cols-2 gap-2 text-sm">
           <div>
             <p className="text-gray-500">Carat</p>
-            <p className="font-medium">{carat}</p>
+            <p className="font-medium">{weight} ct</p>
           </div>
           <div>
             <p className="text-gray-500">Color</p>
-            <p className="font-medium">{color}</p>
+            <p className="font-medium">{color_grade} ({color})</p>
           </div>
           <div>
             <p className="text-gray-500">Clarity</p>
-            <p className="font-medium">{clarity}</p>
+            <p className="font-medium">{clarity_grade}</p>
           </div>
           <div>
             <p className="text-gray-500">Cut</p>
-            <p className="font-medium">{cut}</p>
+            <p className="font-medium">{cut_grade}</p>
           </div>
         </div>
       </CardContent>
