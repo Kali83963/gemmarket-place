@@ -8,7 +8,7 @@ import { InitialLoginContextProps, KeyedObject } from "@/types";
 import { JWTContextType } from "@/types/auth";
 import accountReducer from "@/store/accountReducer";
 import Loader from "@/components/Loader";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 import { getUserProfile } from "@/http/api";
 
 // constant
@@ -32,15 +32,15 @@ const verifyToken: (st: string | null) => boolean = (serviceToken) => {
 const setSession = (serviceToken?: string | null) => {
   if (serviceToken) {
     // Set cookie with token
-    Cookies.set('token', serviceToken, { 
+    Cookies.set("token", serviceToken, {
       expires: 7, // 7 days
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict'
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
     });
     axios.defaults.headers.common.Authorization = `Bearer ${serviceToken}`;
   } else {
     // Remove cookie
-    Cookies.remove('token');
+    Cookies.remove("token");
     delete axios.defaults.headers.common.Authorization;
   }
 };
@@ -54,11 +54,13 @@ export const JWTProvider = ({ children }: { children: React.ReactElement }) => {
   useEffect(() => {
     const init = async () => {
       try {
-        const tokenFromCookie = Cookies.get('token');
+        const tokenFromCookie = Cookies.get("token");
+        console.log("Token", tokenFromCookie);
         if (tokenFromCookie && verifyToken(tokenFromCookie)) {
           setSession(tokenFromCookie);
           const response = await getUserProfile();
-          const user = response.data;
+          const user = response.data?.data;
+
           dispatch({
             type: LOGIN,
             payload: {
@@ -86,6 +88,7 @@ export const JWTProvider = ({ children }: { children: React.ReactElement }) => {
 
   const authLogin = async (response: { data: any; message: any }) => {
     const { data } = response;
+    console.log("USer", data);
     if (data?.token) {
       setSession(data.token);
     }

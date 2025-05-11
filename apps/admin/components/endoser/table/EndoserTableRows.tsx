@@ -166,10 +166,7 @@ const EndoserTableRows = ({
               <TableCell sx={open ? { display: "none" } : {}}>
                 {row.status}
               </TableCell>
-              <TableCell sx={open ? { display: "none" } : {}}>
-                {row.lastVerifiedDate}
-              </TableCell>
-
+              
               {/* <TableCell
                 sx={open ? { cursor: "pointer" } : {}}
                 onClick={() => (open ? handleDrawerOpen(row) : "")}

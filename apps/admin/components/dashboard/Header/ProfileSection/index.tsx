@@ -185,17 +185,26 @@ const ProfileSection = () => {
                     <Box sx={{ p: 2, pb: 0 }}>
                       <Stack>
                         <Stack
-                          direction="row"
+                          direction="column"
                           spacing={0.5}
-                          alignItems="center"
+                          alignItems="start"
                         >
                           <Typography variant="h4">Good Morning,</Typography>
                           <Typography
                             component="span"
                             variant="h4"
+                            color="text.primary"
                             sx={{ fontWeight: 400 }}
                           >
                             {user?.firstName} {user?.lastName}
+                          </Typography>
+                          <Typography
+                            component="span"
+                            variant="h5"
+                            color="text.secondary"
+                            sx={{ fontWeight: 400 }}
+                          >
+                            {user?.email}
                           </Typography>
                         </Stack>
                       </Stack>
@@ -226,7 +235,7 @@ const ProfileSection = () => {
                             onClick={(
                               event: React.MouseEvent<HTMLDivElement>
                             ) =>
-                              handleListItemClick(event, 0, "dashboard/account")
+                              handleListItemClick(event, 0, "/dashboard/account")
                             }
                           >
                             <ListItemIcon>

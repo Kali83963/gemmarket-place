@@ -69,11 +69,7 @@ const headCells: HeadCell[] = [
     numeric: false,
     label: "Status",
   },
-  {
-    id: "lastVerified",
-    numeric: false,
-    label: "Last Verified",
-  },
+
 ];
 
 interface EndoserTableHeaderProps {

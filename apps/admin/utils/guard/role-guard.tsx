@@ -41,7 +41,10 @@ const AuthGuard = ({ children }: GuardProps) => {
   const { isLoggedIn, user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  console.log("HERE IN AUTH GUARD");
+
+  console.log("User In,", user);
+
+  const User = user?.data || user;
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -52,10 +55,16 @@ const AuthGuard = ({ children }: GuardProps) => {
     console.log("match Routes", matchRoute);
     if (matchedRoute) {
       const allowedRoles = protectedRoutes[matchedRoute];
-      if (!allowedRoles.includes(user?.role as UserRole)) {
+      if (!allowedRoles.includes(User?.role as UserRole)) {
         // Ensure `user?.role` is a valid UserRole by type casting it
-        const route = defaultRoute[user?.role as UserRole];
-        router.push(route);
+        const route = defaultRoute[User?.role as UserRole];
+        if (route) {
+          console.log("ROLE HERE");
+          router.push(route);
+        } else {
+          console.log("ROLE HERE NOT");
+          router.push("/dashboard");
+        }
       }
     }
   }, [isLoggedIn, router, pathname, user?.role]);

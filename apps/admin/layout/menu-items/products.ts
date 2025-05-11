@@ -1,10 +1,13 @@
-import { IconDashboard, IconDeviceAnalytics } from "@tabler/icons-react";
+import { 
+  IconPackage, 
+  IconDiamond 
+} from "@tabler/icons-react";
 
 import { NavItemType } from "types";
 
 const icons = {
-  IconDashboard: IconDashboard,
-  IconDeviceAnalytics: IconDeviceAnalytics,
+  IconPackage: IconPackage,
+  IconDiamond: IconDiamond,
 };
 
 // ==============================|| MENU ITEMS - DASHBOARD ||============================== //
@@ -12,7 +15,7 @@ const icons = {
 const products: NavItemType = {
   id: "products",
   title: "Products",
-  icon: icons.IconDashboard,
+  icon: icons.IconPackage,
   allowedRoles: ["ADMIN", "ENDORSER"],
   type: "group",
   children: [
@@ -21,7 +24,7 @@ const products: NavItemType = {
       title: "Gemstone",
       type: "item",
       url: "/dashboard/gemstone",
-      icon: icons.IconDashboard,
+      icon: icons.IconDiamond,
       allowedRoles: ["ADMIN", "ENDORSER"],
       breadcrumbs: true,
     },

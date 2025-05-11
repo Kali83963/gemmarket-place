@@ -29,6 +29,7 @@ import GemstoneTableRows from "@/components/gemstone/table/GemstoneTableRows";
 import { useRouter } from "next/router";
 import { deleteGemstone, fetchGemstones } from "@/http/api";
 import { toast } from "react-toastify";
+import GemstoneTableFilter from "@/components/gemstone/table/GemstoneTableFilter";
 
 const GemstonePage = () => {
   const [open, setOpen] = React.useState<boolean>(false);
@@ -64,7 +65,7 @@ const GemstonePage = () => {
     <MainCard content={false}>
       {/* filter section */}
       <CardContent>
-        <EndoserTableFilter {...{ rows, setRows }} />
+        <GemstoneTableFilter {...{ rows, setRows }} />
       </CardContent>
 
       {/* table */}

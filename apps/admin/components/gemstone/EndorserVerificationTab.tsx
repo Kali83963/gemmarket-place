@@ -169,9 +169,9 @@ const EndorserVerificationTab = ({
                                     "file",
                                     info.file.response.fileUrl
                                   );
-                                  toast.success(
-                                    `${info.file.name} file uploaded successfully`
-                                  );
+                                  // toast.success(
+                                  //   `${info.file.name} file uploaded successfully`
+                                  // );
                                 } else if (info.file.status === "error") {
                                   toast.error(
                                     `${info.file.name} file upload failed.`

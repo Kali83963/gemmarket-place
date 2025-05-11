@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Grid from "@mui/material/Grid";
 import { gridSpacing } from "store/constant";
-import { StorefrontTwoTone } from "@mui/icons-material"
+import { StorefrontTwoTone } from "@mui/icons-material";
 
 import EarningCard from "@/components/dashboard/Cards/EarningCard";
 import TotalOrderLineChartCard from "@/components/dashboard/Cards/TotalOrderInlineCard";
@@ -27,12 +27,12 @@ const Dashboard = () => {
         try {
           const [analyticsResponse, chartsResponse] = await Promise.all([
             getAnalytics(),
-            getCharts()
+            getCharts(),
           ]);
-          setAnalytics(analyticsResponse.data);
-          setCharts(chartsResponse.data);
+          setAnalytics(analyticsResponse.data?.data);
+          setCharts(chartsResponse.data?.data);
         } catch (error) {
-          console.error('Error fetching dashboard data:', error);
+          console.error("Error fetching dashboard data:", error);
         }
       });
     };
@@ -54,7 +54,10 @@ const Dashboard = () => {
       <Grid size={{ xs: 12 }}>
         <Grid container spacing={gridSpacing}>
           <Grid size={{ lg: 4, md: 6, sm: 6, xs: 12 }}>
-            <EarningCard isLoading={isLoading} value={analytics?.totalRevenue} />
+            <EarningCard
+              isLoading={isLoading}
+              value={analytics?.totalRevenue}
+            />
           </Grid>
           <Grid size={{ lg: 4, md: 6, sm: 6, xs: 12 }}>
             <TotalOrderLineChartCard

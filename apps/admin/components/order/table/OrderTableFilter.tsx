@@ -32,51 +32,117 @@ interface Props {
 const OrderTableFilter = ({ rows, setRows }: Props) => {
   const [search, setSearch] = React.useState<string>("");
 
-  const handleSearch = (
-    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement> | undefined
-  ) => {
-    const newString = event?.target.value;
-    setSearch(newString || "");
+  const [originalRows, setOriginalRows] = React.useState<any[]>([]);
 
-    if (newString) {
-      const newRows = rows?.filter((row: KeyedObject) => {
-        let matches = true;
-
-        const properties = [
-          "id",
-          "firstName",
-          "lastName",
-          "email",
-          "phoneNumber",
-          "certificationType",
-          "certifyingAuthority",
-          "yearsOfExperience",
-          "status",
-          "lastVerifiedDate",
-        ];
-        let containsQuery = false;
-
-        properties.forEach((property) => {
-          if (
-            row[property]
-              .toString()
-              .toLowerCase()
-              .includes(newString.toString().toLowerCase())
-          ) {
-            containsQuery = true;
-          }
-        });
-
-        if (!containsQuery) {
-          matches = false;
-        }
-        return matches;
-      });
-      setRows(newRows);
-    } else {
-      setRows(rows);
+  // Initialize originalRows only once when component mounts
+  React.useEffect(() => {
+    if (rows.length > 0 && originalRows.length === 0) {
+      setOriginalRows([...rows]);
     }
-  };
+  }, [rows]);
+
+  const debouncedSearch = React.useCallback(
+    (searchTerm: string) => {
+      if (searchTerm && searchTerm.trim() !== "") {
+        const newRows = originalRows?.filter((row: KeyedObject) => {
+          let matches = true;
+          const properties =  [
+            // Root-level order fields
+            "id",
+            "userId",
+            "totalAmount",
+            "shippingCost",
+            "tax",
+            "status",
+            "createdAt",
+            "updatedAt",
+            "shippingInfoId",
+            "paymentInfoId",
+          
+            // User info (flattened)
+            "user.firstName",
+            "user.lastName",
+            "user.email",
+            "user.role",
+            "user.isActive",
+          
+            // Shipping info
+            "shippingInfo.firstName",
+            "shippingInfo.lastName",
+            "shippingInfo.email",
+            "shippingInfo.phone",
+            "shippingInfo.address",
+            "shippingInfo.city",
+            "shippingInfo.state",
+            "shippingInfo.postalCode",
+            "shippingInfo.country",
+            "shippingInfo.notes",
+          
+            // Payment info
+            "paymentInfo.nameOnCard",
+            "paymentInfo.cardLast4",
+            "paymentInfo.expiry",
+            "paymentInfo.method",
+          ];
+          
+          let containsQuery = false;
+
+          properties.forEach((property) => {
+            const value = property.includes('.') 
+              ? property.split('.').reduce((obj, key) => obj?.[key], row)
+              : row[property];
+
+            if (
+              value &&
+              value.toString().toLowerCase().includes(searchTerm.toString().toLowerCase())
+            ) {
+              containsQuery = true;
+            }
+          });
+
+          if (!containsQuery) {
+            matches = false;
+          }
+          return matches;
+        });
+        setRows([...newRows]);
+      } else {
+        setRows([...originalRows]);
+      }
+    },
+    [originalRows, setRows]
+  );
+
+  // Create debounced function
+  const debouncedSearchRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleSearch = React.useCallback(
+    (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement> | undefined) => {
+      const newString = event?.target.value;
+      setSearch(newString || "");
+
+      // Clear previous timeout
+      if (debouncedSearchRef.current) {
+        clearTimeout(debouncedSearchRef.current);
+      }
+
+      // Set new timeout
+      debouncedSearchRef.current = setTimeout(() => {
+        debouncedSearch(newString || "");
+      }, 300); // 300ms delay
+    },
+    [debouncedSearch]
+  );
+
+  // Cleanup timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (debouncedSearchRef.current) {
+        clearTimeout(debouncedSearchRef.current);
+      }
+    };
+  }, []);
+
 
   return (
     <Stack
@@ -88,41 +154,12 @@ const OrderTableFilter = ({ rows, setRows }: Props) => {
       <TextField
         inputMode="search"
         onChange={handleSearch}
-        placeholder="Search client"
+        placeholder="Search Order"
         value={search}
-        size="small"
-        sx={{ width: { xs: 1, sm: "auto" } }}
+        size="medium"
+        sx={{ width: "400px" }}
       />
-      <Stack direction="row" alignItems="center" spacing={1.25}>
-        <Tooltip title="Copy">
-          <IconButton size="large">
-            <FileCopyIcon />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title="Print">
-          <IconButton size="large">
-            <PrintIcon />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title="Filter">
-          <IconButton size="large">
-            <FilterListIcon />
-          </IconButton>
-        </Tooltip>
-
-        {/* client add & dialog */}
-        <Tooltip title="Add Client">
-          <Link href="/apps/invoice/client/add-client">
-            <Fab
-              color="primary"
-              size="small"
-              sx={{ boxShadow: "none", width: 32, height: 32, minHeight: 32 }}
-            >
-              <AddIcon fontSize="small" />
-            </Fab>
-          </Link>
-        </Tooltip>
-      </Stack>
+      
     </Stack>
   );
 };

@@ -145,7 +145,6 @@ const GemstoneTableRows = ({
               <TableCell>{row.cut_grade}</TableCell>
               <TableCell>{row.price}</TableCell>
               <TableCell>{row.status}</TableCell>
-              <TableCell>{row.lastVerifiedDate}</TableCell>
 
               {/* <TableCell
                 sx={open ? { cursor: "pointer" } : {}}
@@ -181,16 +180,6 @@ const GemstoneTableRows = ({
                         <VisibilityTwoToneIcon sx={{ fontSize: "1.3rem" }} />
                       </IconButton>
                     </Link>
-                  </Tooltip>
-                  <Tooltip title="Delete">
-                    <IconButton
-                      color="error"
-                      size="small"
-                      aria-label="Delete"
-                      onClick={() => handleDelete && handleDelete(row.id)}
-                    >
-                      <DeleteTwoToneIcon sx={{ fontSize: "1.3rem" }} />
-                    </IconButton>
                   </Tooltip>
                 </Stack>
               </TableCell>

@@ -77,13 +77,9 @@ const EnhancedTableToolbar = ({ numSelected }: EnhancedTableToolbarProps) => (
       ...(numSelected > 0 && { color: "secondary.main" }),
     }}
   >
-    {numSelected > 0 ? (
+    {numSelected > 0 && (
       <Typography color="inherit" variant="h4">
         {numSelected} Selected
-      </Typography>
-    ) : (
-      <Typography variant="h6" id="tableTitle">
-        Nutrition
       </Typography>
     )}
     <Box sx={{ flexGrow: 1 }} />

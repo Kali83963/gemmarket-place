@@ -29,6 +29,7 @@ const accountReducer = (
     }
     case LOGIN: {
       const { user } = action.payload!;
+      console.log("State", user);
       return {
         ...state,
         isLoggedIn: true,

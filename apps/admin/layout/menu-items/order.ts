@@ -1,10 +1,13 @@
-import { IconDashboard, IconDeviceAnalytics } from "@tabler/icons-react";
+import { 
+  IconShoppingCart, 
+  IconReceipt 
+} from "@tabler/icons-react";
 
 import { NavItemType } from "types";
 
 const icons = {
-  IconDashboard: IconDashboard,
-  IconDeviceAnalytics: IconDeviceAnalytics,
+  IconShoppingCart: IconShoppingCart,
+  IconReceipt: IconReceipt,
 };
 
 // ==============================|| MENU ITEMS - DASHBOARD ||============================== //
@@ -12,7 +15,7 @@ const icons = {
 const order: NavItemType = {
   id: "orders",
   title: "Order",
-  icon: icons.IconDashboard,
+  icon: icons.IconShoppingCart,
   allowedRoles: ["ADMIN"],
   type: "group",
   children: [
@@ -21,7 +24,7 @@ const order: NavItemType = {
       title: "Order",
       type: "item",
       url: "/dashboard/order",
-      icon: icons.IconDashboard,
+      icon: icons.IconReceipt,
       allowedRoles: ["ADMIN"],
       breadcrumbs: true,
     },

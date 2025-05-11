@@ -109,21 +109,6 @@ const OrderDetails = ({ params }: { params: Promise<{ id: string }> }) => {
           label="Basic Details"
           {...a11yProps(0)}
         />
-
-        <Tab
-          icon={<LocalShippingTwoToneIcon />}
-          component={Link}
-          href="#"
-          label="Images & Media"
-          {...a11yProps(1)}
-        />
-        <Tab
-          icon={<LocalShippingTwoToneIcon />}
-          component={Link}
-          href="#"
-          label="Verification"
-          {...a11yProps(2)}
-        />
       </Tabs>
 
       {/* tab - details */}
