@@ -53,9 +53,11 @@ const uploadProps: UploadProps = {
 };
 
 const EndorserVerificationTab = ({
+  setValues,
   blockChainId,
   id,
 }: {
+  setValues: any;
   blockChainId: any;
   id: string;
 }) => {
@@ -93,18 +95,31 @@ const EndorserVerificationTab = ({
                       const response = await generateGemstoneHash(id, payload);
                       const verificationHash = response.data.data;
                       const contract = await getContract();
-                      try {
-                        const tx = await contract.verifyGemstone(
-                          blockChainId || 1,
-                          verificationHash
-                        );
 
-                        const status = await tx.wait();
-                      } catch (e) {
-                        console.error(e);
-                      }
+                      const statusText = (status: BigInt) => {
+                        if (status === 1n) return "ACCEPTED";
+                        if (status === 2n) return "REJECTED";
+                        return "PENDING";
+                      };
+                      const tx = await contract.verifyGemstone(
+                        blockChainId,
+                        verificationHash
+                      );
 
-                      await verifyGemstone(id, { status: "ACCEPTED" });
+                      await tx.wait();
+
+                      const gemstone = await contract.gemstones(blockChainId);
+
+                      const status = statusText(gemstone.status);
+
+                      console.log(status);
+
+                      await verifyGemstone(id, { status: status });
+
+                      setValues((prev: any) => ({
+                        ...prev,
+                        certificationStatus: status,
+                      }));
 
                       setStatus({ success: true });
                       setSubmitting(false);

@@ -153,6 +153,7 @@ const GemstoneDetails = ({ params }: { params: Promise<{ id: string }> }) => {
         {user?.role === "ENDORSER" &&
         data?.certificationStatus === "PENDING" ? (
           <EndorserVerificationTab
+            setValues={setData}
             blockChainId={data?.blockchainGemstoneId}
             id={id}
           />

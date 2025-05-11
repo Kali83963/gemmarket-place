@@ -75,16 +75,14 @@ const JWTLogin = ({ loginProp, ...others }: { loginProp?: number }) => {
           const response = await login(payload);
           console.log(response);
           toast.success(response?.data?.message);
-          // toast.success("response?.data?.message");
           setStatus({ success: true });
           authLogin(response?.data);
-          router.push(DASHBOARD_PATH);
-          // await login(values.email, values.password);
-          // if (scriptedRef.current) {
-          //   setStatus({ success: true });
-          //   router.push(DASHBOARD_PATH);
-          //   setSubmitting(false);
-          // }
+          // Redirect based on user role
+          if (response?.data?.role === "ENDORSER") {
+            router.push("/dashboard/gemstone");
+          } else {
+            router.push("/dashboard");
+          }
         } catch (err: any) {
           console.log(err);
           toast.error(err?.response?.data?.message);

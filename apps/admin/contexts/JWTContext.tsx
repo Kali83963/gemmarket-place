@@ -8,7 +8,7 @@ import { InitialLoginContextProps, KeyedObject } from "@/types";
 import { JWTContextType } from "@/types/auth";
 import accountReducer from "@/store/accountReducer";
 import Loader from "@/components/Loader";
-import { getCookie } from "@/utils/getCookies";
+import Cookies from 'js-cookie';
 import { getUserProfile } from "@/http/api";
 
 // constant
@@ -31,10 +31,16 @@ const verifyToken: (st: string | null) => boolean = (serviceToken) => {
 
 const setSession = (serviceToken?: string | null) => {
   if (serviceToken) {
-    localStorage.setItem("serviceToken", serviceToken);
+    // Set cookie with token
+    Cookies.set('token', serviceToken, { 
+      expires: 7, // 7 days
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict'
+    });
     axios.defaults.headers.common.Authorization = `Bearer ${serviceToken}`;
   } else {
-    localStorage.removeItem("serviceToken");
+    // Remove cookie
+    Cookies.remove('token');
     delete axios.defaults.headers.common.Authorization;
   }
 };
@@ -48,9 +54,9 @@ export const JWTProvider = ({ children }: { children: React.ReactElement }) => {
   useEffect(() => {
     const init = async () => {
       try {
-        const tokenFromCookie = getCookie("token");
+        const tokenFromCookie = Cookies.get('token');
         if (tokenFromCookie && verifyToken(tokenFromCookie)) {
-          // setSession(serviceToken);
+          setSession(tokenFromCookie);
           const response = await getUserProfile();
           const user = response.data;
           dispatch({
@@ -61,12 +67,14 @@ export const JWTProvider = ({ children }: { children: React.ReactElement }) => {
             },
           });
         } else {
+          setSession(null);
           dispatch({
             type: LOGOUT,
           });
         }
       } catch (err) {
         console.error(err);
+        setSession(null);
         dispatch({
           type: LOGOUT,
         });
@@ -78,7 +86,9 @@ export const JWTProvider = ({ children }: { children: React.ReactElement }) => {
 
   const authLogin = async (response: { data: any; message: any }) => {
     const { data } = response;
-    console.log(data);
+    if (data?.token) {
+      setSession(data.token);
+    }
     dispatch({
       type: LOGIN,
       payload: {
