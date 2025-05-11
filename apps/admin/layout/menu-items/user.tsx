@@ -1,10 +1,15 @@
-import { IconDashboard, IconUserCheck } from "@tabler/icons-react";
+import { 
+  IconUsers, 
+  IconUserCheck, 
+  IconUserCircle 
+} from "@tabler/icons-react";
 
 import { NavItemType } from "types";
 
 const icons = {
-  IconDashboard: IconDashboard,
-  IconUser: IconUserCheck,
+  IconUsers: IconUsers,
+  IconUserCheck: IconUserCheck,
+  IconUserCircle: IconUserCircle,
 };
 
 // ==============================|| MENU ITEMS - DASHBOARD ||============================== //
@@ -12,7 +17,7 @@ const icons = {
 const users: NavItemType = {
   id: "user",
   title: "User",
-  icon: icons.IconUser,
+  icon: icons.IconUsers,
   allowedRoles: ["ADMIN"],
   type: "group",
   children: [
@@ -21,7 +26,7 @@ const users: NavItemType = {
       title: "Users",
       type: "item",
       url: "/dashboard/users",
-      icon: icons.IconDashboard,
+      icon: icons.IconUserCircle,
       allowedRoles: ["ADMIN"],
       breadcrumbs: true,
       // children: [
@@ -41,7 +46,7 @@ const users: NavItemType = {
       type: "item",
       url: "/dashboard/endosers",
       allowedRoles: ["ADMIN"],
-      icon: icons.IconDashboard,
+      icon: icons.IconUserCheck,
       breadcrumbs: true,
     },
   ],

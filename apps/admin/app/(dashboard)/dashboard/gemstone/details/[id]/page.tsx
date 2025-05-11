@@ -9,9 +9,10 @@ import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
 
 // assets
-import DescriptionTwoToneIcon from "@mui/icons-material/DescriptionTwoTone";
-import LocalShippingTwoToneIcon from "@mui/icons-material/LocalShippingTwoTone";
-import ReceiptTwoToneIcon from "@mui/icons-material/ReceiptTwoTone";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
+import VerifiedUserOutlinedIcon from "@mui/icons-material/VerifiedUserOutlined";
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 
 // types
 import { TabsProps } from "types";
@@ -113,7 +114,7 @@ const GemstoneDetails = ({ params }: { params: Promise<{ id: string }> }) => {
         }}
       >
         <Tab
-          icon={<DescriptionTwoToneIcon />}
+          icon={<InfoOutlinedIcon />}
           component={Link}
           href="#"
           label="Basic Details"
@@ -121,17 +122,24 @@ const GemstoneDetails = ({ params }: { params: Promise<{ id: string }> }) => {
         />
 
         <Tab
-          icon={<LocalShippingTwoToneIcon />}
+          icon={<ImageOutlinedIcon />}
           component={Link}
           href="#"
           label="Images & Media"
           {...a11yProps(1)}
         />
-        {(user?.role === "ENDORSER" &&
-          data?.certificationStatus === "PENDING") ||
-        user?.role === "ADMIN" ? (
+        {user?.role === "ADMIN" ? (
           <Tab
-            icon={<LocalShippingTwoToneIcon />}
+            icon={<SettingsOutlinedIcon />}
+            component={Link}
+            href="#"
+            label="Settings"
+            {...a11yProps(2)}
+          />
+        ) : (user?.role === "ENDORSER" &&
+          data?.certificationStatus === "PENDING") ? (
+          <Tab
+            icon={<VerifiedUserOutlinedIcon />}
             component={Link}
             href="#"
             label="Verification"
@@ -153,6 +161,7 @@ const GemstoneDetails = ({ params }: { params: Promise<{ id: string }> }) => {
         {user?.role === "ENDORSER" &&
         data?.certificationStatus === "PENDING" ? (
           <EndorserVerificationTab
+            setValues={setData}
             blockChainId={data?.blockchainGemstoneId}
             id={id}
           />

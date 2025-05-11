@@ -131,8 +131,12 @@ const OrderTableRows = ({
                 <Stack direction="row" spacing={1.25}>
                   <Stack>
                     <Typography variant="h5">
-                      {row?.shippingInfo?.firstName}{" "}
-                      {row?.shippingInfo?.lastName}
+                      {row?.user?.firstName}{" "}
+                      {row?.user?.lastName}
+                    </Typography>
+                    <Typography variant="h6">
+                      {row?.user?.email}{" "}
+                      
                     </Typography>
                   </Stack>
                 </Stack>

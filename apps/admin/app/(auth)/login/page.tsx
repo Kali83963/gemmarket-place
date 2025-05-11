@@ -86,23 +86,7 @@ const Login = () => {
                   <Grid size={{ xs: 12 }}>
                     <Divider />
                   </Grid>
-                  <Grid container size={{ xs: 12 }}>
-                    <Grid
-                      container
-                      direction="column"
-                      alignItems="center"
-                      size={{ xs: 12 }}
-                    >
-                      <Typography
-                        component={Link}
-                        href={"/register"}
-                        variant="subtitle1"
-                        sx={{ textDecoration: "none" }}
-                      >
-                        Don&apos;t have an account?
-                      </Typography>
-                    </Grid>
-                  </Grid>
+                  
                 </Grid>
               </AuthCardWrapper>
             </Grid>

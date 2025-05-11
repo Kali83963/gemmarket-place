@@ -23,57 +23,91 @@ import { KeyedObject } from "types";
 import { UserProfile } from "types/user-profile";
 
 interface Props {
-  users: UserProfile[];
-  setUsers: (users: UserProfile[]) => void;
+  users: any[];
+  setUsers: (users: any[]) => void;
 }
 
 // ==============================|| CLIENT LIST - FILTER ||============================== //
 
 const UserFilter = ({ users, setUsers }: Props) => {
   const [search, setSearch] = React.useState<string>("");
+  const [originalUsers, setOriginalUsers] = React.useState<any[]>([]);
 
-  const handleSearch = (
-    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement> | undefined
-  ) => {
-    const newString = event?.target.value;
-    setSearch(newString || "");
-
-    if (newString) {
-      const newRows = users?.filter((row: KeyedObject) => {
-        let matches = true;
-
-        const properties = [
-          "id",
-          "name",
-          "email",
-          "contact",
-          "role",
-          "location",
-          "about",
-        ];
-        let containsQuery = false;
-
-        properties.forEach((property) => {
-          if (
-            row[property]
-              .toString()
-              .toLowerCase()
-              .includes(newString.toString().toLowerCase())
-          ) {
-            containsQuery = true;
-          }
-        });
-
-        if (!containsQuery) {
-          matches = false;
-        }
-        return matches;
-      });
-      setUsers(newRows);
-    } else {
-      setUsers(users);
+  // Initialize originalUsers only once when component mounts
+  React.useEffect(() => {
+    if (users.length > 0 && originalUsers.length === 0) {
+      setOriginalUsers([...users]);
     }
-  };
+  }, [users]);
+
+  const debouncedSearch = React.useCallback(
+    (searchTerm: string) => {
+      if (searchTerm && searchTerm.trim() !== "") {
+        const newRows = originalUsers?.filter((row: KeyedObject) => {
+          let matches = true;
+          const properties = [
+            "id",
+            "firstName",
+            "lastName",
+            "email",
+            "role",
+          ];
+          let containsQuery = false;
+
+          properties.forEach((property) => {
+            if (
+              row[property] &&
+              row[property]
+                .toString()
+                .toLowerCase()
+                .includes(searchTerm.toString().toLowerCase())
+            ) {
+              containsQuery = true;
+            }
+          });
+
+          if (!containsQuery) {
+            matches = false;
+          }
+          return matches;
+        });
+        setUsers([...newRows]);
+      } else {
+        setUsers([...originalUsers]);
+      }
+    },
+    [originalUsers, setUsers]
+  );
+
+  // Create debounced function
+  const debouncedSearchRef = React.useRef<ReturnType<typeof setTimeout>>();
+
+  const handleSearch = React.useCallback(
+    (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement> | undefined) => {
+      const newString = event?.target.value;
+      setSearch(newString || "");
+
+      // Clear previous timeout
+      if (debouncedSearchRef.current) {
+        clearTimeout(debouncedSearchRef.current);
+      }
+
+      // Set new timeout
+      debouncedSearchRef.current = setTimeout(() => {
+        debouncedSearch(newString || "");
+      }, 300); // 300ms delay
+    },
+    [debouncedSearch]
+  );
+
+  // Cleanup timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (debouncedSearchRef.current) {
+        clearTimeout(debouncedSearchRef.current);
+      }
+    };
+  }, []);
 
   return (
     <Stack
@@ -85,28 +119,20 @@ const UserFilter = ({ users, setUsers }: Props) => {
       <TextField
         inputMode="search"
         onChange={handleSearch}
-        placeholder="Search client"
+        placeholder="Search User"
         value={search}
-        size="small"
-        sx={{ width: { xs: 1, sm: "auto" } }}
+        size="medium"
+        sx={{ width: "400px" }}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon fontSize="small" />
+            </InputAdornment>
+          ),
+        }}
       />
       <Stack direction="row" alignItems="center" spacing={1.25}>
-        <Tooltip title="Copy">
-          <IconButton size="large">
-            <FileCopyIcon />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title="Print">
-          <IconButton size="large">
-            <PrintIcon />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title="Filter">
-          <IconButton size="large">
-            <FilterListIcon />
-          </IconButton>
-        </Tooltip>
-
+       
         {/* client add & dialog */}
         <Tooltip title="Add User">
           <Link href="/dashboard/users/add">

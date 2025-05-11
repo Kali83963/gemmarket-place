@@ -1,77 +1,68 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-// material-ui
 import Grid from "@mui/material/Grid";
-
-// project imports
 import { gridSpacing } from "store/constant";
+import { StorefrontTwoTone } from "@mui/icons-material";
 
-// assets
-import StorefrontTwoToneIcon from "@mui/icons-material/StorefrontTwoTone";
 import EarningCard from "@/components/dashboard/Cards/EarningCard";
 import TotalOrderLineChartCard from "@/components/dashboard/Cards/TotalOrderInlineCard";
 import TotalGrowthBarChart from "@/components/dashboard/Cards/TotalGrowthBarChart";
 import TotalIncomeDarkCard from "@/components/dashboard/Cards/TotalIncomeDarkChart";
 import TotalIncomeLightCard from "@/components/dashboard/Cards/TotalIncomeLightCard";
 import { getAnalytics, getCharts } from "@/http/api";
+import { useLoading } from "@/hooks/useLoading";
+import LoadingScreen from "@/components/LoadingScreen";
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 
 const Dashboard = () => {
-  const [isLoading, setLoading] = useState(true);
-  const [cardData, setCardData] = useState({
-    totalRevenue: 0,
-    orders: {},
-    totalUsers: 0,
-    totalGemstones: 0,
-  });
-  const [chartData, setChartData] = useState({
-    ordersTrend: {},
-  });
-  const getDashboardData = async () => {
-    try {
-      setLoading(true);
-      const [cardDataResponse, chartDataResponse] = await Promise.all([
-        getAnalytics(),
-        getCharts(),
-      ]);
-      setCardData(cardDataResponse?.data?.data);
-      setChartData(chartDataResponse?.data?.data);
-    } catch (e: any) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onChangeChartDuration = async (value: any) => {
-    try {
-      const response = await getCharts(value);
-      setChartData(response?.data?.data);
-    } catch (e: any) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { isLoading, withLoading } = useLoading(true);
+  const [analytics, setAnalytics] = useState<any>(null);
+  const [charts, setCharts] = useState<any>(null);
 
   useEffect(() => {
-    getDashboardData();
-  }, []);
+    const fetchData = async () => {
+      await withLoading(async () => {
+        try {
+          const [analyticsResponse, chartsResponse] = await Promise.all([
+            getAnalytics(),
+            getCharts(),
+          ]);
+          setAnalytics(analyticsResponse.data?.data);
+          setCharts(chartsResponse.data?.data);
+        } catch (error) {
+          console.error("Error fetching dashboard data:", error);
+        }
+      });
+    };
+
+    fetchData();
+  }, [withLoading]);
+
+  const onChangeChartDuration = async (duration: string) => {
+    const response = await getCharts(duration);
+    setCharts(response?.data?.data);
+  };
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <Grid container spacing={gridSpacing}>
       <Grid size={{ xs: 12 }}>
         <Grid container spacing={gridSpacing}>
           <Grid size={{ lg: 4, md: 6, sm: 6, xs: 12 }}>
-            <EarningCard isLoading={isLoading} value={cardData?.totalRevenue} />
+            <EarningCard
+              isLoading={isLoading}
+              value={analytics?.totalRevenue}
+            />
           </Grid>
           <Grid size={{ lg: 4, md: 6, sm: 6, xs: 12 }}>
             <TotalOrderLineChartCard
               isLoading={isLoading}
-              value={cardData?.orders}
+              value={analytics?.orders}
             />
           </Grid>
           <Grid size={{ lg: 4, md: 12, sm: 12, xs: 12 }}>
@@ -79,16 +70,16 @@ const Dashboard = () => {
               <Grid size={{ lg: 12, md: 6, sm: 6, xs: 12 }}>
                 <TotalIncomeDarkCard
                   isLoading={isLoading}
-                  value={cardData?.totalUsers}
+                  value={analytics?.totalUsers}
                 />
               </Grid>
               <Grid size={{ lg: 12, md: 6, sm: 6, xs: 12 }}>
                 <TotalIncomeLightCard
                   {...{
                     isLoading: isLoading,
-                    total: cardData?.totalGemstones,
+                    total: analytics?.totalGemstones,
                     label: "Total Gemstone",
-                    icon: <StorefrontTwoToneIcon fontSize="inherit" />,
+                    icon: <StorefrontTwoTone fontSize="inherit" />,
                   }}
                 />
               </Grid>
@@ -102,7 +93,7 @@ const Dashboard = () => {
             <TotalGrowthBarChart
               isLoading={isLoading}
               handleChangeDuration={onChangeChartDuration}
-              values={chartData?.ordersTrend}
+              values={charts?.ordersTrend}
             />
           </Grid>
         </Grid>
