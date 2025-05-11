@@ -115,7 +115,7 @@ export class GemstoneService {
     //   blockchainHash
     // );
 
-    await prisma.gemstone.update({
+    const updatedGemstone = await prisma.gemstone.update({
       where: {
         id: gemstone.id,
       },
@@ -125,7 +125,7 @@ export class GemstoneService {
     });
 
     // Type assertion to ensure the validated data matches Prisma's GemstoneCreateInput
-    return gemstone;
+    return updatedGemstone;
   }
 
   async updateGemstoneBlockChainId(id: number, data: any) {
@@ -289,31 +289,79 @@ export class GemstoneService {
   }
 
   // New method to get all gemstones
-  async getAllGemstones(params) {
-    const { searchQuery, featured } = params;
+  async getAllGemstones(params: {
+    searchQuery?: string;
+    type?: string;
+    shape?: string;
+    clarity_grade?: string;
+    cut?: string;
+    minPrice?: number | string;
+    maxPrice?: number | string;
+    sort?: string;
+    order?: "asc" | "desc";
+  }) {
+    const {
+      searchQuery,
+      type,
+      shape,
+      clarity_grade,
+      cut,
+      minPrice,
+      maxPrice,
+      sort,
+      order,
+    } = params;
+
+    // Convert price strings to numbers
+    const minPriceNum = minPrice ? Number(minPrice) : undefined;
+    const maxPriceNum = maxPrice ? Number(maxPrice) : undefined;
+
+    // Define sort options
+    const sortOptions: Record<string, any> = {
+      "price-low-high": { price: "asc" },
+      "price-high-low": { price: "desc" },
+      newest: { createdAt: "desc" },
+      oldest: { createdAt: "asc" },
+      "name-asc": { name: "asc" },
+      "name-desc": { name: "desc" },
+    };
+
     return await prisma.gemstone.findMany({
       where: {
         isActive: true,
         certificationStatus: CERTIFICATE_STATUS.ACCEPTED,
-        // status: GEMSTONE_STATUS.AVAILABLE,
-        AND: [
-          {
-            name: {
-              contains: searchQuery, // Case-insensitive search for name
-              mode: "insensitive", // Case insensitive search
-            },
+        status: GEMSTONE_STATUS.AVAILABLE,
+        ...(type && {
+          type: {
+            in: type.split(",").map((t) => t.trim()),
           },
-          {
-            type: {
-              contains: searchQuery, // Case-insensitive search for type
-              mode: "insensitive", // Case insensitive search
-            },
+        }),
+        ...(shape && {
+          shape: {
+            in: shape.split(",").map((s) => s.trim()),
           },
-          {
-            isFeatured: featured ? true : false,
+        }),
+        ...(clarity_grade && {
+          clarity_grade: {
+            in: clarity_grade.split(",").map((c) => c.trim()),
           },
-        ],
+        }),
+        ...(cut && {
+          cut_grade: {
+            in: cut.split(",").map((c) => c.trim()),
+          },
+        }),
+        ...(minPriceNum && { price: { gte: minPriceNum } }),
+        ...(maxPriceNum && { price: { lte: maxPriceNum } }),
+        ...(searchQuery && {
+          OR: [
+            { name: { contains: searchQuery, mode: "insensitive" } },
+            { type: { contains: searchQuery, mode: "insensitive" } },
+            { description: { contains: searchQuery, mode: "insensitive" } },
+          ],
+        }),
       },
+      orderBy: sort ? sortOptions[sort] : undefined,
       include: {
         user: true,
         verifiedBy: true,

@@ -20,31 +20,8 @@ import { useGetCartQuery, useRemoveFromCartMutation, Cart, CartItem, useClearCar
 import { useAppSelector } from "@/store/hooks";
 
 // Mock cart data
-const initialCartItems = [
-  {
-    id: 1,
-    name: "Round Brilliant Diamond",
-    price: 5299,
-    image: "/placeholder.svg?height=100&width=100",
-    quantity: 1,
-    type: "Diamond",
-    specs: "1.25 Carat, D Color, VS1 Clarity",
-    seller: "Diamond Specialists Inc.",
-  },
-  {
-    id: 2,
-    name: "Blue Sapphire Oval",
-    price: 3450,
-    image: "/placeholder.svg?height=100&width=100",
-    quantity: 1,
-    type: "Sapphire",
-    specs: "2.0 Carat, AAA Quality",
-    seller: "Sapphire Experts",
-  },
-];
 
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState(initialCartItems);
   const [isLoading, setIsLoading] = useState(false);
   const [couponCode, setCouponCode] = useState("");
   const [couponApplied, setCouponApplied] = useState(false);
@@ -55,24 +32,13 @@ export default function CartPage() {
 
   
 
-  const removeItem = (id: number) => {
-    setCartItems(cartItems.filter((item) => item.id !== id));
-  };
+  
 
-  const applyCoupon = () => {
-    if (!couponCode) return;
-    setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setCouponApplied(true);
-      setIsLoading(false);
-    }, 1000);
-  };
 
-  const subtotal = cartItems.reduce(
+  const subtotal = cart?.items?.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
-  );
+  ) ?? 0;
   const discount = couponApplied ? subtotal * 0.1 : 0; // 10% discount
   const shipping = 50;
   const tax = (subtotal - discount) * 0.08; // 8% tax
@@ -118,7 +84,7 @@ export default function CartPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle>Cart Items ({cartItems.length})</CardTitle>
+                <CardTitle>Cart Items ({cart?.items.length})</CardTitle>
                 <CardDescription>
                   Items you've added to your cart
                 </CardDescription>
@@ -164,7 +130,7 @@ export default function CartPage() {
                             variant="ghost"
                             size="sm"
                             className="text-red-500 hover:text-red-700"
-                            onClick={() => clearCart()}
+                            onClick={() => removeFromCart({ gemstoneId: item.id })}
                           >
                             <Trash2 className=" h-4 w-4" />
                           </Button>

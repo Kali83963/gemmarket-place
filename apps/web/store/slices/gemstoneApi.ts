@@ -90,6 +90,7 @@ interface CartResponse {
 }
 
 interface GemstoneQueryParams {
+  searchQuery?: string;
   featured?: boolean;
   sort?: string;
   order?: 'asc' | 'desc';
@@ -101,6 +102,74 @@ interface GemstoneQueryParams {
   maxPrice?: number;
   certification?: string;
   origin?: string;
+  clarity_grade?: string;
+  cut?: string;
+}
+
+interface OrderItem {
+  id: string;
+  orderId: string;
+  productId: number;
+  quantity: number;
+  price: number;
+  color?: string;
+  size?: string;
+  product?: Gemstone;
+}
+
+interface OrderRequest {
+  shipping: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    address: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+    notes?: string;
+  };
+  payment: {
+    nameOnCard: string;
+    token: string;
+  };
+  shippingCost: number;
+  tax: number;
+}
+
+interface OrderResponse {
+  data: {
+    id: string;
+    userId: string;
+    totalAmount: number;
+    shippingCost: number;
+    tax: number;
+    status: string;
+    orderItems: OrderItem[];
+    createdAt: string;
+    updatedAt: string;
+    shippingInfoId: string;
+    paymentInfoId: string;
+  };
+  message: string;
+}
+
+interface OrdersResponse {
+  data: {
+    id: string;
+    userId: string;
+    totalAmount: number;
+    shippingCost: number;
+    tax: number;
+    status: string;
+    orderItems: OrderItem[];
+    createdAt: string;
+    updatedAt: string;
+    shippingInfoId: string;
+    paymentInfoId: string;
+  }[];
+  message: string;
 }
 
 export const gemstoneApi = createApi({
@@ -109,18 +178,33 @@ export const gemstoneApi = createApi({
     baseUrl: process.env.NEXT_PUBLIC_API_URL,
     credentials: 'include',
   }),
-  tagTypes: ["Gemstone", "Cart"],
+  tagTypes: ["Gemstone", "Cart", "Order"],
   endpoints: (builder) => ({
     getGemstones: builder.query<Gemstone[], GemstoneQueryParams>({
       query: (params) => {
         const queryParams = new URLSearchParams();
         
-        // Add all non-undefined parameters to the query
-        Object.entries(params).forEach(([key, value]) => {
-          if (value !== undefined) {
-            queryParams.append(key, value.toString());
-          }
-        });
+        // Add searchQuery if provided
+        if (params.searchQuery) {
+          queryParams.append('searchQuery', params.searchQuery);
+        }
+
+        // Add featured flag if provided
+        if (params.featured !== undefined) {
+          queryParams.append('featured', params.featured.toString());
+        }
+
+        // Add other optional parameters
+        if (params.sort) queryParams.append('sort', params.sort);
+        if (params.order) queryParams.append('order', params.order);
+        if (params.limit) queryParams.append('limit', params.limit.toString());
+        if (params.type) queryParams.append('type', params.type);
+        if (params.shape) queryParams.append('shape', params.shape);
+        if (params.color) queryParams.append('color', params.color);
+        if (params.minPrice) queryParams.append('minPrice', params.minPrice.toString());
+        if (params.maxPrice) queryParams.append('maxPrice', params.maxPrice.toString());
+        if (params.certification) queryParams.append('certification', params.certification);
+        if (params.origin) queryParams.append('origin', params.origin);
 
         return {
           url: `/gemstone?${queryParams.toString()}`,
@@ -161,7 +245,19 @@ export const gemstoneApi = createApi({
       transformResponse: (response: CartResponse) => response.data,
       providesTags: ["Cart"],
     }),
-   
+    placeOrder: builder.mutation<OrderResponse, OrderRequest>({
+      query: (orderData) => ({
+        url: "/order",
+        method: "POST",
+        body: orderData,
+      }),
+      invalidatesTags: ["Cart"],
+    }),
+    getOrders: builder.query<OrdersResponse['data'], void>({
+      query: () => '/order',
+      transformResponse: (response: OrdersResponse) => response.data,
+      providesTags: ["Order"],
+    }),
   }),
 });
 
@@ -172,4 +268,6 @@ export const {
   useRemoveFromCartMutation,
   useGetCartQuery,
   useClearCartMutation,
+  usePlaceOrderMutation,
+  useGetOrdersQuery,
 } = gemstoneApi; 
