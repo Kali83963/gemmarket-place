@@ -24,9 +24,36 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/seperator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
+import { useAppSelector } from "@/store/hooks";
+import withAuth from "@/lib/utils/withAuth";
 
-export default function ProfilePage() {
+function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
+  const {user}= useAppSelector((state: RootState) => state.auth);
+  const [formData, setFormData] = useState({
+    firstName: user?.firstName || "",
+    lastName: user?.lastName || "",
+    email: user?.email || "",
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
+  };
+
+  const handleEditToggle = () => {
+    setIsEditing((prev) => !prev);
+  };
+
+  const handleSave = () => {
+    // TODO: dispatch an action to save/update the user profile
+    console.log("Saving data:", formData);
+    setIsEditing(false);
+  };
+ 
 
   return (
     <div className="container mx-auto py-10 px-4 md:px-6">
@@ -43,38 +70,15 @@ export default function ProfilePage() {
                   <AvatarFallback>JD</AvatarFallback>
                 </Avatar>
               </div>
-              <CardTitle className="text-center">John Doe</CardTitle>
-              <CardDescription className="text-center">
-                Member since April 2023
-              </CardDescription>
+              <CardTitle className="text-center">{user?.firstName + user?.lastName}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-1">
               <div className="flex items-center py-2">
                 <User className="mr-2 h-4 w-4 text-blue-600" />
                 <span className="text-sm">Profile</span>
               </div>
-              <div className="flex items-center py-2">
-                <Heart className="mr-2 h-4 w-4 text-blue-600" />
-                <span className="text-sm">Wishlist</span>
-              </div>
-              <div className="flex items-center py-2">
-                <Package className="mr-2 h-4 w-4 text-blue-600" />
-                <span className="text-sm">Orders</span>
-              </div>
-              <div className="flex items-center py-2">
-                <CreditCard className="mr-2 h-4 w-4 text-blue-600" />
-                <span className="text-sm">Payment Methods</span>
-              </div>
-              <div className="flex items-center py-2">
-                <Settings className="mr-2 h-4 w-4 text-blue-600" />
-                <span className="text-sm">Settings</span>
-              </div>
             </CardContent>
             <CardFooter>
-              <Button variant="outline" className="w-full flex items-center">
-                <LogOut className="mr-2 h-4 w-4" />
-                Sign Out
-              </Button>
             </CardFooter>
           </Card>
         </div>
@@ -83,9 +87,6 @@ export default function ProfilePage() {
           <Tabs defaultValue="personal" className="w-full">
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="personal">Personal Info</TabsTrigger>
-              <TabsTrigger value="addresses">Addresses</TabsTrigger>
-              <TabsTrigger value="payment">Payment Methods</TabsTrigger>
-              <TabsTrigger value="preferences">Preferences</TabsTrigger>
             </TabsList>
 
             <TabsContent value="personal" className="mt-6">
@@ -105,54 +106,55 @@ export default function ProfilePage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="firstName">First Name</Label>
-                      <Input
-                        id="firstName"
-                        defaultValue="John"
-                        readOnly={!isEditing}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="lastName">Last Name</Label>
-                      <Input
-                        id="lastName"
-                        defaultValue="Doe"
-                        readOnly={!isEditing}
-                      />
-                    </div>
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="firstName">First Name</Label>
+          <Input
+            id="firstName"
+            value={formData.firstName}
+            onChange={handleChange}
+            readOnly={!isEditing}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="lastName">Last Name</Label>
+          <Input
+            id="lastName"
+            value={formData.lastName}
+            onChange={handleChange}
+            readOnly={!isEditing}
+          />
+        </div>
+      </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      defaultValue="john.doe@example.com"
-                      readOnly={!isEditing}
-                    />
-                  </div>
+      <div className="space-y-2">
+        <Label htmlFor="email">Email</Label>
+        <Input
+          id="email"
+          type="email"
+          value={formData.email}
+          onChange={handleChange}
+          readOnly={!isEditing}
+        />
+      </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      defaultValue="+1 (555) 123-4567"
-                      readOnly={!isEditing}
-                    />
-                  </div>
+      <div className="flex gap-4 pt-4">
+        <button
+          onClick={handleEditToggle}
+          className="px-4 py-2 bg-blue-500 text-white rounded"
+        >
+          {isEditing ? "Cancel" : "Edit"}
+        </button>
+        {isEditing && (
+          <button
+            onClick={handleSave}
+            className="px-4 py-2 bg-green-600 text-white rounded"
+          >
+            Save
+          </button>
+        )}
+      </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="dob">Date of Birth</Label>
-                    <Input
-                      id="dob"
-                      type="date"
-                      defaultValue="1990-01-01"
-                      readOnly={!isEditing}
-                    />
-                  </div>
                 </CardContent>
                 <CardFooter>
                   {isEditing && (
@@ -394,3 +396,4 @@ export default function ProfilePage() {
     </div>
   );
 }
+export default withAuth(ProfilePage);
