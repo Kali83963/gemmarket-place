@@ -5,7 +5,8 @@
   "private": true,
   "main": "dist/index.js",
   "scripts": {
-    "dev": "nodemon -r tsconfig-paths/register src/app.ts --turbopack --port 5000"
+    "dev": "nodemon -r tsconfig-paths/register src/app.ts --turbopack --port 5000",
+    "prisma:seed": "ts-node prisma/seed.ts"
   },
   "keywords": [],
   "author": "",

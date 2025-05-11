@@ -40,7 +40,9 @@ class AuthService {
 
   async weblogin(loginBody: LoginDTO): Promise<{ token: string; user: User }> {
     const { email, password } = loginBody;
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({
+      where: { email, isActive: true },
+    });
 
     if (!user) {
       throw new Error("User not found");
@@ -74,7 +76,9 @@ class AuthService {
     loginBody: LoginDTO
   ): Promise<{ token: string; user: User }> {
     const { email, password } = loginBody;
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({
+      where: { email, isActive: true },
+    });
 
     if (!user) {
       throw new Error("User not found");

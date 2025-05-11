@@ -7,7 +7,7 @@ import {
   Role,
   User,
 } from "@prisma/client";
-import { BlockChainService } from "../../blockchain/blockchain.service";
+// import { BlockChainService } from "../../blockchain/blockchain.service";
 import fs from "fs";
 import axios from "axios";
 import crypto from "crypto";
@@ -64,7 +64,7 @@ export const updateGemstoneSchema = gemstoneSchema.partial();
 
 export type UpdateGemstoneDto = z.infer<typeof updateGemstoneSchema>;
 
-const blockChainService = new BlockChainService();
+// const blockChainService = new BlockChainService();
 async function downloadFile(url: string): Promise<Buffer> {
   const response = await axios.get(url, { responseType: "arraybuffer" });
   return Buffer.from(response.data);
