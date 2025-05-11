@@ -11,7 +11,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
     // httpOnly: true,
     secure: process.env.NODE_ENV === "production", // only on HTTPS in prod
     sameSite: "strict",
-    maxAge: 160 * 160 * 10000, // 1 hour
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 
   successResponse(res, { user: user }, "Login successful", 201);
@@ -21,9 +21,9 @@ export const weblogin = asyncHandler(async (req: Request, res: Response) => {
   const { token, user } = await authService.weblogin(req.body);
   res.cookie("token", token, {
     // httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // only on HTTPS in prod
+    secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
-    maxAge: 160 * 160 * 10000, // 1 hour
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
   console.log(user);
   successResponse(res, { user: user }, "Login successful");
@@ -36,7 +36,7 @@ export const dashboardlogin = asyncHandler(
       // httpOnly: true,
       secure: process.env.NODE_ENV === "production", // only on HTTPS in prod
       sameSite: "strict",
-      maxAge: 60 * 60 * 100000, // 1 hour
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
     console.log(user);
     successResponse(res, user, "Login successful");

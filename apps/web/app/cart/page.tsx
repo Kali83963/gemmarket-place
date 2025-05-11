@@ -16,7 +16,13 @@ import {
 import { Separator } from "@/components/ui/seperator";
 import { Input } from "@/components/ui/input";
 import { LoadingSpinner } from "@/components/loading-spinner";
-import { useGetCartQuery, useRemoveFromCartMutation, Cart, CartItem, useClearCartMutation } from "@/store/slices/gemstoneApi";
+import {
+  useGetCartQuery,
+  useRemoveFromCartMutation,
+  Cart,
+  CartItem,
+  useClearCartMutation,
+} from "@/store/slices/gemstoneApi";
 import { useAppSelector } from "@/store/hooks";
 
 // Mock cart data
@@ -30,15 +36,9 @@ export default function CartPage() {
   const [removeFromCart] = useRemoveFromCartMutation();
   const [clearCart] = useClearCartMutation();
 
-  
-
-  
-
-
-  const subtotal = cart?.items?.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  ) ?? 0;
+  const subtotal =
+    cart?.items?.reduce((sum, item) => sum + item.price * item.quantity, 0) ??
+    0;
   const discount = couponApplied ? subtotal * 0.1 : 0; // 10% discount
   const shipping = 50;
   const tax = (subtotal - discount) * 0.08; // 8% tax
@@ -57,7 +57,7 @@ export default function CartPage() {
             our collection to find the perfect gemstone for you.
           </p>
           <Button className="mt-4 bg-blue-600 hover:bg-blue-700" asChild>
-            <Link href="/gemstones">Browse Gemstones</Link>
+            <Link href="/search">Browse Gemstones</Link>
           </Button>
         </div>
       </div>
@@ -68,7 +68,7 @@ export default function CartPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="mb-6">
         <Button variant="ghost" className="mb-4 gap-2" asChild>
-          <Link href="/gemstones">
+          <Link href="/search">
             <ArrowLeft className="h-4 w-4" />
             Continue Shopping
           </Link>
@@ -101,14 +101,14 @@ export default function CartPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {cart?.items.map((item : CartItem) => (
+                {cart?.items.map((item: CartItem) => (
                   <div
                     key={item.productId}
                     className="flex flex-col rounded-lg border p-4 sm:flex-row"
                   >
                     <div className="mb-4 flex-shrink-0 sm:mb-0 sm:mr-4">
                       <img
-                        src={item.product?.images[0].url || "/placeholder.svg"}
+                        src={item.product?.images[0]?.url || "/placeholder.svg"}
                         alt={item.product?.name || "Product Image"}
                         className="h-24 w-24 rounded-md object-cover"
                       />
@@ -116,10 +116,15 @@ export default function CartPage() {
                     <div className="flex flex-1 flex-col">
                       <div className="flex flex-col justify-between sm:flex-row">
                         <div>
-                          <h3 className="text-lg font-medium">{item.product?.name}</h3>
-                          <p className="text-sm text-gray-500">{item.product?.description}</p>
+                          <h3 className="text-lg font-medium">
+                            {item.product?.name}
+                          </h3>
                           <p className="text-sm text-gray-500">
-                            Seller: {item.product?.user?.firstName} {item.product?.user?.lastName}
+                            {item.product?.description}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            Seller: {item.product?.user?.firstName}{" "}
+                            {item.product?.user?.lastName}
                           </p>
                         </div>
                         <div className="mt-2 text-right sm:mt-0">
@@ -130,14 +135,14 @@ export default function CartPage() {
                             variant="ghost"
                             size="sm"
                             className="text-red-500 hover:text-red-700"
-                            onClick={() => removeFromCart({ gemstoneId: item.id })}
+                            onClick={() =>
+                              removeFromCart({ gemstoneId: item.id })
+                            }
                           >
                             <Trash2 className=" h-4 w-4" />
                           </Button>
                         </div>
                       </div>
-                      
-                      
                     </div>
                   </div>
                 ))}

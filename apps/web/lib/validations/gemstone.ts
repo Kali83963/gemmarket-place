@@ -35,10 +35,10 @@ export const gemstoneSchema = z.object({
   comparePrice: z.number().optional(),
   quantity: z.number().int().positive("Quantity must be a positive integer"),
   sku: z.string().optional(),
-  allowOffers: z.boolean(),
-  showComparePriceLabel: z.boolean(),
-  chargeShipping: z.boolean(),
-  listingStatus: z.string(),
+  allowOffers: z.boolean().default(false),
+  showComparePriceLabel: z.boolean().default(false),
+  chargeShipping: z.boolean().default(true),
+  listingStatus: z.string().default("active"),
   featured: z.boolean(),
 });
 

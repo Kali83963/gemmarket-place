@@ -284,6 +284,11 @@ export const gemstoneApi = createApi({
       transformResponse: (response: OrdersResponse) => response.data,
       providesTags: ["Order"],
     }),
+    getUserGemstones: builder.query<Gemstone[], void>({
+      query: () => "/gemstone/user",
+      transformResponse: (response: GemstoneListResponse) => response.data,
+      providesTags: ["Gemstone"],
+    }),
   }),
 });
 
@@ -298,4 +303,5 @@ export const {
   useClearCartMutation,
   usePlaceOrderMutation,
   useGetOrdersQuery,
+  useGetUserGemstonesQuery,
 } = gemstoneApi;

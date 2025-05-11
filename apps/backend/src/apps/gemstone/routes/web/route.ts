@@ -21,7 +21,7 @@ import {
 const router = Router();
 
 router.get("/gemstone/", getAllGemstones);
-router.get("/gemstone/user", getGemstoneUser);
+router.get("/gemstone/user", isAuthenticate, getGemstoneUser);
 router.post(
   "/gemstone",
   isAuthenticate,
