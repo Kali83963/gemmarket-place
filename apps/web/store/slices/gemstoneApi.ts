@@ -1,5 +1,5 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import Cookies from 'js-cookie';
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import Cookies from "js-cookie";
 
 interface GemstoneImage {
   url: string;
@@ -54,16 +54,20 @@ export interface Gemstone {
   user: GemstoneUser;
   verifiedBy: GemstoneUser | null;
   images: GemstoneImage[];
+  createdAt: string;
+  updatedAt: string;
+  blockchainHash: string;
+  blockchainGemstoneId: string | null;
 }
 
-export interface CartItem  {
-    id?: number;
-    productId: number;
-    quantity: number;
-    price: number;
-    size: string;
-    color: string;
-    product?: Gemstone;
+export interface CartItem {
+  id?: number;
+  productId: number;
+  quantity: number;
+  price: number;
+  size: string;
+  color: string;
+  product?: Gemstone;
 }
 
 export interface Cart {
@@ -93,7 +97,7 @@ interface GemstoneQueryParams {
   searchQuery?: string;
   featured?: boolean;
   sort?: string;
-  order?: 'asc' | 'desc';
+  order?: "asc" | "desc";
   limit?: number;
   type?: string;
   shape?: string;
@@ -173,38 +177,41 @@ interface OrdersResponse {
 }
 
 export const gemstoneApi = createApi({
-  reducerPath: 'gemstoneApi',
+  reducerPath: "gemstoneApi",
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.NEXT_PUBLIC_API_URL,
-    credentials: 'include',
+    credentials: "include",
   }),
   tagTypes: ["Gemstone", "Cart", "Order"],
   endpoints: (builder) => ({
     getGemstones: builder.query<Gemstone[], GemstoneQueryParams>({
       query: (params) => {
         const queryParams = new URLSearchParams();
-        
+
         // Add searchQuery if provided
         if (params.searchQuery) {
-          queryParams.append('searchQuery', params.searchQuery);
+          queryParams.append("searchQuery", params.searchQuery);
         }
 
         // Add featured flag if provided
         if (params.featured !== undefined) {
-          queryParams.append('featured', params.featured.toString());
+          queryParams.append("featured", params.featured.toString());
         }
 
         // Add other optional parameters
-        if (params.sort) queryParams.append('sort', params.sort);
-        if (params.order) queryParams.append('order', params.order);
-        if (params.limit) queryParams.append('limit', params.limit.toString());
-        if (params.type) queryParams.append('type', params.type);
-        if (params.shape) queryParams.append('shape', params.shape);
-        if (params.color) queryParams.append('color', params.color);
-        if (params.minPrice) queryParams.append('minPrice', params.minPrice.toString());
-        if (params.maxPrice) queryParams.append('maxPrice', params.maxPrice.toString());
-        if (params.certification) queryParams.append('certification', params.certification);
-        if (params.origin) queryParams.append('origin', params.origin);
+        if (params.sort) queryParams.append("sort", params.sort);
+        if (params.order) queryParams.append("order", params.order);
+        if (params.limit) queryParams.append("limit", params.limit.toString());
+        if (params.type) queryParams.append("type", params.type);
+        if (params.shape) queryParams.append("shape", params.shape);
+        if (params.color) queryParams.append("color", params.color);
+        if (params.minPrice)
+          queryParams.append("minPrice", params.minPrice.toString());
+        if (params.maxPrice)
+          queryParams.append("maxPrice", params.maxPrice.toString());
+        if (params.certification)
+          queryParams.append("certification", params.certification);
+        if (params.origin) queryParams.append("origin", params.origin);
 
         return {
           url: `/gemstone?${queryParams.toString()}`,
@@ -217,6 +224,25 @@ export const gemstoneApi = createApi({
       query: (id) => `/gemstone/${id}`,
       transformResponse: (response: GemstoneSingleResponse) => response.data,
       providesTags: (result, error, id) => [{ type: "Gemstone", id }],
+    }),
+    createGemstone: builder.mutation({
+      query: (data) => ({
+        url: "/gemstone",
+        method: "POST",
+        body: data,
+      }),
+      // transformResponse: (response: Gemstone) => response.data,
+      // invalidatesTags: [{ type: "Gemstone", id: "LIST" }],
+    }),
+    updateGemstoneBlockChainId: builder.mutation<
+      void,
+      { id: number; blockChainId: number | string }
+    >({
+      query: ({ id, blockChainId }) => ({
+        url: `/gemstone/block-chain/${id}`,
+        method: "PUT",
+        body: { blockChainId },
+      }),
     }),
     addToCart: builder.mutation<void, { itemData: CartItem }>({
       query: (data) => ({
@@ -253,8 +279,8 @@ export const gemstoneApi = createApi({
       }),
       invalidatesTags: ["Cart"],
     }),
-    getOrders: builder.query<OrdersResponse['data'], void>({
-      query: () => '/order',
+    getOrders: builder.query<OrdersResponse["data"], void>({
+      query: () => "/order",
       transformResponse: (response: OrdersResponse) => response.data,
       providesTags: ["Order"],
     }),
@@ -267,7 +293,9 @@ export const {
   useAddToCartMutation,
   useRemoveFromCartMutation,
   useGetCartQuery,
+  useCreateGemstoneMutation,
+  useUpdateGemstoneBlockChainIdMutation,
   useClearCartMutation,
   usePlaceOrderMutation,
   useGetOrdersQuery,
-} = gemstoneApi; 
+} = gemstoneApi;

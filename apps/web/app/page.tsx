@@ -14,14 +14,7 @@ import { GemstoneCard } from "@/components/gemstone-card";
 import { useEffect, useState } from "react";
 import { apiUrl } from "@/constants";
 
-export interface Gemstone {
-  id: number;
-  name: string;
-  images: { url: string }[];
-  weight: number;
-  price: number;
-  cut_grade: string;
-}
+
 
 export default function Home() {
   const { data: featuredGemstones, isLoading: isLoadingFeatured } = useGetGemstonesQuery({
@@ -138,11 +131,7 @@ export default function Home() {
             {recentListings?.map((gemstone) => (
               <GemstoneCard
                 key={gemstone.id}
-                name={gemstone.name}
-                price={gemstone.price}
-                images={gemstone.images}
-                carat={gemstone.weight}
-                cut={gemstone.cut_grade}
+                {...gemstone}
               />
             ))}
           </div>

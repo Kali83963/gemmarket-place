@@ -14,23 +14,25 @@ import {
   getAllGemstones,
   getGemstone,
   getGemstoneAdmin,
+  getGemstoneUser,
   updateGemstoneBlockChainId,
 } from "../../controller/gemstone.controller";
 
 const router = Router();
 
 router.get("/gemstone/", getAllGemstones);
+router.get("/gemstone/user", getGemstoneUser);
 router.post(
   "/gemstone",
   isAuthenticate,
-  authorize(["SELLER"]),
+  // authorize(["SELLER"]),
   validate(gemstoneSchema),
   addGemstone
 );
 router.put(
   "/gemstone/block-chain/:id",
   isAuthenticate,
-  authorize(["SELLER"]),
+  // authorize(["SELLER"]),
   updateGemstoneBlockChainId
 );
 router.put(

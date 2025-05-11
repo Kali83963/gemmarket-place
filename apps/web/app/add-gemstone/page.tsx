@@ -4,11 +4,25 @@ import type React from "react";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
-import { ArrowLeft, Check, Info, Plus, Upload, X, Download } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  Info,
+  Plus,
+  Upload,
+  X,
+  Download,
+} from "lucide-react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { gemstoneSchema, type GemstoneFormData } from "@/lib/validations/gemstone";
-import { useCreateGemstoneMutation } from "@/store/slices/addGemstoneApi";
+import {
+  gemstoneSchema,
+  type GemstoneFormData,
+} from "@/lib/validations/gemstone";
+import {
+  useCreateGemstoneMutation,
+  useUpdateGemstoneBlockChainIdMutation,
+} from "@/store/slices/gemstoneApi";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 
@@ -49,6 +63,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { getContract } from "../../utils/contracts";
 
 type FileWithPreview = File & {
   preview: string;
@@ -61,22 +76,24 @@ export default function AddGemstonePage() {
   const [images, setImages] = useState<string[]>([]);
   const [certificates, setCertificates] = useState<string[]>([]);
   const [isSuccess, setIsSuccess] = useState(false);
-  
+
   // Move these state declarations to the top
   const [imageFiles, setImageFiles] = useState<FileWithPreview[]>([]);
   const [certificateFiles, setCertificateFiles] = useState<File[]>([]);
-  const [selectedCertificate, setSelectedCertificate] = useState<File | null>(null);
+  const [selectedCertificate, setSelectedCertificate] = useState<File | null>(
+    null
+  );
   const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
   const [imagesFinalized, setImagesFinalized] = useState<string[]>([]);
-  
+
   // Get the auth state to ensure we have a seller ID
   const auth = useSelector((state: RootState) => state.auth);
-  
+
   // Use RTK Query mutation
-  const [
-    createGemstone, 
-    { isLoading: isSubmitting, data: gemstoneData }
-  ] = useCreateGemstoneMutation();
+  const [createGemstone, { isLoading: isSubmitting, data: gemstoneData }] =
+    useCreateGemstoneMutation();
+
+  const [updateGemstone] = useUpdateGemstoneBlockChainIdMutation();
 
   const {
     register,
@@ -97,13 +114,13 @@ export default function AddGemstonePage() {
       price: 0,
       comparePrice: 0,
       quantity: 1,
-      sellerId:2,
+      sellerId: 2,
       allowOffers: false,
       showComparePriceLabel: false,
       chargeShipping: false,
       listingStatus: "active",
       featured: false,
-      additional_specification:"",
+      additional_specification: "",
       images: [],
       certificates: [],
     },
@@ -111,12 +128,12 @@ export default function AddGemstonePage() {
 
   // Update the imagePreviews memo to be more stable
   const imagePreviews = useMemo(() => {
-    return imageFiles.map(file => {
+    return imageFiles.map((file) => {
       // Only create a new preview URL if one doesn't exist
       if (!file.preview) {
         return {
           ...file,
-          preview: URL.createObjectURL(file)
+          preview: URL.createObjectURL(file),
         };
       }
       return file;
@@ -124,46 +141,52 @@ export default function AddGemstonePage() {
   }, [imageFiles]);
 
   // Update the onImageDrop handler
-  const onImageDrop = useCallback((acceptedFiles: File[]) => {
-    console.log("Files dropped:", acceptedFiles);
-    const newFiles = acceptedFiles.map(file => {
-      // Create preview URL only once when file is first added
-      const preview = URL.createObjectURL(file);
-      return {
-        ...file,
-        preview
-      };
-    });
-    
-    setImageFiles(prev => {
-      const updatedFiles = [...prev, ...newFiles];
-      // Update form value with all image previews
-      const imageUrls = updatedFiles.map(file => file.preview);
-      setValue("images", imageUrls);
-      return updatedFiles;
-    });
-  }, [setValue]);
+  const onImageDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      console.log("Files dropped:", acceptedFiles);
+      const newFiles = acceptedFiles.map((file) => {
+        // Create preview URL only once when file is first added
+        const preview = URL.createObjectURL(file);
+        return {
+          ...file,
+          preview,
+        };
+      });
+
+      setImageFiles((prev) => {
+        const updatedFiles = [...prev, ...newFiles];
+        // Update form value with all image previews
+        const imageUrls = updatedFiles.map((file) => file.preview);
+        setValue("images", imageUrls);
+        return updatedFiles;
+      });
+    },
+    [setValue]
+  );
 
   // Update the handleRemoveImage function
-  const handleRemoveImage = useCallback((index: number) => {
-    setImageFiles(prev => {
-      const newFiles = [...prev];
-      // Revoke the URL only when removing the image
-      if (newFiles[index].preview) {
-        URL.revokeObjectURL(newFiles[index].preview);
-      }
-      newFiles.splice(index, 1);
-      // Update form value after removing image
-      const imageUrls = newFiles.map(file => file.preview);
-      setValue("images", imageUrls);
-      return newFiles;
-    });
-  }, [setValue]);
+  const handleRemoveImage = useCallback(
+    (index: number) => {
+      setImageFiles((prev) => {
+        const newFiles = [...prev];
+        // Revoke the URL only when removing the image
+        if (newFiles[index].preview) {
+          URL.revokeObjectURL(newFiles[index].preview);
+        }
+        newFiles.splice(index, 1);
+        // Update form value after removing image
+        const imageUrls = newFiles.map((file) => file.preview);
+        setValue("images", imageUrls);
+        return newFiles;
+      });
+    },
+    [setValue]
+  );
 
   // Effects
   useEffect(() => {
     // Convert imageFiles to URLs for form validation
-    const imageUrls = imageFiles.map(file => file.preview);
+    const imageUrls = imageFiles.map((file) => file.preview);
     setValue("images", imageUrls);
   }, [imageFiles, setValue]);
 
@@ -171,11 +194,11 @@ export default function AddGemstonePage() {
     setValue("certificates", certificates);
   }, [certificates, setValue]);
 
-  useEffect(() => {
-    if (gemstoneData) {
-      setIsSuccess(true);
-    }
-  }, [gemstoneData]);
+  // useEffect(() => {
+  //   if (gemstoneData) {
+  //     setIsSuccess(true);
+  //   }
+  // }, [gemstoneData]);
 
   useEffect(() => {
     console.log("Form errors:", errors);
@@ -190,7 +213,7 @@ export default function AddGemstonePage() {
   useEffect(() => {
     return () => {
       // Cleanup all preview URLs when component unmounts
-      imageFiles.forEach(file => {
+      imageFiles.forEach((file) => {
         if (file.preview) {
           URL.revokeObjectURL(file.preview);
         }
@@ -198,109 +221,103 @@ export default function AddGemstonePage() {
     };
   }, []); // Empty dependency array since we only want to run this on unmount
 
-
   // Update the uploadFile function
- // Helper function to convert a blob URL to a real File
-const blobUrlToFile = async (
-  blobUrl: string, // The blob URL (e.g., "blob:http://localhost:3000/...")
-  originalPath: string // The relative file path (e.g., "./3.jfif")
-): Promise<File> => {
-  const response = await fetch(blobUrl); // Fetch the blob
-  const blob = await response.blob(); // Convert the response to a Blob
+  // Helper function to convert a blob URL to a real File
+  const blobUrlToFile = async (
+    blobUrl: string, // The blob URL (e.g., "blob:http://localhost:3000/...")
+    originalPath: string // The relative file path (e.g., "./3.jfif")
+  ): Promise<File> => {
+    const response = await fetch(blobUrl); // Fetch the blob
+    const blob = await response.blob(); // Convert the response to a Blob
 
-  // Extract the filename from the original path (or generate one)
-  const originalName = originalPath.split("/").pop() || `file-${Date.now()}`;
+    // Extract the filename from the original path (or generate one)
+    const originalName = originalPath.split("/").pop() || `file-${Date.now()}`;
 
-  // Extract the file extension from the path
-  const extension = originalName.split(".").pop() || "jpg";
-  const mimeType = blob.type || `image/${extension}`; // Use the MIME type from the blob
+    // Extract the file extension from the path
+    const extension = originalName.split(".").pop() || "jpg";
+    const mimeType = blob.type || `image/${extension}`; // Use the MIME type from the blob
 
-  // Create a File object from the Blob
-  const file = new File([blob], originalName, {
-    type: mimeType,
-    lastModified: Date.now(),
-  });
-
-  return file; // Return the File object
-};
-
-// Your existing uploadFile function
-const uploadFile = async (file: File): Promise<string> => {
-  console.log("file", file);
-  if (!file || !file.name) {
-    throw new Error('Invalid file object');
-  }
-
-  const formData = new FormData();
-
-  // Get the file extension with null check
-  const fileExtension = file.name.split('.').pop()?.toLowerCase() || '';
-  // Create a unique filename with timestamp and original extension
-  const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExtension}`;
-
-  // Append the original file directly to FormData
-  formData.append('file', file, fileName);
-
-  try {
-    console.log('Uploading file:', {
-      name: fileName,
-      type: file.type,
-      size: file.size,
-      extension: fileExtension,
+    // Create a File object from the Blob
+    const file = new File([blob], originalName, {
+      type: mimeType,
+      lastModified: Date.now(),
     });
 
-    const response = await fetch('http://localhost:5000/uploads', {
-      method: 'POST',
-      body: formData,
-    });
+    return file; // Return the File object
+  };
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Upload failed with response:', errorText);
-      throw new Error(`Upload failed: ${response.statusText}`);
+  // Your existing uploadFile function
+  const uploadFile = async (file: File): Promise<string> => {
+    console.log("file", file);
+    if (!file || !file.name) {
+      throw new Error("Invalid file object");
     }
 
-    const data = await response.json();
-    console.log('Upload response:', data);
+    const formData = new FormData();
 
-    if (!data.fileUrl) {
-      throw new Error('No URL returned from upload');
+    // Get the file extension with null check
+    const fileExtension = file.name.split(".").pop()?.toLowerCase() || "";
+    // Create a unique filename with timestamp and original extension
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExtension}`;
+
+    // Append the original file directly to FormData
+    formData.append("file", file, fileName);
+
+    try {
+      console.log("Uploading file:", {
+        name: fileName,
+        type: file.type,
+        size: file.size,
+        extension: fileExtension,
+      });
+
+      const response = await fetch("http://localhost:5000/uploads", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Upload failed with response:", errorText);
+        throw new Error(`Upload failed: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log("Upload response:", data);
+
+      if (!data.fileUrl) {
+        throw new Error("No URL returned from upload");
+      }
+
+      return data.fileUrl; // Return the URL of the uploaded file
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      throw error;
     }
+  };
 
-    return data.fileUrl; // Return the URL of the uploaded file
-  } catch (error) {
-    console.error('Error uploading file:', error);
-    throw error;
-  }
-};
+  // Usage example: Convert blob URL to File and upload it
+  const handleFileUpload = async (file: { preview: string; path: string }) => {
+    try {
+      // Convert the blob URL to a File
+      const convertedFile = await blobUrlToFile(file.preview, file.path);
 
-    ;
-// Usage example: Convert blob URL to File and upload it
-const handleFileUpload = async (file: { preview: string, path: string }) => {
-  try {
-    // Convert the blob URL to a File
-    const convertedFile = await blobUrlToFile(file.preview, file.path);
-    
-    // Upload the converted File
-    const uploadedUrl = await uploadFile(convertedFile);
-    
-    setImagesFinalized((prevImages: string[]) => {
-      const updated = [...prevImages, uploadedUrl];
-      return updated.slice(-5); // Only keep the last 5 images
-    });
-    
-   
-  } catch (error) {
-    console.error('Error handling file upload:', error);
-  }
-};
+      // Upload the converted File
+      const uploadedUrl = await uploadFile(convertedFile);
 
-
+      setImagesFinalized((prevImages: string[]) => {
+        const updated = [...prevImages, uploadedUrl];
+        return updated.slice(-5); // Only keep the last 5 images
+      });
+    } catch (error) {
+      console.error("Error handling file upload:", error);
+    }
+  };
 
   // Update the onSubmit function
   const onSubmit = async (data: GemstoneFormData) => {
     console.log("Form submitted with data:", data);
-    
+
     try {
       // Upload all images first
       console.log("Uploading images:", imageFiles);
@@ -313,11 +330,11 @@ const handleFileUpload = async (file: { preview: string, path: string }) => {
           console.log("Uploading image:", {
             name: fileWithPreview.name,
             type: fileWithPreview.type,
-            size: fileWithPreview.size
+            size: fileWithPreview.size,
           });
           return await handleFileUpload(fileWithPreview);
         })
-      ).then(urls => urls.filter(url => url !== '')); // Filter out any failed uploads
+      ).then((urls) => urls.filter((url) => url !== "")); // Filter out any failed uploads
 
       console.log("Image URLs received:", imageUrls);
 
@@ -326,24 +343,24 @@ const handleFileUpload = async (file: { preview: string, path: string }) => {
       const certificateUrls = await Promise.all(
         certificateFiles.map(async (file) => {
           if (!file || !file.name) {
-            console.error('Invalid file object:', file);
-            return '';
+            console.error("Invalid file object:", file);
+            return "";
           }
           console.log("Uploading certificate:", {
             name: file.name,
             type: file.type,
-            size: file.size
+            size: file.size,
           });
           return await uploadFile(file);
         })
-      ).then(urls => urls.filter(url => url !== '')); // Filter out any failed uploads
+      ).then((urls) => urls.filter((url) => url !== "")); // Filter out any failed uploads
 
       console.log("Certificate URLs received:", certificateUrls);
 
       // Format the data according to the API requirements
       const formattedData = {
         name: data.title,
-        treatment:data.treatment,
+        treatment: data.treatment,
         type: data.gemstoneType,
         shape: data.shape,
         description: data.description,
@@ -363,7 +380,7 @@ const handleFileUpload = async (file: { preview: string, path: string }) => {
         origin: data.origin,
         certification_document: certificateUrls[0] || "",
         certificationStatus: true,
-        sellerId:2,
+        sellerId: 2,
         quantity: data.quantity,
         sku: data.sku || `GEM-${Math.floor(Math.random() * 10000)}`,
         allowOffers: data.allowOffers,
@@ -371,19 +388,35 @@ const handleFileUpload = async (file: { preview: string, path: string }) => {
         chargeShipping: data.chargeShipping,
         featured: data.featured,
         listingStatus: data.listingStatus || "active",
-        additional_specification:data.additional_specification || '',
+        additional_specification: data.additional_specification || "",
         // images: imageFiles.map((img)=>img.preview)
-        images:imagesFinalized
+        images: imagesFinalized,
       };
 
       console.log("Formatted data for API:", formattedData);
 
       // Now you can send this formatted data to your API
-      const response = await createGemstone(formattedData).unwrap();
-      console.log("API Response:", response);
+      const response = await createGemstone(formattedData);
+      console.log(response);
+      const blockchainHash = response.data?.data.blockchainHash;
+      const gemstoneId = response.data?.data.id;
 
+      console.log("Hash", blockchainHash);
+      console.log(gemstoneId);
+      const contract = await getContract();
+      const tx = await contract.registerGemstone(blockchainHash);
+      await tx.wait();
+
+      const count = await contract.gemstoneCount();
+
+      await updateGemstone({ id: gemstoneId, blockChainId: count.toString() });
+
+      setIsSuccess(true);
+
+      console.log("API Response:", response);
     } catch (error) {
-      console.error('Error in form submission:', error);
+      setIsSuccess(false);
+      console.error("Error in form submission:", error);
     }
   };
 
@@ -393,44 +426,54 @@ const handleFileUpload = async (file: { preview: string, path: string }) => {
   };
 
   const handleAddCertificate = () => {
-    setCertificates([...certificates, "Certificate " + (certificates.length + 1)]);
+    setCertificates([
+      ...certificates,
+      "Certificate " + (certificates.length + 1),
+    ]);
   };
 
   const handleRemoveCertificate = (index: number) => {
-    setCertificateFiles(prev => {
+    setCertificateFiles((prev) => {
       const newFiles = [...prev];
       newFiles.splice(index, 1);
       return newFiles;
     });
-    setCertificates(prev => {
+    setCertificates((prev) => {
       const newCerts = [...prev];
       newCerts.splice(index, 1);
       return newCerts;
     });
   };
 
-  const { getRootProps: getImageRootProps, getInputProps: getImageInputProps } = useDropzone({
-    accept: {
-      'image/*': ['.jpeg', '.jpg', '.png', '.webp']
-    },
-    maxSize: 10 * 1024 * 1024, // 10MB
-    onDrop: onImageDrop
-  });
+  const { getRootProps: getImageRootProps, getInputProps: getImageInputProps } =
+    useDropzone({
+      accept: {
+        "image/*": [".jpeg", ".jpg", ".png", ".webp"],
+      },
+      maxSize: 10 * 1024 * 1024, // 10MB
+      onDrop: onImageDrop,
+    });
 
   // Update the certificate drop handler
   const onCertificateDrop = useCallback((acceptedFiles: File[]) => {
     console.log("Certificate files dropped:", acceptedFiles);
-    setCertificateFiles(prev => [...prev, ...acceptedFiles]);
-    setCertificates(prev => [...prev, ...acceptedFiles.map(file => file.name)]);
+    setCertificateFiles((prev) => [...prev, ...acceptedFiles]);
+    setCertificates((prev) => [
+      ...prev,
+      ...acceptedFiles.map((file) => file.name),
+    ]);
   }, []);
 
-  const { getRootProps: getCertificateRootProps, getInputProps: getCertificateInputProps } = useDropzone({
+  const {
+    getRootProps: getCertificateRootProps,
+    getInputProps: getCertificateInputProps,
+  } = useDropzone({
     accept: {
-      'application/pdf': ['.pdf'],
-      'image/*': ['.jpeg', '.jpg', '.png']
+      "application/pdf": [".pdf"],
+      "image/*": [".jpeg", ".jpg", ".png"],
     },
     maxSize: 10 * 1024 * 1024, // 10MB
-    onDrop: onCertificateDrop
+    onDrop: onCertificateDrop,
   });
 
   if (isSuccess) {
@@ -501,7 +544,7 @@ const handleFileUpload = async (file: { preview: string, path: string }) => {
         <p className="text-gray-500">Add a new gemstone to the marketplace</p>
       </div>
 
-      <form 
+      <form
         onSubmit={handleSubmit((data) => {
           console.log("Form handleSubmit triggered");
           onSubmit(data);
@@ -538,7 +581,9 @@ const handleFileUpload = async (file: { preview: string, path: string }) => {
                     placeholder="e.g., Round Brilliant Diamond 1.25 Carat"
                   />
                   {errors.title && (
-                    <p className="text-sm text-red-500">{errors.title.message}</p>
+                    <p className="text-sm text-red-500">
+                      {errors.title.message}
+                    </p>
                   )}
                 </div>
 
@@ -570,7 +615,9 @@ const handleFileUpload = async (file: { preview: string, path: string }) => {
                       )}
                     />
                     {errors.gemstoneType && (
-                      <p className="text-sm text-red-500">{errors.gemstoneType.message}</p>
+                      <p className="text-sm text-red-500">
+                        {errors.gemstoneType.message}
+                      </p>
                     )}
                   </div>
 
@@ -582,7 +629,7 @@ const handleFileUpload = async (file: { preview: string, path: string }) => {
                       name="shape"
                       control={control}
                       render={({ field }) => (
-                        <Select 
+                        <Select
                           onValueChange={field.onChange}
                           value={field.value}
                         >
@@ -606,7 +653,9 @@ const handleFileUpload = async (file: { preview: string, path: string }) => {
                       )}
                     />
                     {errors.shape && (
-                      <p className="text-sm text-red-500">{errors.shape.message}</p>
+                      <p className="text-sm text-red-500">
+                        {errors.shape.message}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -622,7 +671,9 @@ const handleFileUpload = async (file: { preview: string, path: string }) => {
                     className="min-h-32"
                   />
                   {errors.description && (
-                    <p className="text-sm text-red-500">{errors.description.message}</p>
+                    <p className="text-sm text-red-500">
+                      {errors.description.message}
+                    </p>
                   )}
                   <p className="text-xs text-gray-500">
                     Include information about color, clarity, origin, and any
@@ -656,7 +707,9 @@ const handleFileUpload = async (file: { preview: string, path: string }) => {
                           <SelectContent>
                             <SelectItem value="none">None</SelectItem>
                             <SelectItem value="heat">Heat Treated</SelectItem>
-                            <SelectItem value="irradiated">Irradiated</SelectItem>
+                            <SelectItem value="irradiated">
+                              Irradiated
+                            </SelectItem>
                             <SelectItem value="clarity">
                               Clarity Enhanced
                             </SelectItem>
@@ -726,12 +779,16 @@ const handleFileUpload = async (file: { preview: string, path: string }) => {
                           type="number"
                           step="0.01"
                           min="0.01"
-                          onChange={(e) => field.onChange(Number(e.target.value))}
+                          onChange={(e) =>
+                            field.onChange(Number(e.target.value))
+                          }
                         />
                       )}
                     />
                     {errors.carat && (
-                      <p className="text-sm text-red-500">{errors.carat.message}</p>
+                      <p className="text-sm text-red-500">
+                        {errors.carat.message}
+                      </p>
                     )}
                   </div>
 
@@ -741,10 +798,7 @@ const handleFileUpload = async (file: { preview: string, path: string }) => {
                       name="dimensions"
                       control={control}
                       render={({ field }) => (
-                        <Input
-                          {...field}
-                          placeholder="e.g., 6.9 x 6.9 x 4.2"
-                        />
+                        <Input {...field} placeholder="e.g., 6.9 x 6.9 x 4.2" />
                       )}
                     />
                   </div>
@@ -769,13 +823,17 @@ const handleFileUpload = async (file: { preview: string, path: string }) => {
                             <SelectItem value="igi">IGI</SelectItem>
                             <SelectItem value="agta">AGTA</SelectItem>
                             <SelectItem value="other">Other Lab</SelectItem>
-                            <SelectItem value="none">No Certification</SelectItem>
+                            <SelectItem value="none">
+                              No Certification
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                       )}
                     />
                     {errors.certification && (
-                      <p className="text-sm text-red-500">{errors.certification.message}</p>
+                      <p className="text-sm text-red-500">
+                        {errors.certification.message}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -804,10 +862,18 @@ const handleFileUpload = async (file: { preview: string, path: string }) => {
                               <SelectItem value="D">D (Colorless)</SelectItem>
                               <SelectItem value="E">E (Colorless)</SelectItem>
                               <SelectItem value="F">F (Colorless)</SelectItem>
-                              <SelectItem value="G">G (Near Colorless)</SelectItem>
-                              <SelectItem value="H">H (Near Colorless)</SelectItem>
-                              <SelectItem value="I">I (Near Colorless)</SelectItem>
-                              <SelectItem value="J">J (Near Colorless)</SelectItem>
+                              <SelectItem value="G">
+                                G (Near Colorless)
+                              </SelectItem>
+                              <SelectItem value="H">
+                                H (Near Colorless)
+                              </SelectItem>
+                              <SelectItem value="I">
+                                I (Near Colorless)
+                              </SelectItem>
+                              <SelectItem value="J">
+                                J (Near Colorless)
+                              </SelectItem>
                               <SelectItem value="K">K (Faint)</SelectItem>
                               <SelectItem value="L">L (Faint)</SelectItem>
                               <SelectItem value="M">M (Faint)</SelectItem>
@@ -856,9 +922,15 @@ const handleFileUpload = async (file: { preview: string, path: string }) => {
                               <SelectItem value="SI2">
                                 SI2 (Slightly Included 2)
                               </SelectItem>
-                              <SelectItem value="I1">I1 (Included 1)</SelectItem>
-                              <SelectItem value="I2">I2 (Included 2)</SelectItem>
-                              <SelectItem value="I3">I3 (Included 3)</SelectItem>
+                              <SelectItem value="I1">
+                                I1 (Included 1)
+                              </SelectItem>
+                              <SelectItem value="I2">
+                                I2 (Included 2)
+                              </SelectItem>
+                              <SelectItem value="I3">
+                                I3 (Included 3)
+                              </SelectItem>
                             </SelectContent>
                           </Select>
                         )}
@@ -879,8 +951,12 @@ const handleFileUpload = async (file: { preview: string, path: string }) => {
                               <SelectValue placeholder="Select cut grade" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="excellent">Excellent</SelectItem>
-                              <SelectItem value="very-good">Very Good</SelectItem>
+                              <SelectItem value="excellent">
+                                Excellent
+                              </SelectItem>
+                              <SelectItem value="very-good">
+                                Very Good
+                              </SelectItem>
                               <SelectItem value="good">Good</SelectItem>
                               <SelectItem value="fair">Fair</SelectItem>
                               <SelectItem value="poor">Poor</SelectItem>
@@ -1000,15 +1076,16 @@ const handleFileUpload = async (file: { preview: string, path: string }) => {
                 </div>
 
                 <div className="space-y-2">
-      <Label htmlFor="additional_specification">Additional Specifications</Label>
-      <Textarea
-        id="additional_specification"
-        placeholder="Enter any additional specifications or details..."
-        className="min-h-24"
-        {...register("additional_specification")}
-      />
-    </div>
-
+                  <Label htmlFor="additional_specification">
+                    Additional Specifications
+                  </Label>
+                  <Textarea
+                    id="additional_specification"
+                    placeholder="Enter any additional specifications or details..."
+                    className="min-h-24"
+                    {...register("additional_specification")}
+                  />
+                </div>
               </CardContent>
               <CardFooter className="flex justify-between">
                 <Button
@@ -1058,8 +1135,9 @@ const handleFileUpload = async (file: { preview: string, path: string }) => {
                           alt={`Uploaded image ${index + 1}`}
                           className="h-full w-full rounded-md object-cover p-2"
                           onError={(e) => {
-                            console.error('Image failed to load:', file.name);
-                            e.currentTarget.src = '/placeholder.svg?height=200&width=200';
+                            console.error("Image failed to load:", file.name);
+                            e.currentTarget.src =
+                              "/placeholder.svg?height=200&width=200";
                           }}
                         />
                         <Button
@@ -1102,7 +1180,7 @@ const handleFileUpload = async (file: { preview: string, path: string }) => {
                         key={index}
                         className="flex items-center justify-between rounded-lg border p-4"
                       >
-                        <div 
+                        <div
                           className="flex items-center cursor-pointer"
                           onClick={() => {
                             setSelectedCertificate(certificateFiles[index]);
@@ -1115,9 +1193,9 @@ const handleFileUpload = async (file: { preview: string, path: string }) => {
                           <div>
                             <p className="font-medium">{cert}</p>
                             <p className="text-xs text-gray-500">
-                              {certificateFiles[index]?.size 
+                              {certificateFiles[index]?.size
                                 ? `${(certificateFiles[index].size / 1024 / 1024).toFixed(2)} MB`
-                                : ''}
+                                : ""}
                             </p>
                           </div>
                         </div>
@@ -1134,28 +1212,35 @@ const handleFileUpload = async (file: { preview: string, path: string }) => {
                     ))}
 
                     {/* Add the modal */}
-                    <Dialog open={isCertificateModalOpen} onOpenChange={setIsCertificateModalOpen}>
+                    <Dialog
+                      open={isCertificateModalOpen}
+                      onOpenChange={setIsCertificateModalOpen}
+                    >
                       <DialogContent className="max-w-4xl">
                         <DialogHeader>
                           <DialogTitle>Certificate Preview</DialogTitle>
                         </DialogHeader>
                         {selectedCertificate && (
                           <div className="mt-4">
-                            {selectedCertificate.type.startsWith('image/') ? (
+                            {selectedCertificate.type.startsWith("image/") ? (
                               <img
                                 src={URL.createObjectURL(selectedCertificate)}
                                 alt="Certificate preview"
                                 className="w-full h-auto rounded-lg"
                               />
-                            ) : selectedCertificate.type === 'application/pdf' ? (
+                            ) : selectedCertificate.type ===
+                              "application/pdf" ? (
                               <div className="space-y-4">
                                 <div className="flex justify-end">
                                   <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => {
-                                      const url = URL.createObjectURL(selectedCertificate);
-                                      const a = document.createElement('a');
+                                      const url =
+                                        URL.createObjectURL(
+                                          selectedCertificate
+                                        );
+                                      const a = document.createElement("a");
                                       a.href = url;
                                       a.download = selectedCertificate.name;
                                       document.body.appendChild(a);
@@ -1170,7 +1255,9 @@ const handleFileUpload = async (file: { preview: string, path: string }) => {
                                 </div>
                                 <div className="h-[600px] w-full rounded-lg border bg-gray-50">
                                   <iframe
-                                    src={URL.createObjectURL(selectedCertificate)}
+                                    src={URL.createObjectURL(
+                                      selectedCertificate
+                                    )}
                                     className="h-full w-full rounded-lg"
                                     title="PDF Preview"
                                   />
@@ -1179,7 +1266,8 @@ const handleFileUpload = async (file: { preview: string, path: string }) => {
                             ) : (
                               <div className="flex items-center justify-center p-8 bg-gray-50 rounded-lg">
                                 <p className="text-gray-500">
-                                  Preview not available for this file type. Please download to view.
+                                  Preview not available for this file type.
+                                  Please download to view.
                                 </p>
                               </div>
                             )}
@@ -1255,7 +1343,10 @@ const handleFileUpload = async (file: { preview: string, path: string }) => {
                             placeholder="Enter price"
                             value={field.value || ""}
                             onChange={(e) => {
-                              const value = e.target.value === '' ? 0 : Number(e.target.value);
+                              const value =
+                                e.target.value === ""
+                                  ? 0
+                                  : Number(e.target.value);
                               field.onChange(value);
                             }}
                           />
@@ -1263,7 +1354,9 @@ const handleFileUpload = async (file: { preview: string, path: string }) => {
                       )}
                     />
                     {errors.price && (
-                      <p className="text-sm text-red-500">{errors.price.message}</p>
+                      <p className="text-sm text-red-500">
+                        {errors.price.message}
+                      </p>
                     )}
                   </div>
 
@@ -1286,7 +1379,10 @@ const handleFileUpload = async (file: { preview: string, path: string }) => {
                             placeholder="Enter compare price"
                             value={field.value || ""}
                             onChange={(e) => {
-                              const value = e.target.value === '' ? 0 : Number(e.target.value);
+                              const value =
+                                e.target.value === ""
+                                  ? 0
+                                  : Number(e.target.value);
                               field.onChange(value);
                             }}
                           />

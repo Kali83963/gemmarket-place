@@ -135,8 +135,8 @@ export class GemstoneService {
         id: id,
       },
       data: {
-        blockchainGemstoneId: blockChainId,
-        status: GEMSTONE_STATUS.AVAILABLE,
+        blockchainGemstoneId: Number(blockChainId),
+        // status: GEMSTONE_STATUS.AVAILABLE,
       },
     });
   }
@@ -246,6 +246,24 @@ export class GemstoneService {
       },
     });
   }
+  async getUserGemstone(id: string) {
+    return await prisma.gemstone.findMany({
+      where: {
+        user: {
+          id,
+        },
+      },
+      include: {
+        user: true,
+        verifiedBy: true,
+        images: {
+          select: {
+            url: true,
+          },
+        },
+      },
+    });
+  }
 
   async searchGemstones(params?: {
     type?: string;
@@ -330,7 +348,7 @@ export class GemstoneService {
       where: {
         isActive: true,
         certificationStatus: CERTIFICATE_STATUS.ACCEPTED,
-        status: GEMSTONE_STATUS.AVAILABLE,
+        // status: GEMSTONE_STATUS.AVAILABLE,
         ...(type && {
           type: {
             in: type.split(",").map((t) => t.trim()),

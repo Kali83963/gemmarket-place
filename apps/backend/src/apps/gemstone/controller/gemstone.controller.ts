@@ -90,6 +90,13 @@ export const getGemstoneAdmin = asyncHandler(
     successResponse(res, gemstone, "Gemstone updated successfully");
   }
 );
+export const getGemstoneUser = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { id } = req.user;
+    const gemstone = await gemstoneService.getUserGemstone(id);
+    successResponse(res, gemstone, "Gemstone updated successfully");
+  }
+);
 
 export const searchGemstones = asyncHandler(
   async (req: Request, res: Response) => {
