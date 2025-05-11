@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Heart, Star, BadgeIcon as Certificate, RotateCw, ChevronLeft, ChevronRight } from "lucide-react";
 import useEmblaCarousel from 'embla-carousel-react';
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -99,7 +99,11 @@ export function GemstoneCard({
   className,
   featured = false,
 }: GemstoneCardProps) {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
+  const [emblaRef, emblaApi] = useEmblaCarousel({ 
+    loop: true,
+    dragFree: false,
+    containScroll: 'trimSnaps'
+  });
 
   const scrollPrev = useCallback(() => {
     if (emblaApi) emblaApi.scrollPrev();
@@ -108,6 +112,29 @@ export function GemstoneCard({
   const scrollNext = useCallback(() => {
     if (emblaApi) emblaApi.scrollNext();
   }, [emblaApi]);
+
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      .embla {
+        overflow: hidden;
+        position: relative;
+      }
+      .embla__container {
+        display: flex;
+        height: 100%;
+      }
+      .embla__slide {
+        flex: 0 0 100%;
+        min-width: 0;
+        position: relative;
+      }
+    `;
+    document.head.appendChild(style);
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
 
   return (
     <Card
@@ -127,7 +154,7 @@ export function GemstoneCard({
           <div className="embla h-full" ref={emblaRef}>
             <div className="embla__container h-full">
               {images.map((image, index) => (
-                <div key={index} className="embla__slide h-full flex-[0_0_100%]">
+                <div key={index} className="embla__slide h-full">
                   <img
                     src={image.url}
                     alt={`${name} - Image ${index + 1}`}

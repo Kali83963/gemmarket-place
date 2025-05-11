@@ -51,19 +51,22 @@ const EndoserTableFilter = ({ rows, setRows }: Props) => {
             "user.email",
             "user.phoneNumber",
             "id",
-            
+
             "phoneNumber",
           ];
           let containsQuery = false;
 
           properties.forEach((property) => {
-            const value = property.includes('.') 
-              ? property.split('.').reduce((obj, key) => obj?.[key], row)
+            const value = property.includes(".")
+              ? property.split(".").reduce((obj, key) => obj?.[key], row)
               : row[property];
 
             if (
               value &&
-              value.toString().toLowerCase().includes(searchTerm.toString().toLowerCase())
+              value
+                .toString()
+                .toLowerCase()
+                .includes(searchTerm.toString().toLowerCase())
             ) {
               containsQuery = true;
             }
@@ -83,10 +86,16 @@ const EndoserTableFilter = ({ rows, setRows }: Props) => {
   );
 
   // Create debounced function
-  const debouncedSearchRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const debouncedSearchRef = React.useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
 
   const handleSearch = React.useCallback(
-    (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement> | undefined) => {
+    (
+      event:
+        | React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+        | undefined
+    ) => {
       const newString = event?.target.value;
       setSearch(newString || "");
 
@@ -134,20 +143,6 @@ const EndoserTableFilter = ({ rows, setRows }: Props) => {
           ),
         }}
       />
-      <Stack direction="row" alignItems="center" spacing={1.25}>
-        {/* client add & dialog */}
-        <Tooltip title="Add Endosers">
-          <Link href="/dashboard/endosers/add">
-            <Fab
-              color="primary"
-              size="small"
-              sx={{ boxShadow: "none", width: 32, height: 32, minHeight: 32 }}
-            >
-              <AddIcon fontSize="small" />
-            </Fab>
-          </Link>
-        </Tooltip>
-      </Stack>
     </Stack>
   );
 };

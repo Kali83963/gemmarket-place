@@ -64,12 +64,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { getContract } from "../../utils/contracts";
+import withAuth from "@/lib/utils/withAuth";
 
 type FileWithPreview = File & {
   preview: string;
 };
 
-export default function AddGemstonePage() {
+function AddGemstonePage() {
   const [activeTab, setActiveTab] = useState<
     "details" | "specifications" | "media" | "pricing"
   >("details");
@@ -307,8 +308,10 @@ export default function AddGemstonePage() {
 
       setImagesFinalized((prevImages: string[]) => {
         const updated = [...prevImages, uploadedUrl];
+        console.log("Updated images:", updated);
         return updated.slice(-5); // Only keep the last 5 images
       });
+      return uploadedUrl; // Return the URL of the uploaded file
     } catch (error) {
       console.error("Error handling file upload:", error);
     }
@@ -390,12 +393,12 @@ export default function AddGemstonePage() {
         listingStatus: data.listingStatus || "active",
         additional_specification: data.additional_specification || "",
         // images: imageFiles.map((img)=>img.preview)
-        images: imagesFinalized,
+        images: imageUrls.slice(-5),
       };
 
       console.log("Formatted data for API:", formattedData);
 
-      // Now you can send this formatted data to your API
+      // // Now you can send this formatted data to your API
       const response = await createGemstone(formattedData);
       const blockchainHash = response.data?.data.blockchainHash;
       const gemstoneId = response.data?.data.id;
@@ -445,8 +448,6 @@ export default function AddGemstonePage() {
       return newCerts;
     });
   };
-
-  
 
   const { getRootProps: getImageRootProps, getInputProps: getImageInputProps } =
     useDropzone({
@@ -525,7 +526,6 @@ export default function AddGemstonePage() {
             <Button className="bg-blue-600 hover:bg-blue-700" asChild>
               <Link href="/search">Discover More Gemstones</Link>
             </Button>
-            
           </div>
         </div>
       </div>
@@ -975,22 +975,27 @@ export default function AddGemstonePage() {
                         name="polish"
                         control={control}
                         render={({ field }) => (
-                      <Select 
-                      onValueChange={field.onChange}
-                      value={field.value || ""}>
-                        <SelectTrigger id="polish">
-                          <SelectValue placeholder="Select polish" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="excellent">Excellent</SelectItem>
-                          <SelectItem value="very-good">Very Good</SelectItem>
-                          <SelectItem value="good">Good</SelectItem>
-                          <SelectItem value="fair">Fair</SelectItem>
-                          <SelectItem value="poor">Poor</SelectItem>
-                        </SelectContent>
-                      </Select>
-                       )}
-                       />
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value || ""}
+                          >
+                            <SelectTrigger id="polish">
+                              <SelectValue placeholder="Select polish" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="excellent">
+                                Excellent
+                              </SelectItem>
+                              <SelectItem value="very-good">
+                                Very Good
+                              </SelectItem>
+                              <SelectItem value="good">Good</SelectItem>
+                              <SelectItem value="fair">Fair</SelectItem>
+                              <SelectItem value="poor">Poor</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
                     </div>
 
                     <div className="space-y-2">
@@ -999,21 +1004,26 @@ export default function AddGemstonePage() {
                         name="symmetry"
                         control={control}
                         render={({ field }) => (
-                      <Select 
-                      onValueChange={field.onChange}
-                      value={field.value || ""}>
-                        <SelectTrigger id="symmetry">
-                          <SelectValue placeholder="Select symmetry" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="excellent">Excellent</SelectItem>
-                          <SelectItem value="very-good">Very Good</SelectItem>
-                          <SelectItem value="good">Good</SelectItem>
-                          <SelectItem value="fair">Fair</SelectItem>
-                          <SelectItem value="poor">Poor</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      )}
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value || ""}
+                          >
+                            <SelectTrigger id="symmetry">
+                              <SelectValue placeholder="Select symmetry" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="excellent">
+                                Excellent
+                              </SelectItem>
+                              <SelectItem value="very-good">
+                                Very Good
+                              </SelectItem>
+                              <SelectItem value="good">Good</SelectItem>
+                              <SelectItem value="fair">Fair</SelectItem>
+                              <SelectItem value="poor">Poor</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
                       />
                     </div>
 
@@ -1023,24 +1033,24 @@ export default function AddGemstonePage() {
                         name="fluorescence"
                         control={control}
                         render={({ field }) => (
-                      <Select 
-                      onValueChange={field.onChange}
-                      value={field.value || ""}>
-                      
-                        <SelectTrigger id="fluorescence">
-                          <SelectValue placeholder="Select fluorescence" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">None</SelectItem>
-                          <SelectItem value="faint">Faint</SelectItem>
-                          <SelectItem value="medium">Medium</SelectItem>
-                          <SelectItem value="strong">Strong</SelectItem>
-                          <SelectItem value="very-strong">
-                            Very Strong
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                      )}
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value || ""}
+                          >
+                            <SelectTrigger id="fluorescence">
+                              <SelectValue placeholder="Select fluorescence" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="none">None</SelectItem>
+                              <SelectItem value="faint">Faint</SelectItem>
+                              <SelectItem value="medium">Medium</SelectItem>
+                              <SelectItem value="strong">Strong</SelectItem>
+                              <SelectItem value="very-strong">
+                                Very Strong
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
                       />
                     </div>
                   </div>
@@ -1068,26 +1078,27 @@ export default function AddGemstonePage() {
                         name="transparency"
                         control={control}
                         render={({ field }) => (
-                      <Select 
-                      onValueChange={field.onChange}
-                      value={field.value || ""}>
-                        <SelectTrigger id="transparency">
-                          <SelectValue placeholder="Select transparency" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="transparent">
-                            Transparent
-                          </SelectItem>
-                          <SelectItem value="semi-transparent">
-                            Semi-Transparent
-                          </SelectItem>
-                          <SelectItem value="translucent">
-                            Translucent
-                          </SelectItem>
-                          <SelectItem value="opaque">Opaque</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      )}
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value || ""}
+                          >
+                            <SelectTrigger id="transparency">
+                              <SelectValue placeholder="Select transparency" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="transparent">
+                                Transparent
+                              </SelectItem>
+                              <SelectItem value="semi-transparent">
+                                Semi-Transparent
+                              </SelectItem>
+                              <SelectItem value="translucent">
+                                Translucent
+                              </SelectItem>
+                              <SelectItem value="opaque">Opaque</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
                       />
                     </div>
 
@@ -1097,21 +1108,22 @@ export default function AddGemstonePage() {
                         name="colorSaturation"
                         control={control}
                         render={({ field }) => (
-                      <Select 
-                      onValueChange={field.onChange}
-                      value={field.value || ""}>
-                        <SelectTrigger id="colorSaturation">
-                          <SelectValue placeholder="Select saturation" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="vivid">Vivid</SelectItem>
-                          <SelectItem value="strong">Strong</SelectItem>
-                          <SelectItem value="medium">Medium</SelectItem>
-                          <SelectItem value="light">Light</SelectItem>
-                          <SelectItem value="pale">Pale</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      )}
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value || ""}
+                          >
+                            <SelectTrigger id="colorSaturation">
+                              <SelectValue placeholder="Select saturation" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="vivid">Vivid</SelectItem>
+                              <SelectItem value="strong">Strong</SelectItem>
+                              <SelectItem value="medium">Medium</SelectItem>
+                              <SelectItem value="light">Light</SelectItem>
+                              <SelectItem value="pale">Pale</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
                       />
                     </div>
                   </div>
@@ -1404,7 +1416,7 @@ export default function AddGemstonePage() {
 
                   <div className="space-y-2">
                     <Label htmlFor="sku">
-                      SKU  <span className="text-red-500">*</span>
+                      SKU <span className="text-red-500">*</span>
                     </Label>
                     <Controller
                       name="sku"
@@ -1600,3 +1612,5 @@ export default function AddGemstonePage() {
     </div>
   );
 }
+
+export default withAuth(AddGemstonePage);

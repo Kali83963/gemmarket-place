@@ -14,7 +14,7 @@ async function main() {
       lastName: "Admin",
       email: "admin@yopmail.com",
       password: hashedPassword,
-      role: Role.SUPERUSER,
+      role: Role.ADMIN,
     },
   });
 

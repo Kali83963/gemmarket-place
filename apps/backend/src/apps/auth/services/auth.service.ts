@@ -84,7 +84,7 @@ class AuthService {
       throw new Error("User not found");
     }
 
-    if (!["ADMIN", "ENDORSER"].includes(user.role)) {
+    if (!["ADMIN", "ENDORSER", "SUPERUSER"].includes(user.role)) {
       throw new Error(
         "User does not have a valid role. Allowed roles are 'ADMIN', 'ENDORSER'."
       );

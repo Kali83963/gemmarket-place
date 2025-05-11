@@ -164,9 +164,9 @@ const EndoserTableRows = ({
                 ))}
               </TableCell>
               <TableCell sx={open ? { display: "none" } : {}}>
-                {row.status}
+                {row.user.isActive ? "ACTIVE" : "INACTIVE"}
               </TableCell>
-              
+
               {/* <TableCell
                 sx={open ? { cursor: "pointer" } : {}}
                 onClick={() => (open ? handleDrawerOpen(row) : "")}

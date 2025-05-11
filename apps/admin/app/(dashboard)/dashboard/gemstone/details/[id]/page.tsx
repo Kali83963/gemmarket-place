@@ -136,8 +136,8 @@ const GemstoneDetails = ({ params }: { params: Promise<{ id: string }> }) => {
             label="Settings"
             {...a11yProps(2)}
           />
-        ) : (user?.role === "ENDORSER" &&
-          data?.certificationStatus === "PENDING") ? (
+        ) : user?.role === "ENDORSER" &&
+          data?.certificationStatus === "PENDING" ? (
           <Tab
             icon={<VerifiedUserOutlinedIcon />}
             component={Link}
@@ -158,20 +158,20 @@ const GemstoneDetails = ({ params }: { params: Promise<{ id: string }> }) => {
         <MediaTab data={data} />
       </TabPanel>
       <TabPanel value={value} index={2}>
-        {user?.role === "ENDORSER" &&
-        data?.certificationStatus === "PENDING" ? (
-          <EndorserVerificationTab
-            setValues={setData}
-            blockChainId={data?.blockchainGemstoneId}
-            id={id}
-          />
-        ) : (
+        {user?.role === "ADMIN" ? (
           <VerificationTab
             onSumbitForm={setData}
             data={{ status: data?.status, isActive: data?.isActive }}
             id={id}
           />
-        )}
+        ) : user?.role === "ENDORSER" &&
+          data?.certificationStatus === "PENDING" ? (
+          <EndorserVerificationTab
+            setValues={setData}
+            blockChainId={data?.blockchainGemstoneId}
+            id={id}
+          />
+        ) : null}
       </TabPanel>
     </MainCard>
   );

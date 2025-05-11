@@ -132,11 +132,12 @@ const ProfessionalInformation = ({
               onChange={(value) => {
                 setFieldValue(
                   "certificationExpiryDate",
-                  value ? value.toISOString() : null
+                  value ? value.toDate() : null
                 );
               }}
               label="Certification Expiry"
               name="certificationExpiryDate"
+              format="YYYY-MM-DD"
             />
           </LocalizationProvider>
           {errors.certificationExpiryDate && (

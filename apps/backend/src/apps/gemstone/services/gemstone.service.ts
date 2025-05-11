@@ -136,7 +136,7 @@ export class GemstoneService {
       },
       data: {
         blockchainGemstoneId: Number(blockChainId),
-        // status: GEMSTONE_STATUS.AVAILABLE,
+        status: GEMSTONE_STATUS.AVAILABLE,
       },
     });
   }
@@ -348,7 +348,7 @@ export class GemstoneService {
       where: {
         isActive: true,
         certificationStatus: CERTIFICATE_STATUS.ACCEPTED,
-        // status: GEMSTONE_STATUS.AVAILABLE,
+        status: GEMSTONE_STATUS.AVAILABLE,
         ...(type && {
           type: {
             in: type.split(",").map((t) => t.trim()),

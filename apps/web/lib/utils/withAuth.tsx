@@ -17,7 +17,7 @@ export default function withAuth<P extends JSX.IntrinsicAttributes>(
 
     useEffect(() => {
       if (!user) {
-        router.push("/auth/signin");
+        router.push("/auth/login");
       }
     }, [user, router]);
 
