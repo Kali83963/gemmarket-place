@@ -100,7 +100,8 @@ export const getGemstoneUser = asyncHandler(
 
 export const searchGemstones = asyncHandler(
   async (req: Request, res: Response) => {
-    const gemstones = await gemstoneService.searchGemstones(req.params);
+    const { user } = req;
+    const gemstones = await gemstoneService.searchGemstones(user, req.params);
     successResponse(res, gemstones, "Gemstone reterived successfully");
   }
 );

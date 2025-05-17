@@ -4,7 +4,7 @@ import * as z from "zod";
 // Define the schema for gemstone form data
 export const gemstoneSchema = z.object({
   // Basic details
-  title: z.string().min(5, "Title must be at least 5 characters"),
+  title: z.string(),
   gemstoneType: z.string().min(1, "Gemstone type is required"),
   shape: z.string().min(1, "Shape is required"),
   description: z.string(),

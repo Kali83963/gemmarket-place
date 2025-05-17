@@ -14,14 +14,14 @@ const router = Router();
 router.post(
   "/endoser",
   isAuthenticate,
-  authorize(["ADMIN", "SUPERUSER"]),
+  // authorize(["ADMIN", "SUPERUSER"]),
   creatEendoser
 );
 
 router.get(
   "/endoser/",
   isAuthenticate,
-  authorize(["ADMIN", "SUPERUSER"]),
+  // authorize(["ADMIN", "SUPERUSER"]),
   searchEndoser
 );
 router.get(
@@ -34,14 +34,14 @@ router.get(
 router.put(
   "/endoser/:id",
   isAuthenticate,
-  authorize(["ADMIN", "SUPERUSER"]),
+  // authorize(["ADMIN", "SUPERUSER"]),
   editEndoser
 );
 
 router.delete(
   "/endoser/:id",
   isAuthenticate,
-  authorize(["ADMIN", "SUPERUSER"]),
+  // authorize(["ADMIN", "SUPERUSER"]),
   deletEendoser
 );
 

@@ -4,7 +4,7 @@ import prisma from "../config/prisma";
 import { errorResponse } from "@/utils/response";
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
-interface DecodedUser {
+export interface DecodedUser {
   id: string;
   email: string;
   role: string;

@@ -131,7 +131,7 @@ export default function Home() {
             <h2 className="text-3xl font-bold text-gray-900">
               Recent Listings
             </h2>
-            <Link href="/gemstones" className="text-blue-600 hover:underline">
+            <Link href="/search" className="text-blue-600 hover:underline">
               View All
             </Link>
           </div>

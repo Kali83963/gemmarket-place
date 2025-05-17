@@ -11,6 +11,7 @@ import {
 import fs from "fs";
 import axios from "axios";
 import crypto from "crypto";
+import { DecodedUser } from "@/middleware/authMiddleware";
 
 // DTOs and Interfaces
 export interface GemstoneDTO {
@@ -265,13 +266,16 @@ export class GemstoneService {
     });
   }
 
-  async searchGemstones(params?: {
-    type?: string;
-    minPrice?: number;
-    maxPrice?: number;
-    origin?: string;
-    certificationStatus?: boolean;
-  }) {
+  async searchGemstones(
+    user: DecodedUser,
+    params?: {
+      type?: string;
+      minPrice?: number;
+      maxPrice?: number;
+      origin?: string;
+      certificationStatus?: boolean;
+    }
+  ) {
     const { type, minPrice, maxPrice, origin, certificationStatus } =
       params || {};
 
@@ -279,6 +283,9 @@ export class GemstoneService {
 
     if (type) where.type = type;
 
+    if (user.role === Role.ENDORSER) {
+      where.certificationStatus = CERTIFICATE_STATUS.PENDING;
+    }
     if (minPrice !== undefined || maxPrice !== undefined) {
       where.price = {
         ...(minPrice !== undefined ? { gte: minPrice } : {}),
